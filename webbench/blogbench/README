@@ -1,1 +1,9 @@
-README
+Blogbench is a database benchmark to simulate database operations of real-done blog applications. Its main features are:
+
+1. authenticity of the simulation of the web application
+
+2. easy to use
+
+3. high flexibility
+
+It can be used to test whether a database is suitable for web application.
