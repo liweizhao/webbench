@@ -1,0 +1,61 @@
+#!/usr/bin/perl -w
+#
+# Copyright (C) 2009 Ricky Lee & Netease LTD.
+#
+use lib './scripts';
+use lib './scripts/perl/lib';
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Test::Webbench::SysstatParser;
+use Test::Webbench::SysstatPresenter;
+
+my $dir;
+my $format = "png";
+my $indir;
+my $outdir = "report";
+my $xml_file;
+
+GetOptions(
+    'dir=s' => \$dir,
+    'format=s' => \$format,
+    'indir=s' => \$indir,
+    'outdir=s' => \$outdir,
+    'xml-file=s' => \$xml_file
+);
+
+my $presenter;
+if ($xml_file) {
+  if (-f $xml_file) {
+    $presenter = Test::Webbench::SysstatPresenter->new($xml_file);
+  } else {
+    print "'$xml_file' does not exist.\n";
+    exit(1);
+  }
+} elsif (-d $indir) {
+  my $parser = new Test::Webbench::SysstatParser;
+  $parser->parse($indir,$outdir);
+  $presenter = Test::Webbench::SysstatPresenter->new($parser->data());
+} else {
+  #usage
+  exit(1);
+}
+
+unless ($presenter) {
+  print "no xml data\n";
+  exit(1);
+}
+
+#
+# Start creating report.
+#
+$presenter->format($format);
+$presenter->outdir($outdir);
+#$presenter->plot();
+system "mkdir -p $outdir";
+open(H, "> $outdir/index.html")
+    or die "Couldn't open $outdir/index.html for writing: $!\n";
+print H $presenter->to_html();
+close(H);
+print "sysstat report generated.\n";

@@ -1,0 +1,1 @@
+Simple export this dir as ksar home.

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="GB2312" ?>
+
+<project default="dist" basedir="." name="WEB Benchmark">
+	<!--
+	===================================================================
+	定义属性（property tasks）
+	最好把用到的路径呀，名称呀都在这里定义成全局变量
+	例：定义
+	   <property name="a" value="hello"/>
+	    以后就可以这样用它：
+	   <property name="b" value="${a}/b"/>
+	    现在:b=="hello/b"
+	===================================================================
+	-->
+	
+	<!--主要的系统环境属性-->
+	<property environment="env"/> <!--获取操作系统的环境变量-->
+	<property name="java.home" value="${env.JAVA_HOME}"/>
+	<property name="ant.home" value="${env.ANT_HOME}"/>
+	
+	<!--主要的app环境属性-->
+	<property name="app.name" value="WEB Benchmark"/>
+	<property name="app.jar" value="webbench.jar"/>
+	<property name="app.copyright" value=" Copyright (c) 1997-2009 The NetEase Software Foundation. All rights reserved."/>
+	
+	<!--app中的src属性-->
+	<property name="src.dir" value="src"/>
+	
+	<!--app中的Doc目录-->
+	<property name="doc.dir" value="Doc"/>
+	
+	<!--app用到的lib-->
+	<property name="lib.dir" value="lib"/>
+	
+	<!--app中的scripts属性-->
+	<property name="scripts.dir" value="scripts"/>
+		
+	<!--app中的config属性-->
+	<property name="config.dir" value="config"/>
+	
+	<!--app的build目录-->
+	<property name="build.dir" value="build"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+		
+	<!--app的dist(distribution)目录-->
+	<property name="dist.dir" value="dist"/>
+	<property name="dist.doc" value="${dist.dir}/doc"/>
+	<property name="dist.lib" value="${dist.dir}/lib"/>
+	<property name="dist.scripts" value="${dist.dir}/scripts"/>
+	<property name="dist.config" value="${dist.dir}/config"/>
+	
+	<path id="app.classpath">
+		<pathelement location="${build.classes}"/>
+		<pathelement path="${java.class.path}"/>
+		<pathelement path="${lib.dir}/mysql-connector-java-5.0.8-bin.jar"/>
+		<pathelement path="${lib.dir}/commons-cli-1.2-bin.jar"/>
+		<pathelement path="${lib.dir}/netease-commons.jar"/>
+		<pathelement path="${lib.dir}/jfreechart-1.0.11.jar"/>
+		<pathelement path="${lib.dir}/jcommon-1.0.13.jar"/>
+		<pathelement path="${lib.dir}/iText-2.1.3.jar"/>
+		<pathelement path="${lib.dir}/spy-memcached-2[1].5.jar"/>
+		<pathelement path="${lib.dir}/log4j-1.2.14.jar"/>
+		<pathelement path="${lib.dir}/java_memcached-release_2.5.1.jar"/>
+		<pathelement path="${lib.dir}/spy-2.2.36.jar"/>
+		<pathelement path="${lib.dir}/netease-spy-memcached.jar"/>
+		<pathelement path="${lib.dir}/htmlparser.jar"/>
+		<pathelement path="${lib.dir}/netease-blog-resource.jar"/>
+	</path>
+		
+	<!--
+	===================================================================
+	    init 准备目录(File Tasks)
+	     主要的目录结构通常是不会变的，一起生成他们
+	===================================================================
+	-->
+	<target name="init">
+		<!--清除以前产生的目录-->
+		<delete dir="${build.dir}" failonerror="false"/>
+		
+		<!--准备目录-->
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${build.classes}"/>
+		
+		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${dist.lib}"/>
+		
+		<mkdir dir="${dist.scripts}"/>
+		<mkdir dir="${dist.config}"/>
+		<mkdir dir="${dist.doc}"/>
+	</target>
+		
+	<!--===================================================================
+	    Build the code (Compile Tasks,File Tasks)
+	  ===================================================================
+	-->
+	<target name="build" depends="init">
+		<!--编译-->
+		<javac srcdir="${src.dir}" destdir="${build.classes}" encoding="GBK" debug="true">
+			<classpath refid="app.classpath"/>
+		</javac>
+	</target>
+	
+    <!-- ================================= 
+          打包文档(Archive Tasks)
+     	 Create the project jars: xxx1.jar and xxx2.jar        
+         ================================= -->
+    <target name="jars" depends="build" description="jar">
+    	<jar basedir="${build.classes}" destfile="${build.dir}/${app.jar}"/>        
+    </target>
+		
+    <!-- ================================= 
+        Create the distribution that can run (Archive Tasks)
+       主要是从各目录中把该copy的copy上         
+         ================================= -->
+    <target name="dist" depends="jars" description="distribution">
+        <!--copy binary files-->
+    	<copy todir="${dist.dir}" file="${build.dir}/${app.jar}"/>
+    	<!--copy documents-->
+    	<copy tofile="${dist.doc}/blogbench_user_guide_EN.docx" overwrite="true">
+    		<fileset file="${doc.dir}/blogbench_user_guide_EN.docx"/>
+    	</copy>
+    	<copy tofile="${dist.doc}/blogbench_user_guide_ZH.docx" overwrite="true">
+    		<fileset file="${doc.dir}/blogbench_user_guide_ZH.docx"/>
+    	</copy>
+    	<!--copy lib files-->
+    	<copy todir="${dist.lib}" overwrite="true">
+    	    <fileset dir="${lib.dir}/"/>
+        </copy> 
+    	<!--copy script files-->
+    	<copy todir="${dist.scripts}/" overwrite="true">
+    		<fileset dir="${scripts.dir}/"/>
+    	</copy>
+    	<!--copy configure files-->
+    	<copy todir="${dist.config}/" overwrite="true">
+    		<fileset dir="${config.dir}"/>
+    	</copy>
+    	<copy tofile="${dist.dir}/configure_blogbench.sh" overwrite="true">
+    		<fileset file="configure_blogbench.sh"/>
+    	</copy>
+    	<copy tofile="${dist.dir}/run_blogbench.sh" overwrite="true">
+    		<fileset file="run_blogbench.sh"/>
+    	</copy>
+    	<copy tofile="${dist.dir}/run_blogbench.py" overwrite="true">
+    		<fileset file="run_blogbench.py"/>
+    	</copy>
+    	<copy tofile="${dist.dir}/run_blogbench.cfg" overwrite="true">
+    		<fileset file="run_blogbench.cfg"/>
+    	</copy>    	
+		<!-- =============================
+			 拷贝webbench.jar到源代码目录下（用于svn提交） 
+		     =============================-->
+		<copy tofile="webbench.jar" overwrite="true">
+		    <fileset file="${dist.dir}/webbench.jar"/>
+		</copy>
+    	<!-- zip it for distribution -->
+    	<zip destfile="webbench.zip">
+    		<fileset dir="${dist.dir}" />
+    	</zip>
+    </target>
+
+</project>

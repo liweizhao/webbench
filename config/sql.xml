@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<configurations> 
+	<databaseType id="mysql">
+		<sql name="list-blogs" useMemcached="False">
+			<![CDATA[
+			SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount,CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
+			]]>
+		</sql>
+		
+		<sql name="list-blogs" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
+			]]>
+		</sql>
+		
+		<sql name="multi-show-blogs">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE 
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="false">
+			SELECT * FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="true">
+			SELECT t1.ID AS ID, t1.UserID AS UserID, t1.Title AS Title, t1.Abstract AS Abstract, t1.AllowView AS AllowView, 
+			t1.PublishTime AS PublishTime, t1.AccessCount AS AccessCount, t1.CommentCount AS CommentCount, t2.Content AS Content 
+			FROM BLOG_TABLE_NAME AS t1, CONTENT_TABLE_NAME AS t2 WHERE t1.ID = ? AND t1.UserID = ? AND t1.ID = t2.ID AND t1.UserID = t2.UserID
+		</sql>
+		
+		<sql name="show-light-blog">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="get-blog-content">
+			SELECT Content FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="false">
+			<![CDATA[
+			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="false">
+			<![CDATA[
+			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
+			]]>
+		</sql>
+				
+		<sql name="update-access">
+			<![CDATA[
+			UPDATE BLOG_TABLE_NAME SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
+			]]>
+		</sql>
+		
+		<sql name="increase-access">
+			UPDATE BLOG_TABLE_NAME SET AccessCount = AccessCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-comment">
+			UPDATE BLOG_TABLE_NAME SET CommentCount = CommentCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="true">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=? WHERE ID = ? and UserID = ?	
+		</sql>
+		
+		<sql name="update-content" twoTables="true">
+		  UPDATE CONTENT_TABLE_NAME SET Content=? WHERE id = ? and UserID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="false">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=?, Content=? WHERE ID = ? and UserID = ?	
+		</sql>
+		
+		<sql name="publish-blog" twoTables="true">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="publish-blog" twoTables="false">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, Content, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="insert-content">
+			INSERT INTO CONTENT_TABLE_NAME (ID, UserID, Content) VALUES (?, ?, ?)
+		</sql>
+		
+		<sql name="drop-table">
+			DROP TABLE if EXISTS BLOG_TABLE_NAME
+		</sql>
+		
+		<sql name="set-encoding">
+			SET NAMES CHAR_SETTING
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="true">
+			 CREATE TABLE BLOG_TABLE_NAME(ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Title VARCHAR(255), Abstract VARCHAR(2000), AllowView SMALLINT, PublishTime BIGINT, AccessCount INT, CommentCount INT)
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="false">
+			 CREATE TABLE BLOG_TABLE_NAME(ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Title VARCHAR(255), Abstract VARCHAR(2000), AllowView SMALLINT, PublishTime BIGINT, AccessCount INT, CommentCount INT, Content MEDIUMTEXT)
+		</sql>
+			
+		<sql name="create-content-table" twoTables="true">
+			CREATE TABLE CONTENT_TABLE_NAME(ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Content MEDIUMTEXT)
+		</sql>		
+	</databaseType>	
+	
+	<databaseType id="oracle">
+			<sql name="list-blogs" useMemcached="False">
+			<![CDATA[
+			select * from ( SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC ) where rownum<=10
+			]]>
+		</sql>
+		
+		<sql name="list-blogs" useMemcached="true">
+			<![CDATA[
+			select * from ( SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC ) where rownum<=10
+			]]>
+		</sql>
+		
+		<sql name="multi-show-blogs">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE 
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="false">
+			SELECT * FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="true">
+			SELECT t1.ID AS ID, t1.UserID AS UserID, t1.Title AS Title, t1.Abstract AS Abstract, t1.AllowView AS AllowView, 
+			t1.PublishTime AS PublishTime, t1.AccessCount AS AccessCount, t1.CommentCount AS CommentCount, t2.Content AS Content 
+			FROM BLOG_TABLE_NAME AS t1, CONTENT_TABLE_NAME AS t2 WHERE t1.ID = ? AND t1.UserID = ? AND t1.ID = t2.ID AND t1.UserID = t2.UserID
+		</sql>
+		
+		<sql name="show-light-blog">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="get-blog-content">
+			SELECT Content FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="false">
+			<![CDATA[
+			SELECT * FROM ( SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC ) WHERE rownum=1
+			]]>
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC ) WHERE rownum=1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="false">
+			<![CDATA[
+			SELECT * FROM ( SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
+			]]>
+		</sql>
+				
+		<sql name="update-access">
+			<![CDATA[
+			UPDATE BLOG_TABLE_NAME SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
+			]]>
+		</sql>
+		
+		<sql name="increase-access">
+			UPDATE BLOG_TABLE_NAME SET AccessCount = AccessCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-comment">
+			UPDATE BLOG_TABLE_NAME SET CommentCount = CommentCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="true">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=? WHERE ID = ? and UserID = ?	
+		</sql>
+		
+		<sql name="update-content" twoTables="true">
+		  UPDATE CONTENT_TABLE_NAME SET Content=? WHERE id = ? and UserID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="false">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=?, Content=? WHERE ID = ? and UserID=?	
+		</sql>
+		
+		<sql name="publish-blog" twoTables="true">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="publish-blog" twoTables="false">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, Content, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="insert-content">
+			INSERT INTO CONTENT_TABLE_NAME (ID, UserID, Content) VALUES (?, ?, ?)
+		</sql>
+		
+		<sql name="drop-table">
+			DROP TABLE BLOG_TABLE_NAME
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="false">
+			CREATE TABLE BLOG_TABLE_NAME(ID NUMBER(20) NOT NULL PRIMARY KEY, UserID NUMBER(20), Title VARCHAR2(255), Abstract VARCHAR2(2000), AllowView NUMBER(5), PublishTime NUMBER(20), AccessCount NUMBER(11), CommentCount NUMBER(11), Content CLOB)
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="true">
+			CREATE TABLE BLOG_TABLE_NAME(ID NUMBER(20) NOT NULL PRIMARY KEY, UserID NUMBER(20), Title VARCHAR2(255), Abstract VARCHAR2(2000), AllowView NUMBER(5), PublishTime NUMBER(20), AccessCount NUMBER(11), CommentCount NUMBER(11))			
+		</sql>
+		
+		<sql name="create-content-table" twoTables="true">
+			CREATE TABLE CONTENT_TABLE_NAME(ID NUMBER(20) NOT NULL PRIMARY KEY, UserID NUMBER(20), Content CLOB)
+		</sql>
+	</databaseType>
+	
+	<databaseType id="postgresql">
+		<sql name="list-blogs" useMemcached="False">
+			<![CDATA[
+			SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount,CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
+			]]>
+		</sql>
+		
+		<sql name="list-blogs" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
+			]]>
+		</sql>
+		
+		<sql name="multi-show-blogs">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE 
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="false">
+			SELECT * FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-weight-blog" twoTables="true">
+			SELECT t1.ID AS ID, t1.UserID AS UserID, t1.Title AS Title, t1.Abstract AS Abstract, t1.AllowView AS AllowView, 
+			t1.PublishTime AS PublishTime, t1.AccessCount AS AccessCount, t1.CommentCount AS CommentCount, t2.Content AS Content 
+			FROM BLOG_TABLE_NAME AS t1, CONTENT_TABLE_NAME AS t2 WHERE t1.ID = ? AND t1.UserID = ? AND t1.ID = t2.ID AND t1.UserID = t2.UserID
+		</sql>
+		
+		<sql name="show-light-blog">
+			SELECT ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="get-blog-content">
+			SELECT Content FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="false">
+					<![CDATA[
+			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-pre-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="false">
+			<![CDATA[
+			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
+			]]>
+		</sql>
+		
+		<sql name="show-next-siblings" useMemcached="true">
+			<![CDATA[
+			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
+			]]>
+		</sql>
+				
+		<sql name="update-access">
+			<![CDATA[
+			UPDATE BLOG_TABLE_NAME SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
+			]]>
+		</sql>
+		
+		<sql name="increase-access">
+			UPDATE BLOG_TABLE_NAME SET AccessCount = AccessCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-comment">
+			UPDATE BLOG_TABLE_NAME SET CommentCount = CommentCount + 1 WHERE UserID = ? AND ID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="true">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=? WHERE ID = ? and UserID = ?	
+		</sql>
+		
+		<sql name="update-content" twoTables="true">
+		  UPDATE CONTENT_TABLE_NAME SET Content=? WHERE id = ? and UserID = ?
+		</sql>
+		
+		<sql name="update-blog" twoTables="false">
+			UPDATE BLOG_TABLE_NAME SET PublishTime=?, Title=?, Abstract=?, Content=? WHERE ID = ? and UserID=?	
+		</sql>
+		
+		<sql name="publish-blog" twoTables="true">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="publish-blog" twoTables="false">
+			INSERT INTO BLOG_TABLE_NAME (ID, UserID, Title, Abstract, Content, AllowView, PublishTime, AccessCount, CommentCount) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)
+		</sql>
+		
+		<sql name="insert-content">
+			INSERT INTO CONTENT_TABLE_NAME (ID, UserID, Content) VALUES (?, ?, ?)
+		</sql>
+		
+		<sql name="drop-table">
+			DROP TABLE BLOG_TABLE_NAME
+		</sql>
+			
+		<sql name="set-encoding">
+			SET CLIENT_ENCODING TO 'CHAR_SETTING'
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="false">
+			CREATE TABLE BLOG_TABLE_NAME(ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Title VARCHAR(255), Abstract VARCHAR(2000), AllowView SMALLINT, PublishTime BIGINT, AccessCount INT, CommentCount INT, Content TEXT)
+		</sql>
+		
+		<sql name="create-blog-table" twoTables="true">
+			CREATE TABLE BLOG_TABLE_NAME(ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Title VARCHAR(255), Abstract VARCHAR(2000), AllowView SMALLINT, PublishTime BIGINT, AccessCount INT, CommentCount INT)
+		</sql>
+		
+		<sql name="create-content-table" twoTables="true">
+			CREATE TABLE CONTENT_TABLE_NAME (ID BIGINT NOT NULL PRIMARY KEY, UserID BIGINT, Content TEXT)
+		</sql>
+	</databaseType>
+</configurations>
