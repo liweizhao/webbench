@@ -1,0 +1,9 @@
+Webbench
+    home                [index.html]
+    download            [download.html]
+		version             []
+    contact             [contact.html]
+
+user's guide
+	  introduction        [https://github.com/liweizhao/benchmark/wiki/Blogbench-Introduction]
+    using               [https://github.com/liweizhao/benchmark/wiki/Blogbench-User%27s-Guide]

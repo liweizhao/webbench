@@ -1,0 +1,13 @@
+# jemdoc: menu{MENU}{index.html}
+= Webbench download
+
+== Git Source
+
+You can download the Git source in either [https://github.com/liweizhao/benchmark/zipball/master zip] 
+or [https://github.com/liweizhao/benchmark/tarball/master tar] formats.
+
+You can also clone the project with Git by running
+
+~~~
+$ git clone git://github.com\/liweizhao\/benchmark/webbench
+~~~

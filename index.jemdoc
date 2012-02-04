@@ -1,0 +1,45 @@
+# jemdoc: menu{MENU}{index.html}
+= Webbench -- database benchmark simulate web application
+[http://cnblogs.com/rickylee Weizhao Li] ([rickylee86@gmail.com])
+
+== Summary
+Webbench is a group of benchmarks that simulate web application. Currently it includes these benchmarks:
+- Blogbench
+
+== What's Blogbench
+Blogbench is a database benchmark to simulate database operations of real-done 
+blog applications. Its main features are the authenticity of the simulation of 
+the web application, easy to use and high flexibility. It can be used to test 
+whether a database is suitable for web application. 
+
+== Why develop Blogbench
+
+The reason why develop Blogbench is that the frequently-used benchmarks 
+available have such disadvantages: 
+
+- DBT2: DBT2 is a open source implementation 
+of TPS-C, the feature of its application is more of update transactions, less of 
+read transactions. This is different from blog application and lack of flexibility. 
+It can't be used to only test some type of simple operation, and go against 
+performance optimization. 
+- Sysbench: sysbench has high flexibility. It includes 
+9 types of operation. Each operation can be tested separately. This is very useful 
+to performance optimization. But the disadvantages of sysbench are that it only 
+uses a fixed length table and the operation is much different from web application 
+like blog. Such as range query on primary key and sort after query according secondary 
+key rarely occurred in web application. So the result of sysbench is not helpful to 
+proving that database adapts to web application.
+
+== Goals
+- Simulate real-done blog application. Table schema, feature of data in table, 
+types of operation, and data distributions are designed according our statistic 
+information of blog application.
+- High performance. The overhead of benchmark itself is much lower than server's 
+overhead.
+- Flexible. Each type of operation can be tested separately in order to facilitate 
+analyze and optimize performance bottlenecks.
+
+== License
+Copyright \C 2009--2012 Weizhao Li.
+
+Webbench is free software under BSD License. Feel free to use it.

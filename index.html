@@ -1,1 +1,83 @@
-My GitHub Page
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Webbench &ndash; database benchmark simulate web application</title>
+</head>
+<body>
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Webbench</div>
+<div class="menu-item"><a href="index.html" class="current">home</a></div>
+<div class="menu-item"><a href="download.html">download</a></div>
+<div class="menu-item"><a href="">version</a></div>
+<div class="menu-item"><a href="contact.html">contact</a></div>
+<div class="menu-category">user's guide</div>
+<div class="menu-item"><a href="https://github.com/liweizhao/benchmark/wiki/Blogbench-Introduction">introduction</a></div>
+<div class="menu-item"><a href="https://github.com/liweizhao/benchmark/wiki/Blogbench-User%27s-Guide">using</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Webbench &ndash; database benchmark simulate web application</h1>
+<div id="subtitle"><a href="http://cnblogs.com/rickylee">Weizhao Li</a> (<a href="mailto:rickylee86@gmail.com">rickylee86@gmail.com</a>)</div>
+</div>
+<h2>Summary</h2>
+<p>Webbench is a group of benchmarks that simulate web application. Currently it includes these benchmarks:</p>
+<ul>
+<li><p>Blogbench</p>
+</li>
+</ul>
+<h2>What's Blogbench</h2>
+<p>Blogbench is a database benchmark to simulate database operations of real-done 
+blog applications. Its main features are the authenticity of the simulation of 
+the web application, easy to use and high flexibility. It can be used to test 
+whether a database is suitable for web application. </p>
+<h2>Why develop Blogbench</h2>
+<p>The reason why develop Blogbench is that the frequently-used benchmarks 
+available have such disadvantages: </p>
+<ul>
+<li><p>DBT2: DBT2 is a open source implementation 
+of TPS-C, the feature of its application is more of update transactions, less of 
+read transactions. This is different from blog application and lack of flexibility. 
+It can't be used to only test some type of simple operation, and go against 
+performance optimization. </p>
+</li>
+<li><p>Sysbench: sysbench has high flexibility. It includes 
+9 types of operation. Each operation can be tested separately. This is very useful 
+to performance optimization. But the disadvantages of sysbench are that it only 
+uses a fixed length table and the operation is much different from web application 
+like blog. Such as range query on primary key and sort after query according secondary 
+key rarely occurred in web application. So the result of sysbench is not helpful to 
+proving that database adapts to web application.</p>
+</li>
+</ul>
+<h2>Goals</h2>
+<ul>
+<li><p>Simulate real-done blog application. Table schema, feature of data in table, 
+types of operation, and data distributions are designed according our statistic 
+information of blog application.</p>
+</li>
+<li><p>High performance. The overhead of benchmark itself is much lower than server's 
+overhead.</p>
+</li>
+<li><p>Flexible. Each type of operation can be tested separately in order to facilitate 
+analyze and optimize performance bottlenecks.</p>
+</li>
+</ul>
+<h2>License</h2>
+<p>Copyright &copy; 2009&ndash;2012 Weizhao Li.</p>
+<p>Webbench is free software under BSD License. Feel free to use it</p>
+<div id="footer">
+<div id="footer-text">
+Page generated 2012-02-04 15:37:54 中国标准时间, by <a href="http://jemdoc.jaboc.net/">jemdoc</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>
