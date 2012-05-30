@@ -203,34 +203,28 @@ public class ZipfGenerator {
 	 * update probabilities array
 	 */
 	public void updateProb() {
-		double pro = 0;
-		long recordId;
-
 		if (multiThreadSafe) {
 			synchronized (this) {
-				recordId = (long)(Math.random() * size);
-				if (recordId == 0) {
-					pro = probabilites.get(recordId);
-				} else {
-					pro = probabilites.get(recordId)
-							- probabilites.get(recordId - 1);
-				}
-				sum += pro;
-				probabilites.append(sum);
-				size++;
+				doUpdateProb();
 			}
 		} else {
-			recordId = (long)(Math.random() * size);
-			if (recordId == 0) {
-				pro = probabilites.get(recordId);
-			} else {
-				pro = probabilites.get(recordId)
-						- probabilites.get(recordId - 1);
-			}			
-			sum += pro;
-			probabilites.append(sum);
-			size++;
+			doUpdateProb();
 		}
+	}
+	
+	private void doUpdateProb() {
+		double pro = 0;
+		long recordId = (long)(Math.random() * size);
+		
+		if (recordId == 0) {
+			pro = probabilites.get(recordId);
+		} else {
+			pro = probabilites.get(recordId)
+				- probabilites.get(recordId - 1);
+		}
+		sum += pro;
+		probabilites.append(sum);
+		size++;
 	}
 
 	/**
