@@ -5,20 +5,55 @@
   <packaging>jar</packaging>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <scriptSourceDirectory>scripts</scriptSourceDirectory>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <scriptSourceDirectory>${basedir}/scripts</scriptSourceDirectory>
+    <resources>
+      <resource>
+        <targetPath>${project.basedir}/target/lib</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/lib</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>     
+      <resource>
+        <targetPath>${project.basedir}/target</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/</directory>
+        <includes>
+          <include>run_blogbench.py</include>
+          <include>run_blogbench.cfg</include>
+          <include>configure_blogbench.sh</include>
+        </includes>
+      </resource>
+      <resource>
+        <targetPath>${project.basedir}/target/scripts</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/scripts</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>   
+      <resource>
+        <targetPath>${project.basedir}/target/config</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/config</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>      
+      <resource>
+        <targetPath>${project.basedir}/target/mysql-config</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/mysql-config</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>          
+    </resources>  
   </build>
   <repositories>
-	<repository>
-      <id>spy</id>
-      <name>Spy Repository</name>
-      <layout>default</layout>
-      <url>http://files.couchbase.com/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-	</repository>
-  </repositories> 
+  </repositories>  
   <dependencies>
     <dependency>
 	  <groupId>com.netease.webbench</groupId>
