@@ -100,20 +100,6 @@
   		<version>2.5.1</version>
   	</dependency>
   	<dependency>
-  		<groupId>netease.net.spy</groupId>
-  		<artifactId>memcached</artifactId>
-  		<version>1.0</version>
-  		<scope>system</scope>
-  		<systemPath>${project.basedir}/lib/netease-spy-memcached.jar</systemPath>
-  	</dependency>
-  	<dependency>
-  		<groupId>net.spy</groupId>
-  		<artifactId>memcached</artifactId>
-  		<version>1.0</version>
-  		<scope>system</scope>
-  		<systemPath>${project.basedir}/lib/spy-2.4.jar</systemPath>
-  	</dependency>
-  	<dependency>
   		<groupId>junit</groupId>
   		<artifactId>junit</artifactId>
   		<version>4.10</version>

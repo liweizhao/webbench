@@ -77,7 +77,7 @@ public class MemcachedManager {
 			System.out.println("Use memcached client: "
 					+ memcachedClientImplName);
 
-			if (memcachedClientImplName.equals("MemcachedClientNioImpl")) {
+			/*if (memcachedClientImplName.equals("MemcachedClientNioImpl")) {
 				if (majorServerList.size() > 0)
 					majorMcc = new MemcachedClientNioImpl(majorServerList);
 				if (acsCntServerList.size() > 0)
@@ -87,7 +87,7 @@ public class MemcachedManager {
 					majorMcc = new MemcachedClientSpyImpl(majorServerList);
 				if (acsCntServerList.size() > 0)
 					acsCountMcc = new MemcachedClientSpyImpl(acsCntServerList);
-			} else if (memcachedClientImplName.equals("MemcachedClientWhlImpl")) {
+			} else*/ if (memcachedClientImplName.equals("MemcachedClientWhlImpl")) {
 				if (majorServerList.size() > 0)
 					majorMcc = new MemcachedClientWhlImpl("common memcached", majorServerList.toArray(new String[1]), CONCURRENT_CONNECTIONS);
 				if (acsCntServerList.size() > 0)
