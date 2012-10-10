@@ -22,7 +22,7 @@ import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.common.DbSession;
 
 /**
- * blogbench transaction pool
+ * blogbench transaction pool per thread
  * @author LI WEIZHAO
  */
 public class BbTestTrxPool {

@@ -18,7 +18,6 @@ import com.netease.webbench.blogbench.memcached.AccessCountCache;
 import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.transaction.BbTestTransaction;
 import com.netease.webbench.blogbench.transaction.BbTestTrxPool;
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
@@ -32,21 +31,21 @@ public class BbTestRunThread extends BbTestThread {
 	
 	private BbTestTrxPool trxPool;
 	
-	private BlogbenchTrxCounter totalTrxCounter;
+	private BlogbenchCounters trxCounter;
 
 	private ThreadRunFlagTimer runFlagTimer;
 	
 	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
-			BlogbenchCounters trxCounters, ThreadRunFlagTimer runFlagTimer, 
+			BlogbenchCounters trxCounter, ThreadRunFlagTimer runFlagTimer, 
 			AccessCountCache accessCountCache) throws Exception {
-		this(bbTestOptPair, paraGen, trxCounters, runFlagTimer, null, accessCountCache);
+		this(bbTestOptPair, paraGen, trxCounter, runFlagTimer, null, accessCountCache);
 	}
 	
 	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
 			BlogbenchCounters trxCounters, ThreadRunFlagTimer runFlagTimer,
 			ThreadBarrier barrier, AccessCountCache accessCountCache) throws Exception {
 		super(bbTestOptPair, paraGen, barrier);
-		this.totalTrxCounter = trxCounters.getTotalTrxCounter();
+		this.trxCounter = trxCounters;
 		this.runFlagTimer = runFlagTimer;
 		this.trxPool = new BbTestTrxPool(dbSession, bbTestOpt, trxCounters, 
 				accessCountCache, BbTestTrxType.TRX_TYPE_NUM);
@@ -62,7 +61,7 @@ public class BbTestRunThread extends BbTestThread {
 				BbTestTransaction trx = trxPool.getRandomTrx();
 				trx.doExeTrx(paraGen);
 
-				long totalTrx = totalTrxCounter.getTrxCount();
+				long totalTrx = trxCounter.getTotalTrxCounter().getTrxCount();
 				
 				barrier.getSyncLock().lock();
 				try {

@@ -28,6 +28,7 @@ import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
@@ -55,9 +56,8 @@ implements BlogDBFetcher {
 	 */
 	public BbTestTrxShowBlg(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
 	throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctShowBlg(), counters.getTotalTrxCounter());
-		this.trxType = BbTestTrxType.SHOW_BLG;
-		this.trxCounter = counters.getSingleTrxCounter(trxType);
+		super(dbSession, bbTestOpt, bbTestOpt.getPctShowBlg(), 
+				BbTestTrxType.SHOW_BLG, counters);
 	}
 	
 	/*
@@ -70,7 +70,7 @@ implements BlogDBFetcher {
 			throw new Exception("Database connection doesn't exit!");
 		}	
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		
 		String lightSql = sqlConfig.getShowLightBlogSql(bbTestOpt.getTbName());		
 		lightPrpStmt = dbSession.createPreparedStatement(lightSql);

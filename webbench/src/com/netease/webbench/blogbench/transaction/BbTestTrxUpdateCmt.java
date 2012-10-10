@@ -22,6 +22,7 @@ import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
@@ -35,11 +36,10 @@ public class BbTestTrxUpdateCmt extends BbTestTransaction {
 	protected BlogbenchTrxCounter trxCounter;
 	protected BlogDBFetcher blogFetcher;
 	
-	public BbTestTrxUpdateCmt(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
-	throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateComment(), counters.getTotalTrxCounter());
-		this.trxType = BbTestTrxType.UPDATE_CMT;
-		this.trxCounter = counters.getSingleTrxCounter(trxType);
+	public BbTestTrxUpdateCmt(DbSession dbSession, BbTestOptions bbTestOpt, 
+			BlogbenchCounters counters) throws Exception {
+		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateComment(), 
+				BbTestTrxType.UPDATE_CMT, counters);
 	}
 	
 	private void bindParameter(long blogId, long uId) throws SQLException {
@@ -107,7 +107,7 @@ public class BbTestTrxUpdateCmt extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();;
 		String sql = sqlConfig.getUpdateCommentSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(sql);
 	}

@@ -23,6 +23,7 @@ import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
@@ -45,9 +46,8 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 	
 	public BbTestTrxShowSiblings(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
 	throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctShowSibs(), counters.getTotalTrxCounter());
-		this.trxType = BbTestTrxType.SHOW_SIBS;
-		this.trxCounter = counters.getSingleTrxCounter(trxType);
+		super(dbSession, bbTestOpt, bbTestOpt.getPctShowSibs(), 
+				BbTestTrxType.SHOW_SIBS, counters);
 	}
 	
 	public void setBlogDBFetcher(BlogDBFetcher bf) {
@@ -156,7 +156,7 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 			throw new Exception("Database connection doesn't exit!");
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String preSql = sqlConfig.getShowPreSiblingsSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
 		prepareStatementPre = dbSession.createPreparedStatement(preSql);
 		

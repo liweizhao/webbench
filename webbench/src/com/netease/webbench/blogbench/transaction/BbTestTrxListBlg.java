@@ -28,6 +28,7 @@ import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
@@ -40,16 +41,15 @@ import com.netease.webbench.common.DbSession;
 public class BbTestTrxListBlg extends BbTestTransaction {
 	public static int QUERY_LIMIT_SIZE = 10;
 	
-	protected PreparedStatement prepareStatement;/* prepared SQL statement to execute this transaction */
+	protected PreparedStatement prepareStatement;
 	protected PreparedStatement []multiGetBlogPs;
 	protected long timeWaste = 0;
 	protected BlogbenchTrxCounter trxCounter;
 
 	public BbTestTrxListBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctListBlg(), counters.getTotalTrxCounter());
-		this.trxType = BbTestTrxType.LIST_BLGS;
-		this.trxCounter = counters.getSingleTrxCounter(trxType);
+		super(dbSession, bbTestOpt, bbTestOpt.getPctListBlg(), 
+				BbTestTrxType.LIST_BLGS, counters);
 		multiGetBlogPs = new PreparedStatement[QUERY_LIMIT_SIZE];
 	}
 
@@ -206,7 +206,7 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 		if (dbSession == null) {
 			throw new Exception("Database connection doesn't exit!");
 		}
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String listSql = sqlConfig.getListBlogsSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
 		prepareStatement = dbSession.createPreparedStatement(listSql);
 		

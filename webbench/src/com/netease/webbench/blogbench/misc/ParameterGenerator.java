@@ -27,6 +27,7 @@ import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
 import com.netease.webbench.blogbench.ntse.NTSEInitialiser;
 import com.netease.webbench.blogbench.operation.BlogbenchOperationType;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.ParaDistribution;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
@@ -207,7 +208,7 @@ public class ParameterGenerator {
 	 * @throws Exception
 	 */
 	public long queryMaxBlogID(DbSession dbSession) throws Exception {
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String selectMaxIdSql = sqlConfig.getQueryMaxBlogIDSql(bbTestOpt.getTbName()); 
 				
 		ResultSet rsSelectMaxId = dbSession.query(selectMaxIdSql);
@@ -232,7 +233,7 @@ public class ParameterGenerator {
 	private void queryAllBlogRcds(DbSession dbSession, boolean isNtse) throws Exception {
 		
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());	
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();	
 		if (isNtse) {
 			String selectCountSql = sqlConfig.getQueryBlogCountSql(bbTestOpt.getTbName());
 			ResultSet rsSelectCount = dbSession.query(selectCountSql);

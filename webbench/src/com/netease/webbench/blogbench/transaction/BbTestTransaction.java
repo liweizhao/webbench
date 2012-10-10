@@ -14,6 +14,7 @@ package com.netease.webbench.blogbench.transaction;
 
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
+import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.common.DbSession;
 
@@ -24,6 +25,7 @@ import com.netease.webbench.common.DbSession;
 public abstract class BbTestTransaction {		
 	/* total transaction counter */
 	protected BlogbenchTrxCounter totalTrxCounter;
+	protected BlogbenchTrxCounter myTrxCounter;
 	
 	/* percentage of this transaction in all types of transactions */	
 	protected int pct;
@@ -42,11 +44,17 @@ public abstract class BbTestTransaction {
 	 * @param totalTrxCounter
 	 */
 	protected BbTestTransaction(DbSession dbSession, BbTestOptions bbTestOpt, 
-			int pct, BlogbenchTrxCounter totalTrxCounter) {
+			int pct, BbTestTrxType trxType, BlogbenchCounters counters) throws Exception {
 		this.dbSession = dbSession;
 		this.bbTestOpt = bbTestOpt;
 		this.pct = pct;
-		this.totalTrxCounter = totalTrxCounter;
+		this.trxType = trxType;
+		init(counters);
+	}
+	
+	private void init(BlogbenchCounters counters) throws Exception {
+		this.totalTrxCounter = counters.getTotalTrxCounter();
+		this.myTrxCounter = counters.getSingleTrxCounter(this.trxType);
 	}
 	
 	/**
@@ -55,11 +63,12 @@ public abstract class BbTestTransaction {
 	 */
 	public abstract void prepare() throws Exception;
 	
-	public void ExeTrx(ParameterGenerator paraGen) throws Exception {
+	public void exeTrx(ParameterGenerator paraGen) throws Exception {
 		try {
 			doExeTrx(paraGen);
 		} catch (Exception e) {
 			cleanRes();
+			throw e;
 		}
 	}
 

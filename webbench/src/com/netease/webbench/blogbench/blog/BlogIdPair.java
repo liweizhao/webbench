@@ -12,11 +12,16 @@
  */
 package com.netease.webbench.blogbench.blog;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * Blog id and user id pair
  * @author LI WEIZHAO
  */
-public class BlogIdPair {	
+public class BlogIdPair  implements Externalizable {	
 	/* blog Id */
 	protected long blogId;
 
@@ -43,4 +48,14 @@ public class BlogIdPair {
 	public void setUId(long id) {
 		uId = id;
 	}
+	
+	public void readExternal(ObjectInput in) throws IOException {
+		blogId = in.readLong();
+		uId = in.readLong();
+	}
+	
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(blogId);
+		out.writeLong(uId);
+	}	
 }

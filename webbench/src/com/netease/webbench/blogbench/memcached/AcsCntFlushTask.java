@@ -25,6 +25,7 @@ import com.netease.webbench.blogbench.blog.BlogInfoWithAcs;
 import com.netease.webbench.blogbench.blog.LightBlog;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.AcsCntFlushTaskStatis;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
@@ -85,7 +86,7 @@ public class AcsCntFlushTask extends Thread {
 		this.globalAcsCache = globalAcsCache;
 		this.flushTaskStatis = flushTaskStatis;
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String sql = sqlConfig.getUpdateAccessSql(bbTestOpt.getTbName(),  bbTestOpt.isUsedMemcached());
 		prepareStatementSet = this.dbSession.createPreparedStatement(sql);
 			

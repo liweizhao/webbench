@@ -22,6 +22,7 @@ import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
@@ -39,9 +40,8 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * constructor
 	 * @param dbSession
 	 */
-	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt) {
-		super(dbSession, bbTestOpt, 1, null);
-		this.trxType = BbTestTrxType.PUBLISH_BLG;
+	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt) throws Exception {
+		super(dbSession, bbTestOpt, 1, BbTestTrxType.PUBLISH_BLG, null);
 	}
 	
 	/**
@@ -53,9 +53,8 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 */
 	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctPublishBlg(), counters.getTotalTrxCounter());
-		this.trxType = BbTestTrxType.PUBLISH_BLG;
-		this.trxCounter = counters.getSingleTrxCounter(trxType);
+		super(dbSession, bbTestOpt, bbTestOpt.getPctPublishBlg(), 
+				BbTestTrxType.PUBLISH_BLG, counters);
 	}
 	
 	/**
@@ -160,7 +159,7 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String sql = sqlConfig.getPublishBlogSql(bbTestOpt.getTbName(), 
 				bbTestOpt.getUseTwoTable());
 		prepareStatement = dbSession.createPreparedStatement(sql);

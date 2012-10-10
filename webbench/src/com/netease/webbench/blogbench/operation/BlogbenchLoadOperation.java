@@ -21,6 +21,7 @@ import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.ntse.NtseSpecialOper;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.thread.BbTestInsertThread;
 import com.netease.webbench.blogbench.thread.BlgRecordProducer;
 import com.netease.webbench.blogbench.thread.ThreadBarrier;
@@ -238,7 +239,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 		}
 		
 		//create blog table
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbOpt.getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String blogTableName = bbTestOpt.getTbName();
 		String createBlogSql = sqlConfig.getCreateBlogTblSql(blogTableName, 	!bbTestOpt.isDeferIndex(), 
 				bbTestOpt.getUseTwoTable());
@@ -268,7 +269,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			String tableName = bbTestOpt.getTbName();
 			System.out.print("Drop old test table(" + tableName + ")...");
 			
-			SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 			dbSession.update(sqlConfig.getDropTblSql(tableName));
 			System.out.println("OK!");
 			if (bbTestOpt.getUseTwoTable()) {
@@ -297,7 +298,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	private void createPrimaryKey() throws SQLException, Exception {
 		System.out.println("Creating primary index on table...");
 
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbOpt.getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String createPrimarySql = sqlConfig.getCreatePrimaryIndexSql(bbTestOpt.getTbName());
 		dbSession.update(createPrimarySql);
 		
@@ -316,7 +317,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	 */
 	private void createSecondaryIndex() throws Exception {
 		System.out.print("Creating secondary index on table...");
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbOpt.getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String createIndexSql = sqlConfig.getCreateSecondaryIndexSql(bbTestOpt.getTbName());
 		createIndexSql = createIndexSql.replaceAll("_TableName", bbTestOpt.getTbName());
 		dbSession.update(createIndexSql);	

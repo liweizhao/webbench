@@ -19,6 +19,7 @@ import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.transaction.BbTestTrxPublishBlg;
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 
@@ -132,7 +133,7 @@ public class BbTestInsertThread extends BbTestThread {
 				{ 1, lastInsertRows}
 		};
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		for (int i = 0; i < 2; i++) {
 			PreparedStatement ps;
 			long insertTime = insertParamPair[i][0];
@@ -163,7 +164,7 @@ public class BbTestInsertThread extends BbTestThread {
 		String testTableName = bbTestOpt.getTbName();
 		String testContentTableName = Portable.getBlogContentTableName(testTableName);
 		
-		SQLConfigure sqlConfig = SQLConfigure.getInstance(dbSession.getDbOpt().getDbType());
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		for (int i = 0; i < 2; i++) {			
 			PreparedStatement prepareStatement;	
 			PreparedStatement prepareStatement2;

@@ -47,14 +47,12 @@ public class BlogInfoWithPub extends BlogIdPair implements Externalizable {
 	}
 	
 	public void readExternal(ObjectInput in) throws IOException {
-		blogId = in.readLong();
-		uId = in.readLong();
+		super.readExternal(in);
 		publishTime = in.readLong();
 	}
 	
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(blogId);
-		out.writeLong(uId);
+		super.writeExternal(out);
 		out.writeLong(publishTime);
 	}
 }

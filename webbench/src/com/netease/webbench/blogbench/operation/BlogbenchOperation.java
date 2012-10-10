@@ -88,7 +88,7 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 	 */
 	public abstract void executeOper() throws Exception;
 	
-	public BlogbenchOperationType getOperationType() {
+	public final BlogbenchOperationType getOperationType() {
 		return operType;
 	}
 		
@@ -121,15 +121,15 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 		}
 	}
 	
-	public DbOptions getDbOpt() {
+	public final DbOptions getDbOpt() {
 		return dbOpt;
 	}
 	
-	public BbTestOptions getBbTestOpt() {
+	public final BbTestOptions getBbTestOpt() {
 		return bbTestOpt;
 	}
 	
-	public ParameterGenerator getParaGen() {
+	public final ParameterGenerator getParaGen() {
 		return paraGen;
 	}
 	

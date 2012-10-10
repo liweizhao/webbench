@@ -22,6 +22,7 @@ import java.sql.Statement;
 
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
+import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 
 /**
  * database connection
@@ -231,7 +232,7 @@ public class DbSession {
 	public void setClientCharaSet() throws Exception {
 		if (dbOpt.getDbType().equalsIgnoreCase("mysql") ||
 				dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
-			SQLConfigure sqlConfig = SQLConfigure.getInstance(dbOpt.getDbType());
+			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 			update(sqlConfig.getSetEncodingSql(Portable.getCharacterSet()));
 		}
 	}
