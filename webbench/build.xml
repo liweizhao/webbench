@@ -14,7 +14,8 @@
 	-->
 	
 	<!--主要的系统环境属性-->
-	<property environment="env"/> <!--获取操作系统的环境变量-->
+	<property environment="env"/>
+	<!--获取操作系统的环境变量-->
 	<property name="java.home" value="${env.JAVA_HOME}"/>
 	<property name="ant.home" value="${env.ANT_HOME}"/>
 	
@@ -58,11 +59,7 @@
 		<pathelement path="${lib.dir}/jfreechart-1.0.11.jar"/>
 		<pathelement path="${lib.dir}/jcommon-1.0.13.jar"/>
 		<pathelement path="${lib.dir}/iText-2.1.3.jar"/>
-		<pathelement path="${lib.dir}/spy-memcached-2[1].5.jar"/>
 		<pathelement path="${lib.dir}/log4j-1.2.14.jar"/>
-		<pathelement path="${lib.dir}/java_memcached-release_2.5.1.jar"/>
-		<pathelement path="${lib.dir}/spy-2.2.36.jar"/>
-		<pathelement path="${lib.dir}/netease-spy-memcached.jar"/>
 		<pathelement path="${lib.dir}/htmlparser.jar"/>
 		<pathelement path="${lib.dir}/netease-blog-resource.jar"/>
 	</path>

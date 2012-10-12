@@ -2,13 +2,13 @@
 
 <configurations> 
 	<databaseType id="mysql">
-		<sql name="list-blogs" useMemcached="False">
+		<sql name="list-blogs">
 			<![CDATA[
 			SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount,CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
 			]]>
 		</sql>
 		
-		<sql name="list-blogs" useMemcached="true">
+		<sql name="list-blogs">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
 			]]>
@@ -36,25 +36,25 @@
 			SELECT Content FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
 		</sql>
 		
-		<sql name="show-pre-siblings" useMemcached="false">
+		<sql name="show-pre-siblings">
 			<![CDATA[
 			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings" useMemcached="true">
+		<sql name="show-pre-siblings">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="false">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="true">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
 			]]>
@@ -120,13 +120,13 @@
 	</databaseType>	
 	
 	<databaseType id="oracle">
-			<sql name="list-blogs" useMemcached="False">
+			<sql name="list-blogs">
 			<![CDATA[
 			select * from ( SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount, CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC ) where rownum<=10
 			]]>
 		</sql>
 		
-		<sql name="list-blogs" useMemcached="true">
+		<sql name="list-blogs">
 			<![CDATA[
 			select * from ( SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC ) where rownum<=10
 			]]>
@@ -154,25 +154,25 @@
 			SELECT Content FROM BLOG_TABLE_NAME WHERE ID = ? AND UserID = ?
 		</sql>
 		
-		<sql name="show-pre-siblings" useMemcached="false">
+		<sql name="show-pre-siblings">
 			<![CDATA[
 			SELECT * FROM ( SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC ) WHERE rownum=1
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings" useMemcached="true">
+		<sql name="show-pre-siblings">
 			<![CDATA[
 			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC ) WHERE rownum=1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="false">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT * FROM ( SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="true">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
 			]]>
@@ -234,13 +234,13 @@
 	</databaseType>
 	
 	<databaseType id="postgresql">
-		<sql name="list-blogs" useMemcached="False">
+		<sql name="list-blogs">
 			<![CDATA[
 			SELECT ID,UserID,Title,Abstract,AllowView, PublishTime,AccessCount,CommentCount FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
 			]]>
 		</sql>
 		
-		<sql name="list-blogs" useMemcached="true">
+		<sql name="list-blogs">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE UserID = ? AND AllowView <= -100 ORDER BY PublishTime DESC LIMIT 10
 			]]>
@@ -274,19 +274,19 @@
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings" useMemcached="true">
+		<sql name="show-pre-siblings">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="false">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID, Title FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
 			]]>
 		</sql>
 		
-		<sql name="show-next-siblings" useMemcached="true">
+		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID FROM BLOG_TABLE_NAME WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
 			]]>
