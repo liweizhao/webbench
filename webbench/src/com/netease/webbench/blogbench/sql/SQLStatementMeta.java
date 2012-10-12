@@ -19,12 +19,10 @@ package com.netease.webbench.blogbench.sql;
  */
 public class SQLStatementMeta {
 	private String name = "";
-	private boolean useMemcached = false;
 	private boolean useTwoTables = false;
 	
-	public SQLStatementMeta(String name, boolean useMemcached, boolean useTwoTables) {
+	public SQLStatementMeta(String name, boolean useTwoTables) {
 		this.name = name;
-		this.useMemcached = useMemcached;
 		this.useTwoTables = useTwoTables;
 	}
 	
@@ -34,12 +32,6 @@ public class SQLStatementMeta {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public boolean isUseMemcached() {
-		return useMemcached;
-	}
-	public void setUseMemcached(boolean useMemcached) {
-		this.useMemcached = useMemcached;
-	}
 	public boolean isUseTwoTables() {
 		return useTwoTables;
 	}
@@ -47,14 +39,12 @@ public class SQLStatementMeta {
 		this.useTwoTables = useTwoTables;
 	}
 	public int hashCode() {
-		 return (name + new Boolean(useMemcached).toString() + new Boolean(useTwoTables).toString()).hashCode();
+		 return (name + new Boolean(useTwoTables).toString()).hashCode();
 	}
 	
 	public boolean equals(Object o) {
 		SQLStatementMeta m = (SQLStatementMeta)o;
 		if (!name.equals(m.getName()))
-			return false;
-		else if (useMemcached != m.isUseMemcached())
 			return false;
 		else if (useTwoTables != m.isUseTwoTables())
 			return false;

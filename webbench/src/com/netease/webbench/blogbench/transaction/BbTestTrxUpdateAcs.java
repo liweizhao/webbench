@@ -101,7 +101,7 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 		}
 
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
-		String sql = sqlConfig.getUpdateAccessSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
+		String sql = sqlConfig.getUpdateAccessSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(sql);
 	}
 	

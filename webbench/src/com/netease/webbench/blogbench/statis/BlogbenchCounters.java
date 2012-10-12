@@ -115,7 +115,6 @@ public class BlogbenchCounters implements CreateChartHandler, CreateTableHandler
 	public List<PdfTable> createTables() throws Exception {
 		List<PdfTable> list = new ArrayList<PdfTable>();
 		list.add(createSummaryTable());
-		list.addAll(createMemcachedStaticsTables());
 		return list;
 	}
 	
@@ -129,11 +128,5 @@ public class BlogbenchCounters implements CreateChartHandler, CreateTableHandler
 					singleTrxCounterList.get(i));
 		}
 		return summaryTable;
-	}
-	
-	private List<PdfTable> createMemcachedStaticsTables() throws Exception {
-		PdfMemHitTables memTables = new PdfMemHitTables();
-		memTables.addMemOperStatistics(singleTrxCounterList);
-		return memTables.getPdfMemHitTableList();
 	}
 }

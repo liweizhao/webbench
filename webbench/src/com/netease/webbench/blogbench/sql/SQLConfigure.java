@@ -1,8 +1,7 @@
 package com.netease.webbench.blogbench.sql;
 
 public interface SQLConfigure {	
-	public abstract String getListBlogsSql(String tableName,
-			boolean useMemcached) throws Exception;
+	public abstract String getListBlogsSql(String tableName) throws Exception;
 
 	public abstract String getMultiShowBlogSql(int multiCount, String tableName)
 			throws Exception;
@@ -19,23 +18,17 @@ public interface SQLConfigure {
 	public abstract String getShowLightBlogSql(String tableName)
 			throws Exception;
 
-	public abstract String getShowPreSiblingsSql(String tableName,
-			boolean useMemcached) throws Exception;
+	public abstract String getShowPreSiblingsSql(String tableName) throws Exception;
 
-	public abstract String getShowNextSiblingsSql(String tableName,
-			boolean useMemcached) throws Exception;
+	public abstract String getShowNextSiblingsSql(String tableName) throws Exception;
 
-	public abstract String getUpdateAccessSql(String tableName,
-			boolean useMemcached) throws Exception;
+	public abstract String getUpdateAccessSql(String tableName) throws Exception;
 
-	public abstract String getUpdateCommentSql(String tableName)
-			throws Exception;
+	public abstract String getUpdateCommentSql(String tableName) throws Exception;
 
-	public abstract String getUpdateBlogSql(String blogTblName,
-			boolean useTwoTable) throws Exception;
+	public abstract String getUpdateBlogSql(String blogTblName, boolean useTwoTable) throws Exception;
 
-	public abstract String getUpdateContentSql(String contentTblName)
-			throws Exception;
+	public abstract String getUpdateContentSql(String contentTblName) 	throws Exception;
 
 	public abstract String getBlogContentSql(String tableName) throws Exception;
 
@@ -43,23 +36,17 @@ public interface SQLConfigure {
 
 	public abstract String getSetEncodingSql(String charSet) throws Exception;
 
-	public abstract String getQueryMaxBlogIDSql(String tableName)
-			throws Exception;
+	public abstract String getQueryMaxBlogIDSql(String tableName) throws Exception;
 
-	public abstract String getQueryBlogCountSql(String tableName)
-			throws Exception;
+	public abstract String getQueryBlogCountSql(String tableName) throws Exception;
 
-	public abstract String getQueryAllBlogSql(String tableName)
-			throws Exception;
+	public abstract String getQueryAllBlogSql(String tableName) throws Exception;
 
-	public abstract String getCreatePrimaryIndexSql(String tableName)
-			throws Exception;
+	public abstract String getCreatePrimaryIndexSql(String tableName) throws Exception;
 
-	public abstract String getCreateSecondaryIndexSql(String tableName)
-			throws Exception;
+	public abstract String getCreateSecondaryIndexSql(String tableName) throws Exception;
 
-	public abstract String getBatchQueryBlogSql(String tableName)
-			throws Exception;
+	public abstract String getBatchQueryBlogSql(String tableName) throws Exception;
 
 	public abstract String getCreateBlogTblSql(String tableName,
 			boolean createPrimaryIndex, boolean useTwoTable) throws Exception;

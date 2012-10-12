@@ -97,10 +97,10 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 		}
 		
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
-		String preSql = sqlConfig.getShowPreSiblingsSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
+		String preSql = sqlConfig.getShowPreSiblingsSql(bbTestOpt.getTbName());
 		prepareStatementPre = dbSession.createPreparedStatement(preSql);
 		
-		String nextSql = sqlConfig.getShowNextSiblingsSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
+		String nextSql = sqlConfig.getShowNextSiblingsSql(bbTestOpt.getTbName());
 		prepareStatementNxt = dbSession.createPreparedStatement(nextSql);
 	}
 	

@@ -99,21 +99,6 @@ public class BbTestOptions {
 	
 	private boolean useTwoTable;
 	
-	/* if use memched */
-	private boolean usedMemcached;
-	
-	/* host and port of main memcached server */
-	private String mainMemcachedHost;
-	private int mainMemcachedPort;
-	
-	/* host and port of minor memcached server */
-	private String minorMemcachedHost;
-	private int minorMemcachedPort;
-
-	private int acsCountTrxCacheSize;
-	private long flushAcsCountInterval;
-	private int flushAcsCountThreads;
-	
 	/* blogbench test operation */
 	private BlogbenchOperationType operType;
 	
@@ -161,19 +146,10 @@ public class BbTestOptions {
 		extraLargeBlog=true;
 		operType = null;
 		printThoughputPeriod = 60;
-		usedMemcached = false;
-		mainMemcachedHost = "127.0.0.1";
-		mainMemcachedPort = 8609;
-		minorMemcachedHost = "127.0.0.1";
-		minorMemcachedPort = 8608;
-		
+
 		loadThreads = 8;
 		createTable = true;
 		parallelDml = false;
-		
-		acsCountTrxCacheSize = 50000;
-		flushAcsCountInterval = 10000;
-		flushAcsCountThreads = 8;
 	}
 	
 	public String getTbName() {
@@ -411,52 +387,7 @@ public class BbTestOptions {
 		this.printThoughputPeriod = printThoughputPeriod;
 	}
 
-	public boolean isUsedMemcached() {
-		return usedMemcached;
-	}
 
-	public void setUsedMemcached(boolean usedMemcached) {
-		this.usedMemcached = usedMemcached;
-	}
-
-	public String getMainMemcachedHost() {
-		return mainMemcachedHost;
-	}
-
-	public void setMainMemcachedHost(String memcachedServerHost) {
-		this.mainMemcachedHost = memcachedServerHost;
-	}
-
-	public int getMainMemcachedPort() {
-		return mainMemcachedPort;
-	}
-
-	public void setMainMemcachedPort(int memcachedServerPort) {
-		this.mainMemcachedPort = memcachedServerPort;
-	}
-
-	public String getMinorMemcachedHost() {
-		return minorMemcachedHost;
-	}
-
-	public void setMinorMemcachedHost(String minorMemcachedHost) {
-		this.minorMemcachedHost = minorMemcachedHost;
-	}
-
-	public int getMinorMemcachedPort() {
-		return minorMemcachedPort;
-	}
-
-	public void setMinorMemcachedPort(int minorMemcachedPort) {
-		this.minorMemcachedPort = minorMemcachedPort;
-	}
-	
-	public String getMainMemcachedAddr() {
-		return mainMemcachedHost + ":" + mainMemcachedPort;
-	}
-	public String getMinorMemcachedAddr() {
-		return minorMemcachedHost + ":" + minorMemcachedPort;
-	}
 	
 	public boolean isDebug() {
 		return debug;
@@ -472,30 +403,6 @@ public class BbTestOptions {
 
 	public void setLoadThreads(int loadThreads) {
 		this.loadThreads = loadThreads;
-	}
-
-	public int getAcsCountTrxCacheSize() {
-		return acsCountTrxCacheSize;
-	}
-
-	public void setAcsCountTrxCacheSize(int acsCountTrxCacheSize) {
-		this.acsCountTrxCacheSize = acsCountTrxCacheSize;
-	}
-
-	public long getFlushAcsCountInterval() {
-		return flushAcsCountInterval;
-	}
-
-	public void setFlushAcsCountInterval(long flushAcsCountInterval) {
-		this.flushAcsCountInterval = flushAcsCountInterval;
-	}
-
-	public int getFlushAcsCountThreads() {
-		return flushAcsCountThreads;
-	}
-
-	public void setFlushAcsCountThreads(int flushAcsCountThreads) {
-		this.flushAcsCountThreads = flushAcsCountThreads;
 	}
 
 	public boolean getUseTwoTable() {

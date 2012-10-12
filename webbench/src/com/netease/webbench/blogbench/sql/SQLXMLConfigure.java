@@ -40,11 +40,11 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 * @return
 	 */
 	protected String getStatement(String dbType, String stmtName, 
-			boolean useMemcached, boolean useTwoTable) throws Exception {
+			boolean useTwoTable) throws Exception {
 		if (stmtMaps != null) {
 			Map<SQLStatementMeta, SQLStatement> map = stmtMaps.get(dbType);
 			if (map != null) {
-				SQLStatement stmt = map.get(new SQLStatementMeta(stmtName, useMemcached, useTwoTable));
+				SQLStatement stmt = map.get(new SQLStatementMeta(stmtName, useTwoTable));
 				if (stmt != null)
 					return stmt.getSqlStmt();
 			}
@@ -60,16 +60,16 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 * @throws Exception
 	 */
 	protected String getStatement(String dbType, String stmtName) throws Exception  {
-		return getStatement(dbType, stmtName, false, false);
+		return getStatement(dbType, stmtName, false);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getListBlogsSql(java.lang.String, boolean)
 	 */
 	@Override
-	public String getListBlogsSql(String tableName, boolean useMemcached) 
+	public String getListBlogsSql(String tableName) 
 	throws Exception {
-		String stmt = getStatement(dbType, "list-blogs",  useMemcached, false);
+		String stmt = getStatement(dbType, "list-blogs",  false);
 		return filledBlogTableName(stmt, tableName);
 	}
 	
@@ -78,7 +78,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 */
 	@Override
 	public String getMultiShowBlogSql(int multiCount, String tableName) throws Exception {
-		String stmt = getStatement(dbType, "multi-show-blogs",  false, false);
+		String stmt = getStatement(dbType, "multi-show-blogs",  false);
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append(stmt);		
@@ -98,7 +98,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	@Override
 	public String getPublishBlogSql(String tableName,boolean useTwoTable)
 	throws Exception {
-		String stmt = getStatement(dbType, "publish-blog",  false, useTwoTable);
+		String stmt = getStatement(dbType, "publish-blog",  useTwoTable);
 		return filledBlogTableName(stmt, tableName);
 	}
 	
@@ -117,7 +117,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	@Override
 	public String getShowWeightBlogSql(String blogTblName, String contentTblName, 
 			boolean useTwoTable) throws Exception{
-		String stmt = getStatement(dbType, "show-weight-blog", false, useTwoTable);
+		String stmt = getStatement(dbType, "show-weight-blog", useTwoTable);
 		stmt = filledBlogTableName(stmt, blogTblName);
 		if (useTwoTable)
 			stmt = filledContentTableName(stmt, contentTblName);
@@ -139,35 +139,30 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getShowPreSiblingsSql(java.lang.String, boolean)
 	 */
 	@Override
-	public String getShowPreSiblingsSql(String tableName,boolean useMemcached) 
+	public String getShowPreSiblingsSql(String tableName) 
 	throws Exception{	
-		String stmt = getStatement(dbType, "show-pre-siblings",  useMemcached, false);
+		String stmt = getStatement(dbType, "show-pre-siblings",  false);
 		return filledBlogTableName(stmt, tableName);
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getShowNextSiblingsSql(java.lang.String, boolean)
+	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getShowNextSiblingsSql(java.lang.String)
 	 */
 	@Override
-	public String getShowNextSiblingsSql(String tableName, boolean useMemcached) 
+	public String getShowNextSiblingsSql(String tableName) 
 	throws Exception{	
-		String stmt = getStatement(dbType, "show-next-siblings",  useMemcached, false);
+		String stmt = getStatement(dbType, "show-next-siblings",  false);
 		return filledBlogTableName(stmt, tableName);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getUpdateAccessSql(java.lang.String, boolean)
+	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getUpdateAccessSql(java.lang.String)
 	 */
 	@Override
-	public String getUpdateAccessSql(String tableName,boolean useMemcached) 
+	public String getUpdateAccessSql(String tableName) 
 	throws Exception{
-		if (useMemcached) {
-			String stmt = getStatement(dbType, "update-access");
-			return filledBlogTableName(stmt, tableName);
-		} else {
 			String stmt = getStatement(dbType, "increase-access");
 			return filledBlogTableName(stmt, tableName);
-		}		
 	}
 
 	/* (non-Javadoc)
@@ -185,7 +180,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 */
 	@Override
 	public String getUpdateBlogSql(String blogTblName,boolean useTwoTable) throws Exception {
-		String stmt = getStatement(dbType, "update-blog",  false, useTwoTable);
+		String stmt = getStatement(dbType, "update-blog",  useTwoTable);
 		stmt = filledBlogTableName(stmt, blogTblName);
 		return stmt;
 	}
@@ -195,7 +190,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 */
 	@Override
 	public String getUpdateContentSql(String contentTblName) throws Exception {
-		String stmt = getStatement(dbType, "update-content",  false, true);
+		String stmt = getStatement(dbType, "update-content",  true);
 		stmt = filledContentTableName(stmt, contentTblName);
 		return stmt;
 	}
@@ -287,7 +282,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	@Override
 	public String getCreateBlogTblSql(String tableName, boolean createPrimaryIndex, 
 			boolean useTwoTable) throws Exception {
-		String stmt = getStatement(dbType, "create-blog-table", false, useTwoTable);
+		String stmt = getStatement(dbType, "create-blog-table", useTwoTable);
 		stmt = filledBlogTableName(stmt, tableName);		
 		if (!createPrimaryIndex) {
 			stmt = stmt.replaceAll("PRIMARY KEY", "");
@@ -300,7 +295,7 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 */
 	@Override
 	public String getCreateContentTblSql(String tableName, boolean createPrimaryIndex) throws Exception {
-		String stmt = getStatement(dbType, "create-content-table", false, true);
+		String stmt = getStatement(dbType, "create-content-table",  true);
 		stmt = filledContentTableName(stmt, tableName);
 		if (!createPrimaryIndex) {
 			stmt = stmt.replaceAll("PRIMARY KEY", "");

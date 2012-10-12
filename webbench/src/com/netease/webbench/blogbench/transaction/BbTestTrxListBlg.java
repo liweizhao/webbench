@@ -16,11 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.netease.webbench.blogbench.blog.BlogIdPair;
-import com.netease.webbench.blogbench.blog.LightBlog;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
@@ -32,17 +28,13 @@ import com.netease.webbench.common.DbSession;
  * list blogs transaction
  * @author LI WEIZHAO
  */
-public class BbTestTrxListBlg extends BbTestTransaction {
-	public static int QUERY_LIMIT_SIZE = 10;
-	
+public class BbTestTrxListBlg extends BbTestTransaction {	
 	protected PreparedStatement prepareStatement;
-	protected PreparedStatement []multiGetBlogPs;
 
 	public BbTestTrxListBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
 		super(dbSession, bbTestOpt, bbTestOpt.getPctListBlg(), 
 				BbTestTrxType.LIST_BLGS, counters);
-		multiGetBlogPs = new PreparedStatement[QUERY_LIMIT_SIZE];
 	}
 
 	private void bindParameter(long uid) throws SQLException{
@@ -78,46 +70,6 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 		}
 	}
 	
-	/**
-	 * fetch all light blogs of specified ids from database
-	 * @param blogIdPairList the blog id list of blogs to fetch
-	 * @return light blogs list
-	 * @throws Exception
-	 */
-	public List<LightBlog> multiGetLightBlogFromDb(List<BlogIdPair> blogIdPairList) throws SQLException {
-		List<LightBlog> blogsList = new LinkedList<LightBlog>();
-		if (blogIdPairList == null)
-			return null;
-		if (blogIdPairList.size() == 0)
-			return blogsList;
-
-		int idx = 1;
-		int psIndex = blogIdPairList.size() - 1;
-		for (int i = 0; i < blogIdPairList.size(); i++) {
-			multiGetBlogPs[psIndex].setLong(idx++, blogIdPairList.get(i).getBlogId());
-			multiGetBlogPs[psIndex].setLong(idx++, blogIdPairList.get(i).getUId());
-		}
-		
-		ResultSet rs = dbSession.query(multiGetBlogPs[psIndex]);
-		
-		if (rs != null) {
-			while(rs.next()) {
-				long id = rs.getLong("ID");
-				long uId = rs.getLong("UserId");
-				String title = rs.getString("Title");
-				String abs = rs.getString("Abstract");
-				int allowView = rs.getInt("AllowView");
-				long publishTime = rs.getLong("PublishTime");
-				int AcsCnt = rs.getInt("AccessCount");
-				int cmnCnt = rs.getInt("CommentCount");
-				blogsList.add(new LightBlog(id, uId, title, abs, allowView, publishTime, AcsCnt, cmnCnt));
-			}
-		} else {
-			return null;
-		}
-		return blogsList;
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
@@ -128,15 +80,8 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 			throw new Exception("Database connection doesn't exit!");
 		}
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
-		String listSql = sqlConfig.getListBlogsSql(bbTestOpt.getTbName(), bbTestOpt.isUsedMemcached());
+		String listSql = sqlConfig.getListBlogsSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(listSql);
-		
-		if (bbTestOpt.isUsedMemcached()) {
-			for (int i = 0; i < QUERY_LIMIT_SIZE; i++) {
-				String sql = sqlConfig.getMultiShowBlogSql(i + 1, bbTestOpt.getTbName());
-				multiGetBlogPs[i] = dbSession.createPreparedStatement(sql);
-			}
-		}
 	}
 	
 	/*
@@ -146,13 +91,6 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	public void cleanRes() throws SQLException {
 		if (null != prepareStatement) {
 			prepareStatement.close();
-		}
-		if (null != multiGetBlogPs) {
-			for (PreparedStatement it : multiGetBlogPs) {
-				if (null != it) {
-					it.close();
-				}
-			}
 		}
 	}
 }

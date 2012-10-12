@@ -14,13 +14,11 @@ package com.netease.webbench.blogbench.thread;
 
 import java.sql.SQLException;
 
-import com.netease.webbench.blogbench.memcached.AccessCountCache;
 import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.transaction.BbTestTransaction;
 import com.netease.webbench.blogbench.transaction.BbTestTrxPool;
-import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 
 /**
  * blogbench run test thread
@@ -36,19 +34,17 @@ public class BbTestRunThread extends BbTestThread {
 	private ThreadRunFlagTimer runFlagTimer;
 	
 	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
-			BlogbenchCounters trxCounter, ThreadRunFlagTimer runFlagTimer, 
-			AccessCountCache accessCountCache) throws Exception {
-		this(bbTestOptPair, paraGen, trxCounter, runFlagTimer, null, accessCountCache);
+			BlogbenchCounters trxCounter, ThreadRunFlagTimer runFlagTimer) throws Exception {
+		this(bbTestOptPair, paraGen, trxCounter, runFlagTimer, null);
 	}
 	
 	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
 			BlogbenchCounters trxCounters, ThreadRunFlagTimer runFlagTimer,
-			ThreadBarrier barrier, AccessCountCache accessCountCache) throws Exception {
+			ThreadBarrier barrier) throws Exception {
 		super(bbTestOptPair, paraGen, barrier);
 		this.trxCounter = trxCounters;
 		this.runFlagTimer = runFlagTimer;
-		this.trxPool = new BbTestTrxPool(dbSession, bbTestOpt, trxCounters, 
-				accessCountCache, BbTestTrxType.TRX_TYPE_NUM);
+		this.trxPool = new BbTestTrxPool(dbSession, bbTestOpt, trxCounters);
 	}
 
 	public void run() {

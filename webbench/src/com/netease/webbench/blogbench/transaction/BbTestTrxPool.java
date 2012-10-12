@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.netease.webbench.blogbench.memcached.AccessCountCache;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.common.DbSession;
@@ -31,21 +30,22 @@ public class BbTestTrxPool {
 	protected Random randomGenerator;
 	protected int trxTypeNum;
 	
-	public BbTestTrxPool(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters trxCounters,
-			AccessCountCache accessCountCache, int trxTypeNum) 	throws Exception {
-		this.trxTypeNum = trxTypeNum;
+	public BbTestTrxPool(DbSession dbSession, BbTestOptions bbTestOpt, 
+			BlogbenchCounters trxCounters) 	throws Exception {
+		this.trxTypeNum = BbTestTrxType.TRX_TYPE_NUM;
 		this.trxList = new ArrayList<BbTestTransaction>(trxTypeNum);
 		
-		initialiseTrxs(dbSession, bbTestOpt, trxCounters, accessCountCache);		
+		initialiseTrxs(dbSession, bbTestOpt, trxCounters);		
 		initialiseProb();
 	}
 	
 	private void initialiseTrxs(DbSession dbSession, BbTestOptions bbTestOpt, 
-			BlogbenchCounters trxCounters, AccessCountCache accessCountCache) throws Exception {		
+			BlogbenchCounters trxCounters) throws Exception {		
 		BbTestTrxType allTypes[] = BbTestTrxType.values();
+		
 		for (BbTestTrxType type : allTypes) {
-			trxList.add(TransactionFactory.getInstance().createTrx(
-					dbSession, bbTestOpt, trxCounters, type));
+			trxList.add(TransactionFactory.getInstance().
+					createTrx(dbSession, bbTestOpt, trxCounters, type));
 		}
 		
 		prepare();

@@ -16,15 +16,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.netease.webbench.blogbench.blog.Blog;
-import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 /**
  * publish blog transaction 
@@ -85,14 +82,7 @@ public class BbTestTrxPublishBlg2 extends BbTestTransaction {
 			bindParameter(blog);
 
 			if ((1 == dbSession.update(ps)) 
-					&&  1 == dbSession.update(contentPs)) {
-				if (bbTestOpt.isUsedMemcached()) {
-					MemcachedClientIF mcc = 
-							MemcachedManager.getInstance().getMajorMcc();
-					boolean hit = mcc.delete("blog:ids:" + blog.getUid());					
-					myTrxCounter.addMemOper(MemOperType.DEL_LIST, hit);
-				}
-				
+					&&  1 == dbSession.update(contentPs)) {			
 				/* if insert blog record successfully, 
 				 * update the blog id and blog user id map array */
 				paraGen.updateBlgMapArr(blog.getId(), blog.getUid(), 

@@ -116,11 +116,6 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 		if (!blogbenchDir.exists() && !blogbenchDir.mkdir()) {
 			throw new Exception("Faild to create blogbench test results saved diretory!");
 		}
-		if (bbTestOpt.isUsedMemcached()) {
-			String memcachedReport = bbTestOpt.getReportDir() + "/memcached-statistic/";
-			File memcachedReportDir = new File(memcachedReport);
-			memcachedReportDir.mkdir();
-		}
 	}
 	
 	public final DbOptions getDbOpt() {

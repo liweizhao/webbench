@@ -42,7 +42,6 @@ public class SQLParseHandler implements XMLParseHandler {
 	private SQLStatement parseDbSQL(Node n) {
 		Element e = (Element)n;
 		SQLStatement ss = new SQLStatement(e.getAttribute("name"),
-				Boolean.parseBoolean(e.getAttribute("useMemcached")),
 				Boolean.parseBoolean(e.getAttribute("twoTables")),
 				e.getTextContent().trim()
 		);

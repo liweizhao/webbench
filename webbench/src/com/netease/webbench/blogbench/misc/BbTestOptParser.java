@@ -169,49 +169,16 @@ public class BbTestOptParser {
 				if (nextArg == args.length - 1)
 					throw new IllegalArgumentException("No specify whether parallel dml");
 				cmnOpt.setParallelDml(parseBoolean("--parallel-dml", args[++nextArg]));
-			} else if (args[nextArg].equals("--use-memcached")) {	
-				System.out.println("you hava specified to use memcached!");				
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No specify whether use memcached");
-				cmnOpt.setUsedMemcached(parseBoolean("--use-memcached", args[++nextArg]));
 			} else if (args[nextArg].equals("--print-period")) {
 				if (nextArg == args.length - 1)
 					throw new IllegalArgumentException("No specify whether generate large blog");
 				cmnOpt.setPrintThoughputPeriod(Integer.parseInt(args[++nextArg]));	
-			} else if (args[nextArg].equals("--main-memcached-host")) {
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No memcached host specified!");
-				cmnOpt.setMainMemcachedHost(args[++nextArg]);	
-			} else if (args[nextArg].equals("--main-memcached-port")) {
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No memcached port specified!");
-				cmnOpt.setMainMemcachedPort(Integer.parseInt(args[++nextArg]));	
-			} else if (args[nextArg].equals("--minor-memcached-host")) {
-					if (nextArg == args.length - 1)
-						throw new IllegalArgumentException("No memcached host specified!");
-					cmnOpt.setMinorMemcachedHost(args[++nextArg]);	
-			} else if (args[nextArg].equals("--minor-memcached-port")) {
-					if (nextArg == args.length - 1)
-						throw new IllegalArgumentException("No memcached port specified!");
-					cmnOpt.setMinorMemcachedPort(Integer.parseInt(args[++nextArg]));	
-			}  else if (args[nextArg].equals("--load-threads")) {
+			} else if (args[nextArg].equals("--load-threads")) {
 				if (nextArg == args.length - 1)
 					throw new IllegalArgumentException("No num of load threads specified");
 				cmnOpt.setLoadThreads(Integer.parseInt(args[++nextArg]));
 			} else if (args[nextArg].equals("--debug")) {
 				cmnOpt.setDebug(parseBoolean("--debug", args[++nextArg]));	
-			} else if (args[nextArg].equals("--access-update-cache-size")) {
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No access count update cache size specified!");
-				cmnOpt.setAcsCountTrxCacheSize(Integer.parseInt(args[++nextArg]));
-			} else if (args[nextArg].equals("--access-update-flush-interval")) { 
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No access count update flush interval specified!");
-				cmnOpt.setFlushAcsCountInterval(Long.parseLong(args[++nextArg]));			
-			} else if (args[nextArg].equals("--access-count-flush-threads")) { 
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No access count flush threads specified!");
-				cmnOpt.setFlushAcsCountThreads(Integer.parseInt(args[++nextArg]));
 			} else if (args[nextArg].equals("--use-two-tables")) {
 				if (nextArg == args.length - 1)
 					throw new IllegalArgumentException("No access count flush threads specified!");

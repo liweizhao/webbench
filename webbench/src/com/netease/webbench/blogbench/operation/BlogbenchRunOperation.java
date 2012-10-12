@@ -21,14 +21,11 @@ import java.util.List;
 
 import sun.misc.Signal;
 
-import com.netease.webbench.blogbench.memcached.AcsCntFlushManager;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.statis.BbPeriodSummaryTaskHandler;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
-import com.netease.webbench.blogbench.statis.MemcachedStatsTask;
 import com.netease.webbench.blogbench.thread.BbTestRunThread;
 import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.blogbench.thread.ThreadRunFlagTimer;
@@ -37,8 +34,8 @@ import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.statis.CreateChartHandler;
 import com.netease.webbench.statis.CreateTableHandler;
 import com.netease.webbench.statis.PeriodSummaryTask;
-import com.netease.webbench.statis.TestResultExporter;
 import com.netease.webbench.statis.RunTimeInfoCollector;
+import com.netease.webbench.statis.TestResultExporter;
 
 /**
  * blogbench run operation
@@ -52,7 +49,6 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	private PeriodSummaryTask periodSummaryTask;
 	
 	private ThreadRunFlagTimer runFlagTimer = null;
-	private MemcachedStatsTask memStatsTask = null;
 	
 	private BbTestRunThread[] trdArr;
 	private RunTimeInfoCollector runTimeInfoCollector = null;
@@ -81,11 +77,6 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	public void executeOper()  throws Exception {		
 		/* make directory of test report */
 		makeReportDir();
-		
-		/* initialize memcached connection if necessary */
-		if (bbTestOpt.isUsedMemcached()) {
-			initMemcached();
-		}
 			
 		testStartTime = System.currentTimeMillis();
 		/* print current blogbench test options */
@@ -96,26 +87,14 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		System.out.println("-------------------------------------------");
 				
 		/* create run flag timer thread */
-		runFlagTimer = new ThreadRunFlagTimer();
-		
-
-		AcsCntFlushManager accessCountFlushManager = AcsCntFlushManager.getInstance();
-		if (bbTestOpt.isUsedMemcached() && bbTestOpt.getPctUpdateAccess() > 0) {
-			accessCountFlushManager.init(bbTestOpt, dbOpt, bbTestOpt.getFlushAcsCountThreads());
-			accessCountFlushManager.startAllFlushTask();
-			
-			memStatsTask = new MemcachedStatsTask(300000, bbTestOpt.getMaxTime() * 1000, bbTestOpt);
-			memStatsTask.start();
-		}
-		
+		runFlagTimer = new ThreadRunFlagTimer();		
 		ThreadBarrier barrier = new ThreadBarrier();
 		
 		/* create test threads */
 		trdArr = new BbTestRunThread[bbTestOpt.getThreads()];
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
 			trdArr[i] = new BbTestRunThread(new BbTestOptPair(bbTestOpt, dbOpt), 
-					paraGen, blogbenchCounters, runFlagTimer, 
-					barrier, accessCountFlushManager.getGlobalAcsCntCache());
+					paraGen, blogbenchCounters, runFlagTimer, barrier);
 			trdArr[i].start();
 		}
 		
@@ -143,14 +122,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 			runTimeInfoCollector.beginCollectInfo();
 		}
 		
-		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, 
-				bbTestOpt.isUsedMemcached(), bbTestOpt.getReportDir()); 
-		if (bbTestOpt.isUsedMemcached()) {
-			periodTaskHandler.setFlushTaskStatis(
-					AcsCntFlushManager.getInstance().getAcsCntFlushTaskStatis());
-			periodTaskHandler.setUpdateAcsStatis(
-					AcsCntFlushManager.getInstance().getUpdateAccessStatistic());
-		}
+		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, bbTestOpt.getReportDir()); 
 		long msInterval = bbTestOpt.getPrintThoughputPeriod() * 1000;
 		periodSummaryTask = new PeriodSummaryTask(msInterval, periodTaskHandler);
 							
@@ -208,22 +180,14 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 				bbTestOpt.getUserZipfPct()) + "% hottest user id frequency:" +
 				String.format("%.2f", paraGen.getUserHottestPctFreq() * 100.0) + "%\n");
 		buf.append("Test result output directory: " + bbTestOpt.getReportDir() + "\n");
-		buf.append("use memcached: " + bbTestOpt.isUsedMemcached() + "\n");
-		buf.append("use two tables:" + bbTestOpt.getUseTwoTable() + "\n");
-		
-		if (bbTestOpt.isUsedMemcached()) {
-			buf.append("Memcached Client: " + MemcachedManager.getMemcachedClientImplName());
-		}
-		
+		buf.append("use two tables:" + bbTestOpt.getUseTwoTable() + "\n");		
 		return buf.toString();
 	}
 	
 	private List<CreateChartHandler> getCreateChartHandlerList() {
 		List<CreateChartHandler> list = new ArrayList<CreateChartHandler>(16);
 		list.add(paraGen.getParaDistribution());
-		if (bbTestOpt.isUsedMemcached() && bbTestOpt.getPctUpdateAccess() > 0) {
-			list.add(memStatsTask);
-		}
+
 		list.add(periodTaskHandler.getPeriodNodes());
 		list.add(blogbenchCounters);
 		return list;
@@ -251,19 +215,6 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		
 		testStopTime = System.currentTimeMillis();
 		
-		if (bbTestOpt.isUsedMemcached() && bbTestOpt.getPctUpdateAccess() > 0) {
-			System.out.print("Is canceling access count flushing task...");
-			AcsCntFlushManager.getInstance().cancelAllFlushTask();
-			System.out.println("done.");
-			
-			if (memStatsTask != null) {
-				System.out.print("Is canceling memcached stats collecting task...");
-				memStatsTask.cancel();
-				memStatsTask.join();
-				System.out.println("done.");
-			}
-		}
-	
 		if (bbTestOpt.isCollectSysstat() && runTimeInfoCollector.isRunning()) {
 			/* stop collecting system information */
 			System.out.print("Waiting for system information collecting process to exit...");
@@ -290,22 +241,6 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 				createCharthandlerList, createTableHandlerList);
 		resultExporter.setRunSummary(getRunSummary(true));
 		resultExporter.export(bbTestOpt.getReportDir());
-	}
-	
-	/**
-	 * initialise memcached clients
-	 * @throws Exception
-	 */
-	private void initMemcached() throws Exception {
-		System.out.println("Is initializing memcached connecting...");
-		
-		System.out.println("Common memcached server:" + bbTestOpt.getMainMemcachedAddr());
-		System.out.println("Access count memcached server:" + bbTestOpt.getMinorMemcachedAddr());
-		
-		MemcachedManager m = MemcachedManager.getInstance();
-		m.init(bbTestOpt);
-		m.flushAllServerCache();
-		System.out.println("done!");	
 	}
 		
 	public long getActualTestTime() {

@@ -37,13 +37,13 @@ public abstract class BbTestTransaction {
 	protected DbSession dbSession;
 	protected BbTestOptions bbTestOpt;
 	
-	protected BbTestTransaction(BbTestTransaction another, 
+	public BbTestTransaction(BbTestTransaction another, 
 			BlogbenchCounters counters) throws Exception {
 		this(another.dbSession, another.bbTestOpt, another.pct, another.trxType,
 				counters);
 	}
 	
-	protected BbTestTransaction(DbSession dbSession, 
+	public BbTestTransaction(DbSession dbSession, 
 			BbTestOptions bbTestOpt, int pct, BbTestTrxType trxType, 
 			BlogbenchCounters counters) throws Exception {
 		this.dbSession = dbSession;

@@ -12,7 +12,6 @@
  */
 package com.netease.webbench.blogbench.statis;
 
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.statis.TrxCounter;
 
 /**
@@ -20,41 +19,11 @@ import com.netease.webbench.statis.TrxCounter;
  *  @author LI WEIZHAO
  */
 public class BlogbenchTrxCounter extends TrxCounter {
-	//memcached operation counters
-	private MemcachedOperCounters memOperCounters;
-	
 	/**
 	 * constructor
 	 * @param distributionName
 	 */
 	public BlogbenchTrxCounter(String counterName) {
 		super(counterName);
-		memOperCounters = new MemcachedOperCounters();
-	}
-	
-	/**
-	 * add memcached operation
-	 * @param operType
-	 * @param successful
-	 * @throws Exception
-	 */
-	public void addMemOper(MemOperType operType, boolean successful) throws Exception {
-		memOperCounters.addMemOper(operType, successful);
-	}
-	
-	public long getMemTotalOper(MemOperType operType) throws Exception {
-		return memOperCounters.getMemTotalOper(operType);
-	}
-	
-	public double getMemHitRatio(int idx) throws Exception {
-		return memOperCounters.getMemHitRatio(idx);
-	}
-	
-	public int getMemOperCounterSize() {
-		return memOperCounters.size();
-	}
-	
-	public MemcachedOperCounter getMemOperCounter(MemOperType operType) throws Exception {
-		return memOperCounters.getMemOperCounter(operType);
 	}
 }

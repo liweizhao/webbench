@@ -21,8 +21,8 @@ public class SQLStatement {
 	private SQLStatementMeta stmtMeta;
 	private String sqlStmt;
 	
-	public SQLStatement(String name, boolean useMemcached, boolean useTwoTables, String sqlStmt) {
-		this.stmtMeta = new SQLStatementMeta(name, useMemcached, useTwoTables);
+	public SQLStatement(String name, boolean useTwoTables, String sqlStmt) {
+		this.stmtMeta = new SQLStatementMeta(name, useTwoTables);
 		this.sqlStmt = sqlStmt;
 	}
 	
