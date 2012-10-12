@@ -17,16 +17,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
-import com.netease.webbench.blogbench.blog.LightBlog;
-import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 
 /**
@@ -37,21 +32,10 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 	protected PreparedStatement prepareStatementPre;
 	protected PreparedStatement prepareStatementNxt;
 	
-	private long timeWaste = 0;
-	private BlogbenchTrxCounter trxCounter;
-	private BlogDBFetcher blogFetcher;
-	private long userId;
-	private int idPre = -1;
-	private int idNext = -1;
-	
 	public BbTestTrxShowSiblings(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
 	throws Exception {
 		super(dbSession, bbTestOpt, bbTestOpt.getPctShowSibs(), 
 				BbTestTrxType.SHOW_SIBS, counters);
-	}
-	
-	public void setBlogDBFetcher(BlogDBFetcher bf) {
-		blogFetcher = bf;
 	}
 
 	private void bindParameter(long userId, long publishTime) throws SQLException {
@@ -68,80 +52,36 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 	@Override
 	public void doExeTrx(ParameterGenerator paraGen) 
 	throws Exception {
+		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
+		getSiblingsFromDb(blogInfo, paraGen);
+	}	
 		
-		getSiblingsFromDb(paraGen);
-		
-		if (bbTestOpt.isUsedMemcached()) {
-			long startTime = System.currentTimeMillis();
-			MemcachedClientIF mcm = MemcachedManager.getInstance().getMajorMcc();
-			if (idPre > 0) {
-				LightBlog lightBlogPre = new LightBlog();
-				boolean readSuc = lightBlogPre.readFromBytes((byte[])mcm.get("lblog:" + idPre));
-
-				trxCounter.addMemOper(MemOperType.GET_BLOG, readSuc);
-				
-				if (!readSuc) {
-					lightBlogPre = blogFetcher.getLightBlog(idPre, userId);
-					if (lightBlogPre != null) {
-						boolean hit = mcm.set("lblog:" + idPre, lightBlogPre.writeToBytes());
-						trxCounter.addMemOper(MemOperType.SET_BLOG, hit);
-					} else {
-						System.out.println("Error: failed to fetch previous blog record from database(show siblings transaction)!");
-					}
-				}
-			}
-			if (idNext > 0) {
-				LightBlog lightBlogNext = new LightBlog();
-				boolean readSuc = lightBlogNext.readFromBytes((byte[])mcm.get("lblog:" + idNext));
-				
-				trxCounter.addMemOper(MemOperType.GET_BLOG, readSuc);
-				
-				if (!readSuc) {
-					lightBlogNext = blogFetcher.getLightBlog(idNext, userId);
-					if (lightBlogNext != null) {
-						boolean hit = mcm.set("lblog:" + idNext, lightBlogNext.writeToBytes());
-						trxCounter.addMemOper(MemOperType.SET_BLOG, hit);
-					} else {
-						throw new Exception("Error: failed to fetch blog record from database(show siblings transaction)!");
-					}
-				}
-			}
-			long stopTime = System.currentTimeMillis();
-			timeWaste += stopTime - startTime;
-		}
-		totalTrxCounter.addTrx(timeWaste);
-		trxCounter.addTrx(timeWaste);
-		
-		timeWaste = 0;		
-		idPre = -1;
-		idNext = -1;
-	}
-	
-	public void getSiblingsFromDb(ParameterGenerator paraGen) throws SQLException {
-		try {
-			BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
-			userId = blogInfo.getUId();			
+	public int[] getSiblingsFromDb(BlogInfoWithPub blogInfo, 
+			ParameterGenerator paraGen) throws SQLException {
+		try {			
+			long userId = blogInfo.getUId();			
 			long publishTime = blogInfo.getPublishTime();
 			
 			bindParameter(userId, publishTime);
 
-			long startTime = System.currentTimeMillis();
 			ResultSet rsPre = dbSession.query(prepareStatementPre);
 
+			int [] sibings = new int[2];
+			
 			if (rsPre.next()) {
-				idPre = rsPre.getInt("ID");
+				sibings[0] = rsPre.getInt("ID");
 			}
 			rsPre.close();
 
 			ResultSet rsNext = dbSession.query(prepareStatementNxt);
 			if (rsNext.next()) {
-				idNext = rsNext.getInt("ID");
+				sibings[1] = rsNext.getInt("ID");
 			}
 			rsNext.close();
-			long stopTime = System.currentTimeMillis();
-			timeWaste += (stopTime - startTime);
+			
+			return sibings;
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}		
 	}

@@ -137,6 +137,6 @@ public class Portable {
 	 * @return
 	 */
 	public static String getBlogContentTableName(String tableName) {
-		return tableName + CONTENT_TABLE_SUFFIX;
+		return "" + tableName + CONTENT_TABLE_SUFFIX;
 	}
 }

@@ -20,11 +20,9 @@ import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
 import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 /**
@@ -32,15 +30,14 @@ import com.netease.webbench.common.DbSession;
  * @author LI WEIZHAO
  */
 public class BbTestTrxPublishBlg extends BbTestTransaction {
-	protected PreparedStatement prepareStatement;/* prepared SQL statement to execute this transaction */
-	protected PreparedStatement insertContentStatement = null;
-	protected BlogbenchTrxCounter trxCounter;
+	protected PreparedStatement ps;
 	
 	/**
 	 * constructor
 	 * @param dbSession
 	 */
-	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt) throws Exception {
+	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt) 
+			throws Exception {
 		super(dbSession, bbTestOpt, 1, BbTestTrxType.PUBLISH_BLG, null);
 	}
 	
@@ -63,26 +60,13 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @throws Exception
 	 */
 	private void bindParameter(Blog blog) throws Exception {		
-		if (bbTestOpt.getUseTwoTable()) {
-			prepareStatement.setLong(1, blog.getId());
-			prepareStatement.setLong(2, blog.getUid());
-			prepareStatement.setString(3, blog.getTitle());
-			prepareStatement.setString(4, blog.getAbs());
-			prepareStatement.setInt(5, blog.getAllowView());
-			prepareStatement.setLong(6, blog.getPublishTime());
-			
-			insertContentStatement.setLong(1, blog.getId());
-			insertContentStatement.setLong(2, blog.getUid());
-			insertContentStatement.setString(3, blog.getCnt());
-		} else {
-			prepareStatement.setLong(1, blog.getId());
-			prepareStatement.setLong(2, blog.getUid());
-			prepareStatement.setString(3, blog.getTitle());
-			prepareStatement.setString(4, blog.getAbs());
-			prepareStatement.setString(5, blog.getCnt());
-			prepareStatement.setInt(6, blog.getAllowView());
-			prepareStatement.setLong(7, blog.getPublishTime());
-		}
+		ps.setLong(1, blog.getId());
+		ps.setLong(2, blog.getUid());
+		ps.setString(3, blog.getTitle());
+		ps.setString(4, blog.getAbs());
+		ps.setString(5, blog.getCnt());
+		ps.setInt(6, blog.getAllowView());
+		ps.setLong(7, blog.getPublishTime());
 	}
 
 	/*
@@ -94,32 +78,24 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 		try {
 			Blog blog = paraGen.generateNewBlog();
 			bindParameter(blog);
-			
-			long startTime = System.currentTimeMillis();
-			boolean pubSuccessfully = false;
-			if (bbTestOpt.getUseTwoTable()) {
-				pubSuccessfully = (1 == dbSession.update(prepareStatement) 
-						&&  1 == dbSession.update(insertContentStatement));
-			} else{
-				pubSuccessfully = (1 == dbSession.update(prepareStatement));
-			}
-			if (pubSuccessfully) {
+
+			if (1 == dbSession.update(ps)) {
 				if (bbTestOpt.isUsedMemcached()) {
-					MemcachedClientIF mcc = MemcachedManager.getInstance().getMajorMcc();
+					MemcachedClientIF mcc = 
+							MemcachedManager.getInstance().getMajorMcc();
 					boolean hit = mcc.delete("blog:ids:" + blog.getUid());					
-					trxCounter.addMemOper(MemOperType.DEL_LIST, hit);
+					myTrxCounter.addMemOper(MemOperType.DEL_LIST, hit);
 				}
-				long stopTime = System.currentTimeMillis();
-				totalTrxCounter.addTrx(stopTime - startTime);
-				trxCounter.addTrx(stopTime - startTime);
 				
-				/* if insert blog record successfully, update the blog id and blog user id map array */
-				paraGen.updateBlgMapArr(blog.getId(), blog.getUid(), blog.getPublishTime());
+				/* if insert blog record successfully, 
+				 * update the blog id and blog user id map array */
+				paraGen.updateBlgMapArr(blog.getId(), blog.getUid(), 
+						blog.getPublishTime());
 			} else {
-				trxCounter.incrFailedTimes();
+				myTrxCounter.incrFailedTimes();
 			}
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}
 	}
@@ -131,20 +107,15 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @param blogs
 	 * @throws Exception
 	 */
-	public void batchExec(DbSession dbSession, ParameterGenerator paraGen, Blog blogs[]) throws Exception {
+	public void batchExec(DbSession dbSession, ParameterGenerator paraGen, 
+			Blog blogs[]) throws Exception {
 		if (!dbSession.getAutoCommit()) 
 			dbSession.setAutoCommit(false);
 		for (int i = 0; i < blogs.length; i++) {
 			bindParameter(blogs[i]);
-			prepareStatement.addBatch();
-			if (bbTestOpt.getUseTwoTable()) {
-				insertContentStatement.addBatch();
-			}
+			ps.addBatch();
 		}
-		prepareStatement.executeBatch();
-		if (bbTestOpt.getUseTwoTable()) {
-			insertContentStatement.executeBatch();
-		}
+		ps.executeBatch();
 		dbSession.commit();
 	}
 	
@@ -162,12 +133,7 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
 		String sql = sqlConfig.getPublishBlogSql(bbTestOpt.getTbName(), 
 				bbTestOpt.getUseTwoTable());
-		prepareStatement = dbSession.createPreparedStatement(sql);
-		
-		if (bbTestOpt.getUseTwoTable()) {
-			sql = sqlConfig.getInsertContentSql(Portable.getBlogContentTableName(bbTestOpt.getTbName()));
-			insertContentStatement = dbSession.createPreparedStatement(sql);
-		}
+		ps = dbSession.createPreparedStatement(sql);
 	}
 	
 	/*
@@ -175,11 +141,8 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
 	 */
 	public void cleanRes() throws Exception {
-		if (null != prepareStatement) {
-			prepareStatement.close();
-		}
-		if (null != insertContentStatement) {
-			insertContentStatement.close();
+		if (null != ps) {
+			ps.close();
 		}
 		
 		if (bbTestOpt.isParallelDml()) {

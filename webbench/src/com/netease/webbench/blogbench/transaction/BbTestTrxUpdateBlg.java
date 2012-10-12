@@ -12,21 +12,16 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.io.Externalizable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.netease.webbench.blogbench.blog.Blog;
-import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 /**
  * update blog transaction
@@ -35,7 +30,6 @@ import com.netease.webbench.common.DbSession;
 public class BbTestTrxUpdateBlg extends BbTestTransaction {
 	protected PreparedStatement psUpdtBlog;
 	protected PreparedStatement psUpdtContent;
-	protected BlogbenchTrxCounter trxCounter;
 	
 	public BbTestTrxUpdateBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
@@ -72,37 +66,26 @@ public class BbTestTrxUpdateBlg extends BbTestTransaction {
 	@Override
 	public void doExeTrx(ParameterGenerator paraGen)
 			throws Exception {
-		Blog blog = paraGen.generateZipfDistrBlog();
-		
-		long startTime = 0;
+		updateBlog(paraGen.generateZipfDistrBlog());
+	}
+	
+	public void updateBlog(Blog blog) throws Exception {
 		try {
 			bindParameter(blog);
-			startTime = System.currentTimeMillis();
 			if (bbTestOpt.getUseTwoTable()) {
 				if (!(1 == dbSession.update(psUpdtBlog) && 
 						1 ==dbSession.update(psUpdtContent))) {
-					trxCounter.incrFailedTimes();
+					myTrxCounter.incrFailedTimes();
 				}
 			} else {
 				if (1 != dbSession.update(psUpdtBlog)) {
-					trxCounter.incrFailedTimes();
+					myTrxCounter.incrFailedTimes();
 				}
 			}
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}
-		if (bbTestOpt.isUsedMemcached()) {
-			MemcachedClientIF mcm = MemcachedManager.getInstance().getMajorMcc();
-			boolean isReplaceBlgSuc = mcm.replace("lblog:" + blog.getId(), blog.getLightBlog().writeToBytes());
-			trxCounter.addMemOper(MemOperType.RPC_BLOG, isReplaceBlgSuc);
-			
-			boolean isReplaceCntSuc = mcm.replace("cnt:" + blog.getId(), (Externalizable)blog.getBlogContent());
-			trxCounter.addMemOper(MemOperType.RPC_CNT, isReplaceCntSuc);
-		}
-		long stopTime = System.currentTimeMillis();
-		totalTrxCounter.addTrx(stopTime - startTime);
-		trxCounter.addTrx(stopTime - startTime);
 	}
 
 	/*
@@ -111,10 +94,6 @@ public class BbTestTrxUpdateBlg extends BbTestTransaction {
 	 */
 	@Override
 	public void prepare() throws Exception {
-		if (dbSession == null) {
-			throw new Exception("Database connection doesn't exit!");
-		}
-		
 		if (bbTestOpt.isParallelDml()) {
 			dbSession.setParallelDML(true);
 		}
@@ -140,10 +119,6 @@ public class BbTestTrxUpdateBlg extends BbTestTransaction {
 		}
 		if (null != psUpdtContent) {
 			psUpdtContent.close();
-		}
-		
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(false);
 		}
 	}
 }

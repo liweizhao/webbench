@@ -17,6 +17,7 @@ import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.common.DbSession;
+import com.netease.webbench.common.Util;
 
 /**
  * blogbench transaction
@@ -36,25 +37,26 @@ public abstract class BbTestTransaction {
 	protected DbSession dbSession;
 	protected BbTestOptions bbTestOpt;
 	
-	/**
-	 * constructor
-	 * @param dbSession
-	 * @param bbTestOpt
-	 * @param pct
-	 * @param totalTrxCounter
-	 */
-	protected BbTestTransaction(DbSession dbSession, BbTestOptions bbTestOpt, 
-			int pct, BbTestTrxType trxType, BlogbenchCounters counters) throws Exception {
+	protected BbTestTransaction(BbTestTransaction another, 
+			BlogbenchCounters counters) throws Exception {
+		this(another.dbSession, another.bbTestOpt, another.pct, another.trxType,
+				counters);
+	}
+	
+	protected BbTestTransaction(DbSession dbSession, 
+			BbTestOptions bbTestOpt, int pct, BbTestTrxType trxType, 
+			BlogbenchCounters counters) throws Exception {
 		this.dbSession = dbSession;
 		this.bbTestOpt = bbTestOpt;
 		this.pct = pct;
 		this.trxType = trxType;
-		init(counters);
-	}
-	
-	private void init(BlogbenchCounters counters) throws Exception {
+		
 		this.totalTrxCounter = counters.getTotalTrxCounter();
 		this.myTrxCounter = counters.getSingleTrxCounter(this.trxType);
+	}
+	
+	public final int getPct() {
+		return pct;
 	}
 	
 	/**
@@ -65,7 +67,13 @@ public abstract class BbTestTransaction {
 	
 	public void exeTrx(ParameterGenerator paraGen) throws Exception {
 		try {
-			doExeTrx(paraGen);
+			long before = Util.currentTimeMillis();			
+			doExeTrx(paraGen);			
+			long after = Util.currentTimeMillis();
+			
+			long timeWaste = after - before;
+			totalTrxCounter.addTrx(timeWaste);
+			myTrxCounter.addTrx(timeWaste);
 		} catch (Exception e) {
 			cleanRes();
 			throw e;
@@ -79,24 +87,5 @@ public abstract class BbTestTransaction {
 	 */
 	public abstract void doExeTrx(ParameterGenerator paraGen) throws Exception;
 	
-	public int getPct() {
-		return pct;
-	}
-	/**
-	 * get transaction type
-	 * @return 
-	 */
-	public BbTestTrxType getTrxType() {
-		return trxType;
-	}
-	
-	/**
-	 * get transaction name
-	 * @return
-	 */
-	public String getTrxName() {
-		return BbTestTrxType.getTrxName(trxType);
-	}
-	
-	public abstract void cleanRes()  throws Exception ;
+	public void cleanRes()  throws Exception {}
 }

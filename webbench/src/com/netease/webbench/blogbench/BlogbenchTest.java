@@ -24,12 +24,9 @@ import com.netease.webbench.common.DbSession;
  */
 public class BlogbenchTest {
 	/* single instance of blogbench test */
-	private static BlogbenchTest instance;
+	private static BlogbenchTest instance;	
 	
-	/* database options */
 	private DbOptions dbOpt;
-	
-	/* blogbench test options */
 	private BbTestOptions bbTestOpt;
 
 	private BlogbenchTest() {}
@@ -59,8 +56,10 @@ public class BlogbenchTest {
 	 * @return current blogbench test instance
 	 */
 	public static BlogbenchTest getInstance() {
-		if (instance == null){
-			instance = new BlogbenchTest();
+		synchronized (BlogbenchTest.class) {
+			if (instance == null){
+				instance = new BlogbenchTest();
+			}
 		}
 		return instance;
 	}
@@ -71,7 +70,8 @@ public class BlogbenchTest {
 	 * @param bbTestOpt
 	 * @throws Exception
 	 */
-	public void init(DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception {
+	public void init(DbOptions dbOpt, BbTestOptions bbTestOpt) 
+			throws IllegalArgumentException {
 		System.out.println("Blogbench test is initilizing...");
 		this.dbOpt = dbOpt;
 		this.bbTestOpt = bbTestOpt;
@@ -82,7 +82,8 @@ public class BlogbenchTest {
 		if (!dbOpt.getDbType().equalsIgnoreCase("mysql") &&
 				!dbOpt.getDbType().equalsIgnoreCase("oracle") &&
 				!dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
-			throw new Exception("Unsuported database type :" + dbOpt.getDbType());
+			throw new IllegalArgumentException(
+					"Unsuported database type :" + dbOpt.getDbType());
 		}
 		
 		checkServerIsAlive();
@@ -95,8 +96,9 @@ public class BlogbenchTest {
 	 * @throws Exception
 	 */
 	public void runTest() throws Exception {
-		BlogbenchOperation blogbenchOperation = BlogbenchOperation.createBlogbenchOperation(
-				bbTestOpt.getOperType(), dbOpt, bbTestOpt);
+		BlogbenchOperation blogbenchOperation = 
+				BlogbenchOperation.createBlogbenchOperation(
+						bbTestOpt.getOperType(), dbOpt, bbTestOpt);
 		blogbenchOperation.executeOper();
 	}
 	

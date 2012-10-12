@@ -12,26 +12,20 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import com.netease.webbench.blogbench.blog.BlogIdPair;
 import com.netease.webbench.blogbench.blog.LightBlog;
-import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 
 /**
@@ -43,8 +37,6 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	
 	protected PreparedStatement prepareStatement;
 	protected PreparedStatement []multiGetBlogPs;
-	protected long timeWaste = 0;
-	protected BlogbenchTrxCounter trxCounter;
 
 	public BbTestTrxListBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
@@ -61,86 +53,15 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void doExeTrx(ParameterGenerator paraGen) 	throws Exception {
 		long uId = paraGen.getZipfUserId();
-		
-		long startTime = System.currentTimeMillis();
-		if (bbTestOpt.isUsedMemcached()) {
-			MemcachedClientIF mcc = MemcachedManager.getInstance().getMajorMcc();
-			
-			ArrayList<Long> blogsList = (ArrayList<Long>)(Serializable)mcc.get("blog:ids:" + uId);
-
-			if (blogsList == null) {
-				trxCounter.addMemOper(MemOperType.GET_LIST, false);
-				blogsList = getListFromDb(dbSession, uId);
-				boolean isSetSuc = mcc.set("blog:ids:" + uId, (Serializable)blogsList);
-				trxCounter.addMemOper(MemOperType.SET_LIST, isSetSuc);
-			} else {
-				trxCounter.addMemOper(MemOperType.GET_LIST, true);
-			}
-
-			//may be some users don't have any blogs
-			if (blogsList != null && blogsList.size() > 0) {
-
-				//now we have got blog id list, will query memcached first
-				ArrayList<String> keyList = new ArrayList<String>(blogsList.size());
-				for (Long blogId : blogsList) {
-					keyList.add("lblog:" + blogId);
-				}
-
-				//execute multi-get in memcached
-				Map<String, Object> memBlogItems = mcc.getMulti(keyList);
-
-				if (memBlogItems != null) {
-					List<BlogIdPair> blogIdPairList = new ArrayList<BlogIdPair>();
-					for (Long blogId : blogsList) {
-
-						byte[] blogSerialData = (byte[]) memBlogItems.get("lblog:"
-								+ blogId);
-
-						trxCounter.addMemOper(MemOperType.GET_BLOG, blogSerialData == null ? false
-								: true);
-						
-						if (blogSerialData == null)
-							blogIdPairList.add(new BlogIdPair(blogId, uId));
-					}
-
-					//fetch blog records from database
-					List<LightBlog> lightBlogList = multiGetLightBlogFromDb(blogIdPairList);
-
-					//put records to memcached
-					if (lightBlogList != null) {
-						if (lightBlogList.size() > 0) {
-							for (LightBlog blogFromDb : lightBlogList) {
-								boolean setSuc = mcc.set("lblog:" + blogFromDb.getId(), blogFromDb.writeToBytes());
-								trxCounter.addMemOper(MemOperType.SET_BLOG, setSuc);
-							}
-						}
-					} else {
-						throw new Exception("BlogIdPairList is null");
-					}
-				} else {
-					throw new Exception("Fatal error occured when do multi get from memcached!");
-				}
-			} 
-		} else {
-			getListFromDb(dbSession, uId);
- 		}
-		long stopTime = System.currentTimeMillis();
-		timeWaste += stopTime - startTime;
-		totalTrxCounter.addTrx(timeWaste);
-		trxCounter.addTrx(timeWaste);
-		timeWaste = 0;
+		getListFromDb(dbSession, uId);
 	}
 	
 	public ArrayList<Long> getListFromDb(DbSession dbSession, long uId) throws SQLException {
 		try {
-			long start = System.currentTimeMillis();
 			bindParameter(uId);
-			long stop = System.currentTimeMillis();
-			timeWaste -= (stop - start);
 			
 			ResultSet rs = dbSession.query(prepareStatement);
 						
@@ -152,7 +73,7 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 			rs.close();
 			return resultList;
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}
 	}
@@ -163,7 +84,7 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	 * @return light blogs list
 	 * @throws Exception
 	 */
-	private List<LightBlog> multiGetLightBlogFromDb(List<BlogIdPair> blogIdPairList) throws SQLException {
+	public List<LightBlog> multiGetLightBlogFromDb(List<BlogIdPair> blogIdPairList) throws SQLException {
 		List<LightBlog> blogsList = new LinkedList<LightBlog>();
 		if (blogIdPairList == null)
 			return null;

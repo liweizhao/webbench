@@ -15,9 +15,11 @@ package com.netease.webbench.blogbench.misc;
 /**
  * parameter generator initialise call back handler
  * 
- * Some databases require benchmark to do some work before and after parameter generator
- * initialises itself. The doBeforeInit() interface will be called before initialisation of parameter generator, 
- * and doAfterInit() interface will be called after initialisation of parameter generator.
+ * Some databases require benchmark to do some work before and after 
+ * parameter generator initialises itself. The doBeforeInit() interface 
+ * will be called before initialisation of parameter generator, 
+ * and doAfterInit() interface will be called after initialisation 
+ * of parameter generator.
  * 
  * @author LI WEIZHAO
  *

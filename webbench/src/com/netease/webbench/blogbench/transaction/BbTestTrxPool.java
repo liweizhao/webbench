@@ -42,28 +42,11 @@ public class BbTestTrxPool {
 	
 	private void initialiseTrxs(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters trxCounters, AccessCountCache accessCountCache) throws Exception {		
-		
-		trxList.add(new BbTestTrxListBlg(dbSession, bbTestOpt, trxCounters));
-		
-		BbTestTrxShowBlg showTrx= new BbTestTrxShowBlg(dbSession, bbTestOpt, trxCounters);
-		trxList.add(showTrx);
-					
-		BbTestTrxUpdateAcs updateAcsTrx = new BbTestTrxUpdateAcs(dbSession, bbTestOpt,  trxCounters);
-		updateAcsTrx.setBlogDBFetcher(showTrx);
-		updateAcsTrx.setAcsCntUpdateCache(accessCountCache);
-		trxList.add(updateAcsTrx);
-		
-		BbTestTrxUpdateCmt updateCmtTrx = new BbTestTrxUpdateCmt(dbSession, bbTestOpt, trxCounters);
-		updateCmtTrx.setBlogDBFetcher(showTrx);
-		trxList.add(updateCmtTrx);
-		
-		BbTestTrxShowSiblings showSiblingsTrx = new BbTestTrxShowSiblings(dbSession, bbTestOpt, trxCounters);
-		showSiblingsTrx.setBlogDBFetcher(showTrx);
-		trxList.add(showSiblingsTrx);		
-		
-		trxList.add(new BbTestTrxPublishBlg(dbSession, bbTestOpt, trxCounters));
-		
-		trxList.add(new BbTestTrxUpdateBlg(dbSession, bbTestOpt, trxCounters));
+		BbTestTrxType allTypes[] = BbTestTrxType.values();
+		for (BbTestTrxType type : allTypes) {
+			trxList.add(TransactionFactory.getInstance().createTrx(
+					dbSession, bbTestOpt, trxCounters, type));
+		}
 		
 		prepare();
 	}

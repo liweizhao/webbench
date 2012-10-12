@@ -17,17 +17,11 @@ import java.sql.SQLException;
 
 import com.netease.webbench.blogbench.blog.BlogInfoWithAcs;
 import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
-import com.netease.webbench.blogbench.blog.LightBlog;
-import com.netease.webbench.blogbench.memcached.AccessCountCache;
-import com.netease.webbench.blogbench.memcached.MemcachedClientIF;
-import com.netease.webbench.blogbench.memcached.MemcachedManager;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
 import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
-import com.netease.webbench.blogbench.statis.MemcachedOperCounter.MemOperType;
 import com.netease.webbench.common.DbSession;
 /**
  * update access count transaction
@@ -35,23 +29,16 @@ import com.netease.webbench.common.DbSession;
  */
 public class BbTestTrxUpdateAcs extends BbTestTransaction {	
 	protected PreparedStatement prepareStatement;
-	protected BlogbenchTrxCounter trxCounter;
 	protected BlogDBFetcher blogFetcher;
-	protected long timeWaste = 0;
-	protected AccessCountCache accessCountCache;
 	
-	public BbTestTrxUpdateAcs(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
-	throws Exception {
+	public BbTestTrxUpdateAcs(DbSession dbSession, BbTestOptions bbTestOpt, 
+			BlogbenchCounters counters) throws Exception {
 		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateAccess(),
 				BbTestTrxType.UPDATE_ACS, counters);
 	}
 	
 	public void setBlogDBFetcher(BlogDBFetcher bf) {
 		blogFetcher = bf;
-	}
-	
-	public void setAcsCntUpdateCache(AccessCountCache cache) {
-		this.accessCountCache = cache;
 	}
 	
 	protected void bindParameter(long blogId, long uId) throws SQLException {
@@ -72,102 +59,33 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 	 */
 	@Override
 	public void doExeTrx(ParameterGenerator paraGen) 
-	throws Exception {
-		
+	throws Exception {		
 		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
-		
-		long timeStart = System.currentTimeMillis();
-		if (bbTestOpt.isUsedMemcached() && accessCountCache != null) {
-			MemcachedClientIF mcm = MemcachedManager.getInstance().getMajorMcc();
-			MemcachedClientIF counterMcm = MemcachedManager.getInstance().getMinorMcc();
-			
-			/* get newest access count of a blog in memcached server */
-			long newestAcsCnt = counterMcm.getCounter("blog:" + blogInfo.getBlogId());
-			
-			trxCounter.addMemOper(MemOperType.GET_ACS, newestAcsCnt >= 0 ? true : false);//统计memcached中取浏览计数操作的成功次数
-			
-			if (newestAcsCnt < 0) {
-				
-				/* fetch blog record in memcached server */
-				LightBlog lightBlog = new LightBlog();
-				boolean readSuc = lightBlog.readFromBytes((byte[])mcm.get("lblog:" + blogInfo.getBlogId()));
-				
-				trxCounter.addMemOper(MemOperType.GET_BLOG, readSuc);
-				
-				if (!readSuc) {
-					/* if we can't get blog, fetch it from database */
-					lightBlog = blogFetcher.getLightBlog(blogInfo.getBlogId(), blogInfo.getUId());
-					
-					if (lightBlog != null) {
-						boolean hit = mcm.set("lblog:" + lightBlog.getId(), lightBlog.writeToBytes());
-						trxCounter.addMemOper(MemOperType.SET_BLOG, hit);
-					} else {
-						throw new Exception("Error: failed to fetch blog record from database(update blog access transaction)!");
-					}
-				}
-				newestAcsCnt = lightBlog.getAccessCount();
-			} 
-			
-			/* update access count information in memcached */
-			BlogInfoWithAcs blogInfoWithAcs = new BlogInfoWithAcs(blogInfo.getBlogId(),
-					blogInfo.getUId(), (int)newestAcsCnt + 1);
-			
-			long incrRtn = counterMcm.incr("blog:" + blogInfo.getBlogId());
-			if (incrRtn < 0) {
-				trxCounter.addMemOper(MemOperType.INC_ACS, false);
-				
-				boolean isAddSuc = counterMcm.addOrIncr("blog:" + blogInfo.getBlogId()) < 0 ? false : true;
-				trxCounter.addMemOper(MemOperType.ADD_ACS, isAddSuc);
-			} else {
-				trxCounter.addMemOper(MemOperType.INC_ACS, true);
-			}
-			
-			/**
-			 * update access count in local cache
-			 * if cache of access count is full, will update in database directly
-			 */
-			if (!accessCountCache.cacheUpdate(blogInfoWithAcs))
-				updateAcsToDb(blogInfoWithAcs);
-			
-		} else {
-			//update access count in database
-			updateAcsToDb(blogInfo.getBlogId(), blogInfo.getUId());
-		}
-		long timeStop = System.currentTimeMillis();
-		timeWaste += (timeStop - timeStart);
-		totalTrxCounter.addTrx(timeWaste);
-		trxCounter.addTrx(timeWaste);
-		timeWaste  = 0;
+		updateAcsToDb(blogInfo.getBlogId(), blogInfo.getUId());
 	}
 	
 	public void updateAcsToDb(long blogId, long uId) throws SQLException {
-		try {
-			long startTime = System.currentTimeMillis();
-			bindParameter(blogId, uId);
-			long stopTime = System.currentTimeMillis();
-			timeWaste -= (stopTime - startTime);
+		try {			
+			bindParameter(blogId, uId);			
 			if (1 != dbSession.update(prepareStatement)) {
 				System.out.println("Update access count failed");
-				trxCounter.incrFailedTimes();
+				myTrxCounter.incrFailedTimes();
 			}
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}		
 	}
 	
 	public void updateAcsToDb(BlogInfoWithAcs blogInfo) throws SQLException {
 		try {
-			long startTime = System.currentTimeMillis();
 			bindParameter(blogInfo);
-			long stopTime = System.currentTimeMillis();
-			timeWaste -= (stopTime - startTime);
 			if (1 != dbSession.update(prepareStatement)) {
 				//System.out.println("Update access count failed");
 				//failedTimes++;
 			}
 		} catch (SQLException e) {
-			trxCounter.incrFailedTimes();
+			myTrxCounter.incrFailedTimes();
 			throw e;
 		}
 	}
@@ -177,11 +95,7 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
 	 */
 	@Override
-	public void prepare() throws Exception {
-		if (dbSession == null) {
-			throw new Exception("Database connection doesn't exit!");
-		}
-		
+	public void prepare() throws Exception {	
 		if (bbTestOpt.isParallelDml()) {
 			dbSession.setParallelDML(true);
 		}
@@ -198,10 +112,6 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 	public void cleanRes() throws Exception {
 		if (null != prepareStatement) {
 			prepareStatement.close();
-		}
-		
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(false);
 		}
 	}
 }

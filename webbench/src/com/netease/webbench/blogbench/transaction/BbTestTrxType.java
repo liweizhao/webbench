@@ -37,6 +37,14 @@ public enum BbTestTrxType {
 	private BbTestTrxType(String name) {
 		this.name = name;
 	}
+	
+	/**
+	 * get transaction name
+	 * @return
+	 */
+	public String getTrxName() {
+		return name;
+	}
 		
 	/**
 	 * get transaction index
@@ -46,22 +54,17 @@ public enum BbTestTrxType {
 	public static int getTrxIndex(BbTestTrxType trxType) {
 		return trxType.compareTo(LIST_BLGS);
 	}
-	/**
-	 * get transaction name
-	 * @param trxType transaction type
-	 * @return
-	 */
-	public static String getTrxName(BbTestTrxType trxType) {
-		return trxType.name;
-	}
+
 	/**
 	 * get transaction name
 	 * @param index transaction index
 	 * @return
 	 */
 	public static String getTrxName(int index) throws IllegalArgumentException {
-		if (index < 0 || index >= TRX_TYPE_NUM)
-			throw new IllegalArgumentException("Index is out of range [0 ," + (TRX_TYPE_NUM - 1) + "].");
+		if (index < 0 || index >= TRX_TYPE_NUM) {
+			throw new IllegalArgumentException("Index is out of range [0 ," 
+					+ (TRX_TYPE_NUM - 1) + "].");
+		}
 		BbTestTrxType[] vls = BbTestTrxType.values();
 		return vls[index].name;
 	}
