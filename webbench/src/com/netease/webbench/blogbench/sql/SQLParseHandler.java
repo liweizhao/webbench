@@ -18,6 +18,8 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -87,5 +89,19 @@ public class SQLParseHandler implements XMLParseHandler {
 	
 	public Map<String, Map<SQLStatementMeta, SQLStatement>> getParseResult() {
 		return stmtMaps;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			XMLConfiguration config =new XMLConfiguration("config/sql.xml");
+			config.setExpressionEngine(new XPathExpressionEngine());
+
+			// 127.0.0.1
+			System.out.println(config.getString("databasetype.test")); 
+			// 1521
+			config.getString("database.port");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

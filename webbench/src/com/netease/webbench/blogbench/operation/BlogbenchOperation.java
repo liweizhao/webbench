@@ -71,14 +71,15 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 	 * @return                         blogbench operation
 	 * @throws Exception
 	 */
-	public static BlogbenchOperation createBlogbenchOperation(BlogbenchOperationType operType, 
-			DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception  {
+	public static BlogbenchOperation createBlogbenchOperation(
+			BlogbenchOperationType operType, DbOptions dbOpt, 
+			BbTestOptions bbTestOpt) throws Exception  {
 		if (operType == BlogbenchOperationType.LOAD) {
 			return new BlogbenchLoadOperation(dbOpt, bbTestOpt);
 		} else  if (operType == BlogbenchOperationType.RUN) {
 			return new BlogbenchRunOperation(dbOpt, bbTestOpt);
 		} else {
-			throw new Exception("Wrong blogbench operation !");
+			throw new IllegalArgumentException("Wrong blogbench operation !");
 		}
 	}
 	
@@ -100,7 +101,8 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 		String reportDirPath = bbTestOpt.getReportDir();
 		File reportDir = new File(reportDirPath);
 		if (reportDir.exists() && !reportDir.isDirectory()) {
-			throw new Exception("A file of the same name with the specified report directory exists, please specify another report directory name!");
+			throw new Exception("A file of the same name with the specified report " +
+					"directory exists, please specify another report directory name!");
 		} else if (!reportDir.exists()) {
 			System.out.print("Report directory doesn't exist, now create it...");
 			if (reportDir.mkdirs()) {

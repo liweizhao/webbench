@@ -113,8 +113,9 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		/* create test threads */
 		trdArr = new BbTestRunThread[bbTestOpt.getThreads()];
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
-			trdArr[i] = new BbTestRunThread(new BbTestOptPair(bbTestOpt, dbOpt), paraGen, blogbenchCounters, 
-					runFlagTimer, barrier, accessCountFlushManager.getGlobalAcsCntCache());
+			trdArr[i] = new BbTestRunThread(new BbTestOptPair(bbTestOpt, dbOpt), 
+					paraGen, blogbenchCounters, runFlagTimer, 
+					barrier, accessCountFlushManager.getGlobalAcsCntCache());
 			trdArr[i].start();
 		}
 		
@@ -142,11 +143,13 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 			runTimeInfoCollector.beginCollectInfo();
 		}
 		
-		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, bbTestOpt.isUsedMemcached(), 
-				bbTestOpt.getReportDir()); 
+		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, 
+				bbTestOpt.isUsedMemcached(), bbTestOpt.getReportDir()); 
 		if (bbTestOpt.isUsedMemcached()) {
-			periodTaskHandler.setFlushTaskStatis(AcsCntFlushManager.getInstance().getAcsCntFlushTaskStatis());
-			periodTaskHandler.setUpdateAcsStatis(AcsCntFlushManager.getInstance().getUpdateAccessStatistic());
+			periodTaskHandler.setFlushTaskStatis(
+					AcsCntFlushManager.getInstance().getAcsCntFlushTaskStatis());
+			periodTaskHandler.setUpdateAcsStatis(
+					AcsCntFlushManager.getInstance().getUpdateAccessStatistic());
 		}
 		long msInterval = bbTestOpt.getPrintThoughputPeriod() * 1000;
 		periodSummaryTask = new PeriodSummaryTask(msInterval, periodTaskHandler);
@@ -154,7 +157,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		/* wake up all test threads to work */
 		barrier.removeBarrier();
 		
-		System.out.println("Creating all " + bbTestOpt.getThreads() + " test threads successful, blogbench test begin...");
+		System.out.println("Creating all " + bbTestOpt.getThreads() + 
+				" test threads successful, blogbench test begin...");
 		
 		/* wait for test threads to exit*/
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
@@ -193,15 +197,20 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		if (showActualTime)
 			buf.append("Actual test time: " + getActualTestTime() / 1000 + " seconds\n");
 		buf.append("Total thread: " + bbTestOpt.getThreads() + "\n");
-		buf.append("Hottest blog partition frequency: " + String.format("%.2f", paraGen.getBlogHottestPartionFreq() * 100) + "%\n");
-		buf.append("Top " + String.format("%d", bbTestOpt.getBlgZipfPct())+ "% hottest blog record frequency: " + 
+		buf.append("Hottest blog partition frequency: " + String.format("%.2f", 
+				paraGen.getBlogHottestPartionFreq() * 100) + "%\n");
+		buf.append("Top " + String.format("%d", 
+				bbTestOpt.getBlgZipfPct())+ "% hottest blog record frequency: " + 
 				String.format("%.2f", paraGen.getBlogHottestPctFreq() * 100.0) + "%\n");
-		buf.append("Hottest user partition frequency: " + String.format("%.2f", paraGen.getUserHottestPartionFreq()* 100) + "%\n");
-		buf.append("Top " + String.format("%d", bbTestOpt.getUserZipfPct()) + "% hottest user id frequency:" +
+		buf.append("Hottest user partition frequency: " + String.format("%.2f", 
+				paraGen.getUserHottestPartionFreq()* 100) + "%\n");
+		buf.append("Top " + String.format("%d", 
+				bbTestOpt.getUserZipfPct()) + "% hottest user id frequency:" +
 				String.format("%.2f", paraGen.getUserHottestPctFreq() * 100.0) + "%\n");
 		buf.append("Test result output directory: " + bbTestOpt.getReportDir() + "\n");
 		buf.append("use memcached: " + bbTestOpt.isUsedMemcached() + "\n");
 		buf.append("use two tables:" + bbTestOpt.getUseTwoTable() + "\n");
+		
 		if (bbTestOpt.isUsedMemcached()) {
 			buf.append("Memcached Client: " + MemcachedManager.getMemcachedClientImplName());
 		}
@@ -235,7 +244,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		if (!hasError)
 			System.out.println("All run threads finished!");
 		else
-			System.out.println("Errors occured during blogbench test! Please check the error message!");
+			System.out.println("Errors occured during blogbench test! " +
+					"Please check the error message!");
 		
 		periodSummaryTask.exit();
 		
@@ -312,7 +322,9 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		buf.append("Blogbench Test Report----------------------------------------\n");
 		buf.append("--------------\n");
 		buf.append("Test Duration:" + getActualTestTime() + " milliseconds\n" );
-		buf.append("--------------------------------Total Transactions Statistics---------------------------------\n");
+		buf.append("--------------------------------" +
+				"Total Transactions Statistics" +
+				"---------------------------------\n");
 		buf.append(getTrxResult(blogbenchCounters.getTotalTrxCounter()));		
 		
 		for (int i = 0; i < BbTestTrxType.TRX_TYPE_NUM; i++) {
@@ -336,7 +348,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	private String getTrxResult(BlogbenchTrxCounter counter) {
 		StringBuilder buf = new StringBuilder(512);
 		buf.append("Total transactions: " + counter.getTrxCount() + "\n");
-		buf.append("Average TPS: " + String.format("%.0f\n", (double)counter.getTrxCount() * 1000/ getActualTestTime()));
+		buf.append("Average TPS: " + String.format("%.0f\n", 
+				(double)counter.getTrxCount() * 1000/ getActualTestTime()));
 		buf.append("Transaction Failed Times: " + counter.getFailedTimes() + "\n");
 		buf.append("Response Time:\n\tMin:" + counter.getMinResponseTime() + " milliseconds\n");
 		buf.append("\tMax:" + counter.getMaxResponseTime() + " milliseconds\n");

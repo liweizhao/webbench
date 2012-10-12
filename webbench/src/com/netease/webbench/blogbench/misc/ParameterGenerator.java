@@ -45,8 +45,9 @@ public class ParameterGenerator {
 	public static final int DEFAULT_MIN_RECORDS_LIMIT = 1000;
 	
 	/* array of character for generate blog title */
-	private final static char[] TITLE = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-		'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+	private final static char[] TITLE = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 
+		'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
+		'w', 'x', 'y', 'z'};
 	
 	/* fetch size of blog records when initialise */
 	private final static int FETCH_SIZE = 10000;
@@ -230,8 +231,8 @@ public class ParameterGenerator {
 	  * @param isNtse  if database is mysql and storage engine is NTSE
 	  * @throws Exception 
 	  */
-	private void queryAllBlogRcds(DbSession dbSession, boolean isNtse) throws Exception {
-		
+	private void queryAllBlogRcds(DbSession dbSession, 
+			boolean isNtse) throws Exception {		
 		
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();	
 		if (isNtse) {
@@ -243,7 +244,8 @@ public class ParameterGenerator {
 				tbSize = rsSelectCount.getInt("total"); 
 				blgArr = new DynamicArray<BlogInfoWithPub>(tbSize);
 			} else { 
-				throw new Exception("Error occured when query \"" + selectCountSql + "\" to initialize parameterGenerator!"); 
+				throw new Exception("Error occured when query \"" 
+					+ selectCountSql + "\" to initialize parameterGenerator!"); 
 			}
 			rsSelectCount.close();
 			 		

@@ -18,6 +18,8 @@ import java.util.Timer;
 
 import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
+import com.netease.webbench.blogbench.misc.LoadProgress;
+import com.netease.webbench.blogbench.misc.LoadProgressTask;
 import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.ntse.NtseSpecialOper;
 import com.netease.webbench.blogbench.sql.SQLConfigure;
@@ -27,8 +29,6 @@ import com.netease.webbench.blogbench.thread.BlgRecordProducer;
 import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
-import com.netease.webbench.common.LoadProgress;
-import com.netease.webbench.common.LoadProgressTask;
 
 /**
  * blogbench load operation
@@ -83,8 +83,8 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 					+ "/loaddata_performance.txt");
 			fw.write(getLoadSummary());
 			fw.close();
-			System.out.println("Load data finished!");
 			
+			System.out.println("Load data finished!");	
 		} catch (Exception e) {
 			System.err.println("Failed to load data!");
 			throw e;
@@ -182,7 +182,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 		while (index < insertThrdCnt) {
 			if (bbTestOpt.isDebug()) {
 				if (insertThrdGrp[index] == null)
-					throw new Exception("Create insert thread  " + index + " failed£¡");
+					throw new Exception("Create insert thread  " + index + " failedï¿½ï¿½");
 			}
 			if (insertThrdGrp[index].isWaiting()) {
 				index++;
@@ -231,7 +231,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	 * create test table
 	 * @throws SQLException
 	 */
-	private void createTable() throws SQLException, Exception {	    
+	private void createTable() throws SQLException, Exception {
 		System.out.print("Creating test table(" + bbTestOpt.getTbName() + ")...");
 		
 		if (dbOpt.getDbType().equalsIgnoreCase("mysql")) {
@@ -283,10 +283,12 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 				if (e.getErrorCode() != 942)
 					throw e;
 			} else if (dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
-				//Older versions of PostgreSQL don't support "DROP TABLE IF EXISTS" command. 
-				//When drop a table that doesn't exists, an error will be caught. 				
-				if (!e.getMessage().contains("does not exist"))//Thought this method is silly, it actually works
+				/** Older versions of PostgreSQL don't support "DROP TABLE IF EXISTS" command. 
+				    When drop a table that doesn't exists, an error will be caught. */	
+				if (!e.getMessage().contains("does not exist")) {
+					//Thought this method is silly, it actually works
 					throw e;
+				}
 			}
 		}
 	}
@@ -350,7 +352,6 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 					rcdToInsert, barrier, producer);
 			}
 			insertThrdGrp[i].start();
-			//System.out.print((i + 1) + "...");
 		}
 		
 		System.out.println("OK!");
@@ -376,10 +377,18 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 		loadProgressTimer.cancel();
 	}
 		
+	/* (non-Javadoc)
+	 * @see com.netease.webbench.blogbench.misc.LoadProgress#getProgress()
+	 */
 	public double getProgress() throws Exception {
 		return getRecordInserted() * 1.0 / bbTestOpt.getTbSize(); 
 	}
 	
+	/**
+	 * get number of blog records already inserted
+	 * @return
+	 * @throws Exception
+	 */
 	public long getRecordInserted() throws Exception {
 		long recordInserted = 0;
 		for (int i = 0; i <  bbTestOpt.getLoadThreads(); i++) {
@@ -387,7 +396,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 				recordInserted += insertThrdGrp[i].getRecordInserted();
 		}
 		if (bbTestOpt.isDebug() && recordInserted > bbTestOpt.getTbSize()) {
-			throw new Exception("Wrong num of records inserted£º" + recordInserted);
+			throw new Exception("Wrong num of records insertedï¿½ï¿½" + recordInserted);
 		}
 		return recordInserted;
 	}	
