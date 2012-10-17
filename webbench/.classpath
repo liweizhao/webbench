@@ -3,18 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.0.8-bin.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.13.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.11.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/netease-commons.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.14.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/netease-spy-memcached.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spy-2.2.36.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spy-memcached-2[1].5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/java_memcached-release_2.5.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/netease-blog-resource.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
