@@ -136,7 +136,7 @@ public class TimeLineChart {
 			);
 		
 		//chart.setBackgroundPaint(Color.white);
-		Font font = new Font("ËÎÌå", Font.BOLD, 13);
+		Font font = new Font("å®‹ä½“", Font.BOLD, 13);
 		TextTitle mainTitle = new TextTitle(title, font);
 		chart.setTitle(mainTitle);
 		LegendTitle legengTitle = chart.getLegend();
@@ -202,7 +202,7 @@ public class TimeLineChart {
 	public void setTitle(String title) {
 		this.title = title;
 		/* setting font, shape */
-		Font font = new Font("ËÎÌå", Font.BOLD, 13);
+		Font font = new Font("é»‘ä½“", Font.BOLD, 13);
 		TextTitle mainTitle = new TextTitle(title, font);
 		chart.setTitle(mainTitle);
 	}
@@ -211,7 +211,7 @@ public class TimeLineChart {
 	 * @param subTile
 	 */
 	public void setSubTitle(String subTitle) {
-		TextTitle sub = new TextTitle(subTitle, new Font("ºÚÌå", Font.BOLD, 12));
+		TextTitle sub = new TextTitle(subTitle, new Font("å®‹ä½“", Font.BOLD, 12));
 		chart.addSubtitle(sub);
 	}
 

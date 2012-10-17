@@ -18,5 +18,17 @@
 		</fileSet>
 	</fileSets>
 	<files>
+		<file>
+			<source>lib/commons-configuration-1.8.jar</source>
+			<outputDirectory>lib</outputDirectory>
+		</file>
+		<file>
+			<source>lib/netease-blog-resource.jar</source>
+			<outputDirectory>lib</outputDirectory>
+		</file>
+		<file>
+			<source>lib/netease-commons.jar</source>
+			<outputDirectory>lib</outputDirectory>
+		</file>
 	</files>
 </assembly>

@@ -319,11 +319,18 @@ class Tester(object):
             os.chdir(self.reportDir)
             Util.zipfolder(testCaseDir, zipFileName)
             os.chdir(cwd)
+            
+    def __setupEnv(self):
+    	if platform.system() == 'Windows':
+    		os.system("chmod +x *.sh")
+			os.system("chmod +x scripts/*")
+			os.system("chmod +x scripts/statistician/*")
 
     def run(self, configFileName, oper):
         '''
         run blogbench test
         '''
+        self.__setupEnv()
         signal.signal(signal.SIGINT, Tester.signalHandler)
         self.__parseOpts(configFileName)
         if self.dbType.upper() == "MYSQL":
