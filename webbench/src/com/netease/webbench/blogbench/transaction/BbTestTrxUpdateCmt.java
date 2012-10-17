@@ -28,7 +28,6 @@ import com.netease.webbench.common.DbSession;
  */
 public class BbTestTrxUpdateCmt extends BbTestTransaction {
 	protected PreparedStatement prepareStatement;/* prepared SQL statement to execute this transaction */
-	protected BlogDBFetcher blogFetcher;
 	
 	public BbTestTrxUpdateCmt(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
@@ -40,10 +39,7 @@ public class BbTestTrxUpdateCmt extends BbTestTransaction {
 		prepareStatement.setLong(1, uId);
 		prepareStatement.setLong(2, blogId);
 	}
-	
-	public void setBlogDBFetcher(BlogDBFetcher bf) {
-		blogFetcher = bf;
-	}
+
 
 	/* 
 	 * (non-Javadoc)

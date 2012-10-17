@@ -29,16 +29,11 @@ import com.netease.webbench.common.DbSession;
  */
 public class BbTestTrxUpdateAcs extends BbTestTransaction {	
 	protected PreparedStatement prepareStatement;
-	protected BlogDBFetcher blogFetcher;
 	
 	public BbTestTrxUpdateAcs(DbSession dbSession, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
 		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateAccess(),
 				BbTestTrxType.UPDATE_ACS, counters);
-	}
-	
-	public void setBlogDBFetcher(BlogDBFetcher bf) {
-		blogFetcher = bf;
 	}
 	
 	protected void bindParameter(long blogId, long uId) throws SQLException {
