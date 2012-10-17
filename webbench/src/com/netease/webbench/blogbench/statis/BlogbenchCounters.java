@@ -20,6 +20,7 @@ import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 import com.netease.webbench.statis.CreateChartHandler;
 import com.netease.webbench.statis.CreateTableHandler;
 import com.netease.webbench.statis.PdfTable;
+import com.netease.webbench.statis.TrxCounter;
 import com.netease.webbench.visual.PieChart;
 
 
@@ -28,36 +29,36 @@ import com.netease.webbench.visual.PieChart;
  *  @author LI WEIZHAO
  */
 public class BlogbenchCounters implements CreateChartHandler, CreateTableHandler {
-	private BlogbenchTrxCounter totalTrxCounter;
+	private TrxCounter totalTrxCounter;
 	
 	private int singleCounterNum = 0;
-	private List<BlogbenchTrxCounter> singleTrxCounterList;
+	private List<TrxCounter> singleTrxCounterList;
 	
 	public BlogbenchCounters(int singleCounterNum) {
-		this.totalTrxCounter = new BlogbenchTrxCounter("Total Transaction Response Time Distribution");
+		this.totalTrxCounter = new TrxCounter("Total Transaction Response Time Distribution");
 		this.singleCounterNum = singleCounterNum;
-		singleTrxCounterList = new ArrayList<BlogbenchTrxCounter>(singleCounterNum);
+		singleTrxCounterList = new ArrayList<TrxCounter>(singleCounterNum);
 		for (int i = 0; i < singleCounterNum; i++) {
-			this.singleTrxCounterList.add(new BlogbenchTrxCounter(BbTestTrxType.getTrxName(i)));
+			this.singleTrxCounterList.add(new TrxCounter(BbTestTrxType.getTrxName(i)));
 		}
 	}
 	
-	public BlogbenchTrxCounter getTotalTrxCounter() {
+	public TrxCounter getTotalTrxCounter() {
 		return totalTrxCounter;
 	}
 
-	public BlogbenchTrxCounter getSingleTrxCounter(int i) throws Exception {
+	public TrxCounter getSingleTrxCounter(int i) throws Exception {
 		if (i >= singleCounterNum) {
 			throw new Exception("Transaction index is out of range: " + i + ", size: " + singleCounterNum);
 		}
 		return singleTrxCounterList.get(i);
 	}
 	
-	public BlogbenchTrxCounter getSingleTrxCounter(BbTestTrxType trxType) throws Exception {
+	public TrxCounter getSingleTrxCounter(BbTestTrxType trxType) throws Exception {
 		return singleTrxCounterList.get(BbTestTrxType.getTrxIndex(trxType));
 	}
 	
-	public List<BlogbenchTrxCounter> getSingleCounterList() {
+	public List<TrxCounter> getSingleCounterList() {
 		return singleTrxCounterList;
 	}
 	
@@ -85,7 +86,7 @@ public class BlogbenchCounters implements CreateChartHandler, CreateTableHandler
 				list.add(fileName);
 		}
 		for (int i = 0; i < getSingleTrxCounterNum(); i++) {
-			BlogbenchTrxCounter counter = singleTrxCounterList.get(i);
+			TrxCounter counter = singleTrxCounterList.get(i);
 			if (counter.getTrxCount() > 0) {
 				String fileName = counter.createResponseTimeChart(reportDir);
 				if (fileName != null)

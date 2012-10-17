@@ -25,7 +25,6 @@ import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.statis.BbPeriodSummaryTaskHandler;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.blogbench.thread.BbTestRunThread;
 import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.blogbench.thread.ThreadRunFlagTimer;
@@ -37,6 +36,7 @@ import com.netease.webbench.statis.CreateTableHandler;
 import com.netease.webbench.statis.PeriodSummaryTask;
 import com.netease.webbench.statis.RunTimeInfoCollector;
 import com.netease.webbench.statis.TestResultExporter;
+import com.netease.webbench.statis.TrxCounter;
 
 /**
  * blogbench run operation
@@ -281,7 +281,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		fw.close();
 	}	
 	
-	private String getTrxResult(BlogbenchTrxCounter counter) {
+	private String getTrxResult(TrxCounter counter) {
 		StringBuilder buf = new StringBuilder(512);
 		buf.append("Total transactions: " + counter.getTrxCount() + "\n");
 		buf.append("Average TPS: " + String.format("%.0f\n", 

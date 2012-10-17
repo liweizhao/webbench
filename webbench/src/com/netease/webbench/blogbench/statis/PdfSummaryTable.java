@@ -13,6 +13,7 @@
 package com.netease.webbench.blogbench.statis;
 
 import com.netease.webbench.statis.PdfTable;
+import com.netease.webbench.statis.TrxCounter;
 
 
 /**
@@ -33,7 +34,7 @@ public class PdfSummaryTable extends PdfTable {
 		addTableHeader(header);
 	}
 	
-	public void addTableDataRow(String name, double pct, BlogbenchTrxCounter counter) {
+	public void addTableDataRow(String name, double pct, TrxCounter counter) {
 		table.addCell(makeCell(name, false, false, 1));
 		table.addCell(makeCell(String.format("%.1f",	pct), false, false, 1));
 		if (pct != 0) {

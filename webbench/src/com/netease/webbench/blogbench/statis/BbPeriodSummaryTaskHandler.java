@@ -19,6 +19,7 @@ import java.util.Date;
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 import com.netease.webbench.common.Util;
 import com.netease.webbench.statis.PeriodSummaryTaskHandler;
+import com.netease.webbench.statis.TrxCounter;
 
 /**
  * 
@@ -55,7 +56,7 @@ public class BbPeriodSummaryTaskHandler implements PeriodSummaryTaskHandler {
 			int wakeUpInterval = (int) ((currentTime - lastRunTime) / 1000);
 			lastRunTime = currentTime;
 
-			BlogbenchTrxCounter totalTrxCounter = blogbenchCounters.getTotalTrxCounter();
+			TrxCounter totalTrxCounter = blogbenchCounters.getTotalTrxCounter();
 
 			long totalTrx = totalTrxCounter.getTrxCount();
 			long totalTpm = totalTrx - lastPeriodTotalTrx;

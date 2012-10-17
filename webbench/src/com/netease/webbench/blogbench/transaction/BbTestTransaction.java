@@ -15,10 +15,10 @@ package com.netease.webbench.blogbench.transaction;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.Util;
+import com.netease.webbench.statis.TrxCounter;
 
 /**
  * blogbench transaction
@@ -26,8 +26,8 @@ import com.netease.webbench.common.Util;
  */
 public abstract class BbTestTransaction {		
 	/* total transaction counter */
-	protected BlogbenchTrxCounter totalTrxCounter;
-	protected BlogbenchTrxCounter myTrxCounter;
+	protected TrxCounter totalTrxCounter;
+	protected TrxCounter myTrxCounter;
 	
 	/* percentage of this transaction in all types of transactions */	
 	protected int pct;

@@ -20,6 +20,7 @@ import java.util.TimerTask;
 
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 import com.netease.webbench.common.Util;
+import com.netease.webbench.statis.TrxCounter;
 
 /**
  * transaction throughput printing task
@@ -78,7 +79,7 @@ public class ThroughputPrintTask extends TimerTask {
 			int wakeUpInterval = (int) ((currentTime - lastRunTime) / 1000);
 			lastRunTime = currentTime;
 
-			BlogbenchTrxCounter totalTrxCounter = blogbenchCounters.getTotalTrxCounter();
+			TrxCounter totalTrxCounter = blogbenchCounters.getTotalTrxCounter();
 
 			long totalTrx = totalTrxCounter.getTrxCount();
 			long totalTpm = totalTrx - lastPeriodTotalTrx;
