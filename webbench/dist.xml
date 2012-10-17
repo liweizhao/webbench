@@ -16,12 +16,16 @@
 			<directory>config</directory>
 			<outputDirectory>config</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>mysql-config</directory>
+			<outputDirectory>mysql-config</outputDirectory>
+		</fileSet>		
+		<fileSet>
+			<directory>scripts</directory>
+			<outputDirectory>scripts</outputDirectory>
+		</fileSet>
 	</fileSets>
 	<files>
-		<file>
-			<source>lib/commons-configuration-1.8.jar</source>
-			<outputDirectory>lib</outputDirectory>
-		</file>
 		<file>
 			<source>lib/netease-blog-resource.jar</source>
 			<outputDirectory>lib</outputDirectory>
@@ -30,5 +34,17 @@
 			<source>lib/netease-commons.jar</source>
 			<outputDirectory>lib</outputDirectory>
 		</file>
+		<file>
+			<source>run_blogbench.cfg</source>
+			<outputDirectory>./</outputDirectory>
+		</file>
+		<file>
+			<source>run_blogbench.py</source>
+			<outputDirectory>./</outputDirectory>
+		</file>
+		<file>
+			<source>README</source>
+			<outputDirectory>./</outputDirectory>
+		</file>		
 	</files>
 </assembly>

@@ -321,10 +321,9 @@ class Tester(object):
             os.chdir(cwd)
             
     def __setupEnv(self):
-    	if platform.system() == 'Windows':
-    		os.system("chmod +x *.sh")
-			os.system("chmod +x scripts/*")
-			os.system("chmod +x scripts/statistician/*")
+    	if platform.system() != 'Windows':
+            os.system("chmod +x scripts/*")
+            os.system("chmod +x scripts/statistician/*")
 
     def run(self, configFileName, oper):
         '''
