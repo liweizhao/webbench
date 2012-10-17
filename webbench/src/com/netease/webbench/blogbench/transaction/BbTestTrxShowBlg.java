@@ -52,7 +52,7 @@ public class BbTestTrxShowBlg extends BbTestTransaction {
 	 */
 	@Override
 	public void prepare() throws Exception {		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 	
 		String showSql = sqlConfig.getShowWeightBlogSql(bbTestOpt.getTbName(), 
 				Portable.getBlogContentTableName(bbTestOpt.getTbName()),

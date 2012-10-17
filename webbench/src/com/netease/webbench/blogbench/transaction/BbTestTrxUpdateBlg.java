@@ -98,7 +98,7 @@ public class BbTestTrxUpdateBlg extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String sql = sqlConfig.getUpdateBlogSql(bbTestOpt.getTbName(), 
 				bbTestOpt.getUseTwoTable());
 		psUpdtBlog = dbSession.createPreparedStatement(sql);

@@ -246,23 +246,11 @@ class Tester(object):
             self.duration = self.__getConfig('common', 'duration')
             self.threads = self.__getConfig('common', 'threads')
             useTwoTables = self.__getConfig('common', 'use_two_tables', False)
-            useMemcached = self.__getConfig('common', 'use_memcached', False)
             self.__appendOpts(self.commonOpt, '--table-size', self.tableSize)
             self.__appendOpts(self.commonOpt, '--max-time', self.duration)
             self.__appendOpts(self.commonOpt, '--threads', self.threads)
             if useTwoTables != None:
                 self.__appendOpts(self.commonOpt, '--use-two-tables', useTwoTables)
-            if useMemcached != None and useMemcached.upper() == 'TRUE':
-                self.__appendOpts(self.commonOpt, '--use-memcached', useMemcached)
-                #parse memcached options
-                mainMemcachedHost = self.__getConfig('memcached', 'main_memcached_host')
-                mainMemcachedPort = self.__getConfig('memcached', 'main_memcached_port')
-                accessMemcachedHost = self.__getConfig('memcached', 'access_memcached_host')
-                accessMemcachedPort = self.__getConfig('memcached', 'access_memcached_port')
-                self.__appendOpts(self.commonOpt, '--main-memcached-host', mainMemcachedHost)
-                self.__appendOpts(self.commonOpt, '--main-memcached-port', mainMemcachedPort)
-                self.__appendOpts(self.commonOpt, '--minor-memcached-host', accessMemcachedHost)
-                self.__appendOpts(self.commonOpt, '--minor-memcached-port', accessMemcachedPort)
         finally:
             cfgfile.close()
 

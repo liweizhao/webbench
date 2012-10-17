@@ -96,7 +96,7 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 			throw new Exception("Database connection doesn't exit!");
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String preSql = sqlConfig.getShowPreSiblingsSql(bbTestOpt.getTbName());
 		prepareStatementPre = dbSession.createPreparedStatement(preSql);
 		

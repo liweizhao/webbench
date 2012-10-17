@@ -232,7 +232,7 @@ public class DbSession {
 	public void setClientCharaSet() throws Exception {
 		if (dbOpt.getDbType().equalsIgnoreCase("mysql") ||
 				dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
-			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 			update(sqlConfig.getSetEncodingSql(Portable.getCharacterSet()));
 		}
 	}

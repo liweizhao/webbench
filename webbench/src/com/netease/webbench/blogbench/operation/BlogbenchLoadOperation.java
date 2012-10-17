@@ -29,6 +29,7 @@ import com.netease.webbench.blogbench.thread.BlgRecordProducer;
 import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
+import com.netease.webbench.common.Util;
 
 /**
  * blogbench load operation
@@ -100,7 +101,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	
 	protected void load() throws Exception {
 		//create test table
-		long timeStart = System.currentTimeMillis();
+		long timeStart = Util.currentTimeMillis();
 		
 		if (bbTestOpt.isCreateTable()) {
 			//if old test table exists, drop it
@@ -109,7 +110,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			System.out.println("Defer creating index: " + bbTestOpt.isDeferIndex());
 			createTable();
 		
-			createTableTimeWaste = System.currentTimeMillis() - timeStart;
+			createTableTimeWaste = Util.currentTimeMillis() - timeStart;
 			totalTimeWaste += createTableTimeWaste;
 		}
 		
@@ -125,7 +126,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			System.out.println("\n\nSuccessful to insert all "
 					+ bbTestOpt.getTbSize() + " records!");
 
-			timeStart = System.currentTimeMillis();
+			timeStart = Util.currentTimeMillis();
 		
 			//if defer creating index is set,  create primary index and secondary index
 			if (bbTestOpt.isCreateTable() && bbTestOpt.isDeferIndex()) {
@@ -134,15 +135,15 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			}
 		
 			/* calculate time wastes */
-			createIndexTimeWaste = System.currentTimeMillis() - timeStart;
+			createIndexTimeWaste = Util.currentTimeMillis() - timeStart;
 			totalTimeWaste += createIndexTimeWaste;
 		
-			timeStart = System.currentTimeMillis();
+			timeStart = Util.currentTimeMillis();
 			if (dbOpt.getDbType().equalsIgnoreCase("mysql") && bbTestOpt.getTbEngine().equalsIgnoreCase("ntse")) {
 				//only for MySQL NTSE storage engine, execute addition statement
 				NtseSpecialOper.excNonStandartStmt(dbSession, dbOpt, bbTestOpt);
 			}
-			totalTimeWaste += (System.currentTimeMillis() - timeStart);
+			totalTimeWaste += (Util.currentTimeMillis() - timeStart);
 
 			printStatistics();
 		} else {
@@ -191,7 +192,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			}
 		}
 		
-		long start = System.currentTimeMillis();
+		long start = Util.currentTimeMillis();
 		System.out.print("Wake up all " + insertThrdCnt + " loading thread to work...");
 		
 		//wake up all threads to work
@@ -208,7 +209,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 				caughtErr = true;
 		}
 		
-		long stop = System.currentTimeMillis();
+		long stop = Util.currentTimeMillis();
 		loadDataTimeWaste = (stop - start);	
 		totalTimeWaste += loadDataTimeWaste;
 		
@@ -239,7 +240,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 		}
 		
 		//create blog table
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String blogTableName = bbTestOpt.getTbName();
 		String createBlogSql = sqlConfig.getCreateBlogTblSql(blogTableName, 	!bbTestOpt.isDeferIndex(), 
 				bbTestOpt.getUseTwoTable());
@@ -269,7 +270,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 			String tableName = bbTestOpt.getTbName();
 			System.out.print("Drop old test table(" + tableName + ")...");
 			
-			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 			dbSession.update(sqlConfig.getDropTblSql(tableName));
 			System.out.println("OK!");
 			if (bbTestOpt.getUseTwoTable()) {
@@ -300,7 +301,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	private void createPrimaryKey() throws SQLException, Exception {
 		System.out.println("Creating primary index on table...");
 
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String createPrimarySql = sqlConfig.getCreatePrimaryIndexSql(bbTestOpt.getTbName());
 		dbSession.update(createPrimarySql);
 		
@@ -319,7 +320,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation implements LoadPr
 	 */
 	private void createSecondaryIndex() throws Exception {
 		System.out.print("Creating secondary index on table...");
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String createIndexSql = sqlConfig.getCreateSecondaryIndexSql(bbTestOpt.getTbName());
 		createIndexSql = createIndexSql.replaceAll("_TableName", bbTestOpt.getTbName());
 		dbSession.update(createIndexSql);	

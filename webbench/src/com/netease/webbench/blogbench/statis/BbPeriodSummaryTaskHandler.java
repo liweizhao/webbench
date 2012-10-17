@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
+import com.netease.webbench.common.Util;
 import com.netease.webbench.statis.PeriodSummaryTaskHandler;
 
 /**
@@ -44,13 +45,13 @@ public class BbPeriodSummaryTaskHandler implements PeriodSummaryTaskHandler {
 			lastPeriodTrxCount[i] = 0;
 		}		
 		periodNodes = new ThroughputPeriodNodes(BbTestTrxType.TRX_TYPE_NUM);		
-		lastRunTime = System.currentTimeMillis();
+		lastRunTime = Util.currentTimeMillis();
 	}
 
 	public void exe() {
 		// TODO Auto-generated method stub
 		try {
-			long currentTime = System.currentTimeMillis();
+			long currentTime = Util.currentTimeMillis();
 			int wakeUpInterval = (int) ((currentTime - lastRunTime) / 1000);
 			lastRunTime = currentTime;
 
@@ -70,7 +71,7 @@ public class BbPeriodSummaryTaskHandler implements PeriodSummaryTaskHandler {
 			}
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			String currentFormatTime = sdf.format(new Date(System.currentTimeMillis()));
+			String currentFormatTime = sdf.format(new Date(Util.currentTimeMillis()));
 			System.out.println("\n\ttotal in period: " + totalTpm + "\t\ttps: "
 					+ tps + "\t" + currentFormatTime + "\tperiod: " + periodNodes.getPeriodCount());
 		} catch (Exception e) {

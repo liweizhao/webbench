@@ -32,6 +32,7 @@ import com.netease.webbench.blogbench.statis.ParaDistribution;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.DynamicArray;
+import com.netease.webbench.common.Util;
 import com.netease.webbench.random.GammaGenerator;
 import com.netease.webbench.random.ZipfGenerator;
 import com.netease.webbench.resourceReader.BlogResourceReader;
@@ -68,7 +69,8 @@ public class ParameterGenerator {
 	private DynamicArray<BlogInfoWithPub> blgArr;
 	
 	/* blogbench test options */
-	private BbTestOptions bbTestOpt;	
+	private BbTestOptions bbTestOpt;
+	private DbOptions dbOpt;
 	
 	/* range of blog title length  */
 	private int titleLenRange;	
@@ -110,6 +112,7 @@ public class ParameterGenerator {
 		if (bbTestOpt.getOperType() == BlogbenchOperationType.RUN && 
 				dbOpt.getDbType().equalsIgnoreCase("mysql")
 				&& bbTestOpt.getTbEngine().equalsIgnoreCase("ntse")) {
+			this.dbOpt = dbOpt;
 			this.initialiseHandler = new NTSEInitialiser(dbOpt, bbTestOpt);
 		}
 	}
@@ -209,7 +212,7 @@ public class ParameterGenerator {
 	 * @throws Exception
 	 */
 	public long queryMaxBlogID(DbSession dbSession) throws Exception {
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String selectMaxIdSql = sqlConfig.getQueryMaxBlogIDSql(bbTestOpt.getTbName()); 
 				
 		ResultSet rsSelectMaxId = dbSession.query(selectMaxIdSql);
@@ -234,7 +237,7 @@ public class ParameterGenerator {
 	private void queryAllBlogRcds(DbSession dbSession, 
 			boolean isNtse) throws Exception {		
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();	
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());	
 		if (isNtse) {
 			String selectCountSql = sqlConfig.getQueryBlogCountSql(bbTestOpt.getTbName());
 			ResultSet rsSelectCount = dbSession.query(selectCountSql);
@@ -290,7 +293,7 @@ public class ParameterGenerator {
 			
 			rs.setFetchSize(FETCH_SIZE);
 
-			long lastPrintTime = System.currentTimeMillis();
+			long lastPrintTime = Util.currentTimeMillis();
 			
 			if (rs != null) {
 				BlogInfoWithPub blog;
@@ -300,7 +303,7 @@ public class ParameterGenerator {
 					tableRunTimeSize++;
 					
 					if (tableRunTimeSize % FETCH_SIZE == 0) {
-						long currentTime = System.currentTimeMillis();
+						long currentTime = Util.currentTimeMillis();
 						if (currentTime - lastPrintTime > 60000) {
 							System.out.println("Currently fetched " + tableRunTimeSize + " rows.");
 							lastPrintTime = currentTime;
@@ -376,7 +379,7 @@ public class ParameterGenerator {
 	 * @return current time
 	 */
 	public long getCurrentTime() {
-		return System.currentTimeMillis();
+		return Util.currentTimeMillis();
 	}
 
 	/**

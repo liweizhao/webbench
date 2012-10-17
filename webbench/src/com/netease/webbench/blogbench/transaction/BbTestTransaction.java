@@ -16,6 +16,7 @@ import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.statis.BlogbenchTrxCounter;
+import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.Util;
 
@@ -36,6 +37,7 @@ public abstract class BbTestTransaction {
 	
 	protected DbSession dbSession;
 	protected BbTestOptions bbTestOpt;
+	protected DbOptions dbOpt;
 	
 	public BbTestTransaction(BbTestTransaction another, 
 			BlogbenchCounters counters) throws Exception {
@@ -44,10 +46,13 @@ public abstract class BbTestTransaction {
 	}
 	
 	public BbTestTransaction(DbSession dbSession, 
-			BbTestOptions bbTestOpt, int pct, BbTestTrxType trxType, 
+			BbTestOptions bbTestOpt, 
+			int pct, 
+			BbTestTrxType trxType, 
 			BlogbenchCounters counters) throws Exception {
 		this.dbSession = dbSession;
 		this.bbTestOpt = bbTestOpt;
+		this.dbOpt = dbSession.getDbOpt();
 		this.pct = pct;
 		this.trxType = trxType;
 		
@@ -85,7 +90,7 @@ public abstract class BbTestTransaction {
 	 * @param paraGen query parameter generator
 	 * @return 
 	 */
-	public abstract void doExeTrx(ParameterGenerator paraGen) throws Exception;
+	protected abstract void doExeTrx(ParameterGenerator paraGen) throws Exception;
 	
 	public void cleanRes()  throws Exception {}
 }

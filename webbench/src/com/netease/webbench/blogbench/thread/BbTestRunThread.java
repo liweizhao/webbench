@@ -38,9 +38,12 @@ public class BbTestRunThread extends BbTestThread {
 		this(bbTestOptPair, paraGen, trxCounter, runFlagTimer, null);
 	}
 	
-	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
-			BlogbenchCounters trxCounters, ThreadRunFlagTimer runFlagTimer,
-			ThreadBarrier barrier) throws Exception {
+	public BbTestRunThread(BbTestOptPair bbTestOptPair, 
+			ParameterGenerator paraGen,
+			BlogbenchCounters trxCounters, 
+			ThreadRunFlagTimer runFlagTimer,
+			ThreadBarrier barrier
+			) throws Exception {
 		super(bbTestOptPair, paraGen, barrier);
 		this.trxCounter = trxCounters;
 		this.runFlagTimer = runFlagTimer;
@@ -55,13 +58,13 @@ public class BbTestRunThread extends BbTestThread {
 			/* loop and execute transaction */
 			while (true) {
 				BbTestTransaction trx = trxPool.getRandomTrx();
-				trx.doExeTrx(paraGen);
+				trx.exeTrx(paraGen);
 
 				long totalTrx = trxCounter.getTotalTrxCounter().getTrxCount();
 				
 				barrier.getSyncLock().lock();
 				try {
-					if ((totalTrx & PRINT_STAR_PERIOD_MASK) == 0) {
+					if (totalTrx != 0 && (totalTrx & PRINT_STAR_PERIOD_MASK) == 0) {
 						System.out.print("*");
 					}
 				} finally {
@@ -77,11 +80,13 @@ public class BbTestRunThread extends BbTestThread {
 		} catch (SQLException e) {
 			if (e.getErrorCode() == 1205) {
 				if (bbTestOpt.isDebug()) {
-					System.err.println("DeadLock occured in Thread(ID:" + this.getId() + ") when excute transaction!");
+					System.err.println("DeadLock occured in Thread(ID:" + this.getId() + 
+							") when excute transaction!");
 				}
 			} else {
 				exitErrorCode = 1;
-				System.err.println("Error occured in thread(ID:" + this.getId() + ") when excute transaction!");
+				System.err.println("Error occured in thread(ID:" + this.getId() + 
+						") when excute transaction!");
 				System.err.println("SQL ERROR CODE:" + e.getErrorCode());
 				System.err.println(e.getMessage());
 				runFlagTimer.setExpired();
@@ -99,6 +104,6 @@ public class BbTestRunThread extends BbTestThread {
 					e.printStackTrace();
 				}
 			}
-		}//try...catch...finally
+		}
 	}
 }

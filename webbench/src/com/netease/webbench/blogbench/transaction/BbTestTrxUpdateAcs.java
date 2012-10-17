@@ -100,7 +100,7 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String sql = sqlConfig.getUpdateAccessSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(sql);
 	}

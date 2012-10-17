@@ -133,7 +133,7 @@ public class BbTestInsertThread extends BbTestThread {
 				{ 1, lastInsertRows}
 		};
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		for (int i = 0; i < 2; i++) {
 			PreparedStatement ps;
 			long insertTime = insertParamPair[i][0];
@@ -164,7 +164,7 @@ public class BbTestInsertThread extends BbTestThread {
 		String testTableName = bbTestOpt.getTbName();
 		String testContentTableName = Portable.getBlogContentTableName(testTableName);
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		for (int i = 0; i < 2; i++) {			
 			PreparedStatement prepareStatement;	
 			PreparedStatement prepareStatement2;

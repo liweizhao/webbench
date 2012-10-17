@@ -94,7 +94,7 @@ public class BbTestOptions {
 	/* if create extra large blogs */
 	private boolean extraLargeBlog;
 	
-	/* period to print transaction throughput (unit is seconds)£¬default is 60*/
+	/* period to print transaction throughput (unit is seconds), default is 60*/
 	private int printThoughputPeriod;
 	
 	private boolean useTwoTable;

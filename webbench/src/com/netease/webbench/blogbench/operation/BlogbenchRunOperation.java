@@ -31,6 +31,7 @@ import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.blogbench.thread.ThreadRunFlagTimer;
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
 import com.netease.webbench.common.DbOptions;
+import com.netease.webbench.common.Util;
 import com.netease.webbench.statis.CreateChartHandler;
 import com.netease.webbench.statis.CreateTableHandler;
 import com.netease.webbench.statis.PeriodSummaryTask;
@@ -78,7 +79,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		/* make directory of test report */
 		makeReportDir();
 			
-		testStartTime = System.currentTimeMillis();
+		testStartTime = Util.currentTimeMillis();
 		/* print current blogbench test options */
 		System.out.println("------------------------");
 		System.out.println("blogbench test options---------------------");
@@ -213,7 +214,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		
 		periodSummaryTask.exit();
 		
-		testStopTime = System.currentTimeMillis();
+		testStopTime = Util.currentTimeMillis();
 		
 		if (bbTestOpt.isCollectSysstat() && runTimeInfoCollector.isRunning()) {
 			/* stop collecting system information */

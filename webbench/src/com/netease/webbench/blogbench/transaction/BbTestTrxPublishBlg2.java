@@ -132,7 +132,7 @@ public class BbTestTrxPublishBlg2 extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String sql = sqlConfig.getPublishBlogSql(bbTestOpt.getTbName(), 
 				bbTestOpt.getUseTwoTable());
 		ps = dbSession.createPreparedStatement(sql);

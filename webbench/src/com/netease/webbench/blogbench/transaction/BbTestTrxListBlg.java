@@ -79,7 +79,7 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 		if (dbSession == null) {
 			throw new Exception("Database connection doesn't exit!");
 		}
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 		String listSql = sqlConfig.getListBlogsSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(listSql);
 	}

@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import com.netease.webbench.blogbench.transaction.BbTestTrxType;
+import com.netease.webbench.common.Util;
 
 /**
  * transaction throughput printing task
@@ -64,7 +65,7 @@ public class ThroughputPrintTask extends TimerTask {
 		
 		periodNodes = new ThroughputPeriodNodes(BbTestTrxType.TRX_TYPE_NUM);
 		
-		lastRunTime = System.currentTimeMillis();
+		lastRunTime = Util.currentTimeMillis();
 	}
 	
 	/* (non-Javadoc)
@@ -73,7 +74,7 @@ public class ThroughputPrintTask extends TimerTask {
 	@Override
 	public void run() {
 		try {
-			long currentTime = System.currentTimeMillis();
+			long currentTime = Util.currentTimeMillis();
 			int wakeUpInterval = (int) ((currentTime - lastRunTime) / 1000);
 			lastRunTime = currentTime;
 
@@ -93,7 +94,7 @@ public class ThroughputPrintTask extends TimerTask {
 			}
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			String currentFormatTime = sdf.format(new Date(System.currentTimeMillis()));
+			String currentFormatTime = sdf.format(new Date(Util.currentTimeMillis()));
 			System.out.println("\n\ttotal in period: " + totalTpm + "\t\ttps: "
 					+ tps + "\t" + currentFormatTime + "\tperiod: " + periodNodes.getPeriodCount());
 		} catch (Exception e) {

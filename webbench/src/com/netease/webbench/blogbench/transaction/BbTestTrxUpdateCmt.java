@@ -80,7 +80,7 @@ public class BbTestTrxUpdateCmt extends BbTestTransaction {
 			dbSession.setParallelDML(true);
 		}
 		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure();;
+		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());;
 		String sql = sqlConfig.getUpdateCommentSql(bbTestOpt.getTbName());
 		prepareStatement = dbSession.createPreparedStatement(sql);
 	}
