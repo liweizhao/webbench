@@ -153,7 +153,7 @@ public class ParameterGenerator {
 		double beta = 0.5 * pst ;
 		
 		BlogDAO blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
-		if (0 == "load".compareToIgnoreCase(opt.getOperType())) {				
+		if (0 == "run".compareToIgnoreCase(opt.getOperType())) {				
 			maxBlogId.set(blogDao.selBlogNums() + 1);				
 			blgArr = blogDao.selAllBlogIds();
 			tableRunTimeSize = blgArr.size();
