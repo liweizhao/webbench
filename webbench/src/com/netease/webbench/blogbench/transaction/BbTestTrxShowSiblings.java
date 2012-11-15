@@ -25,7 +25,7 @@ import com.netease.webbench.blogbench.statis.BlogbenchCounters;
  */
 public class BbTestTrxShowSiblings extends BbTestTransaction {
 	public BbTestTrxShowSiblings(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters counters) throws Exception {
+			BlogbenchCounters counters) {
 		super(blogDao, bbTestOpt, bbTestOpt.getPctShowSibs(), 
 				BbTestTrxType.SHOW_SIBS, counters);
 	}

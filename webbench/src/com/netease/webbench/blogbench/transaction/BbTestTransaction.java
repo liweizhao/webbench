@@ -44,7 +44,7 @@ public abstract class BbTestTransaction {
 	}
 	
 	public BbTestTransaction(BlogDAO blogDao, BbTestOptions bbTestOpt, int pct, 
-			BbTestTrxType trxType, BlogbenchCounters counters) throws Exception {
+			BbTestTrxType trxType, BlogbenchCounters counters) {
 		this.blogDAO = blogDao;
 		this.bbTestOpt = bbTestOpt;
 		this.pct = pct;

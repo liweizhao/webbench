@@ -31,7 +31,7 @@ public class BbTestTrxShowBlg extends BbTestTransaction {
 	 * @param trxCounter
 	 */
 	public BbTestTrxShowBlg(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters counters) throws Exception {
+			BlogbenchCounters counters) {
 		super(blogDao, bbTestOpt, bbTestOpt.getPctShowBlg(), 
 				BbTestTrxType.SHOW_BLG, counters);
 	}

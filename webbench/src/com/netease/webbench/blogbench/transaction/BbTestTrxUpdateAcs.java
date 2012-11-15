@@ -25,7 +25,7 @@ import com.netease.webbench.blogbench.statis.BlogbenchCounters;
  */
 public class BbTestTrxUpdateAcs extends BbTestTransaction {		
 	public BbTestTrxUpdateAcs(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters counters) throws Exception {
+			BlogbenchCounters counters) {
 		super(blogDao, bbTestOpt, bbTestOpt.getPctUpdateAccess(),
 				BbTestTrxType.UPDATE_ACS, counters);
 	}

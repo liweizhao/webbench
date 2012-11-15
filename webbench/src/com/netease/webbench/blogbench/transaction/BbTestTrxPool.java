@@ -40,7 +40,7 @@ public class BbTestTrxPool {
 	}
 	
 	private void initialiseTrxs(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters trxCounters) throws Exception {		
+			BlogbenchCounters trxCounters) {		
 		BbTestTrxType allTypes[] = BbTestTrxType.values();
 		
 		for (BbTestTrxType type : allTypes) {
@@ -49,7 +49,7 @@ public class BbTestTrxPool {
 		}
 	}
 	
-	private void initialiseProb() throws Exception {
+	private void initialiseProb() {
 		probabilities = new double[trxTypeNum];
 		
 		long totalTrx = 0;

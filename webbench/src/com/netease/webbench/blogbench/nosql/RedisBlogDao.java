@@ -70,4 +70,10 @@ public class RedisBlogDao implements BlogDAO {
 		return 0;
 	}
 
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

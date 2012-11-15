@@ -31,7 +31,7 @@ public class BbTestInsertThread extends BbTestThread {
 	private BlgRecordProducer blogRcdProducer;
 	
 	/* number of rows per insert thread need to insert*/
-	private long rcdCntToInsert;
+	private final long rcdCntToInsert;
 	
 	/* number of rows that has been inserted */
 	private long recordInserted;

@@ -78,7 +78,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	 * @see com.netease.webbench.blogbench.BlogbenchOperation#executeOper()
 	 */
 	public void execute()  throws Exception {		
-			
+		
 		testStartTime = Util.currentTimeMillis();
 		/* print current blogbench test options */
 		System.out.println("------------------------");
@@ -137,6 +137,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		/* wait for test threads to exit*/
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
 				trdArr[i].join();
+				trdArr[i].clean();
 		}
 		
 		boolean hasError = false;

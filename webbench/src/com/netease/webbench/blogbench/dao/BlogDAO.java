@@ -8,6 +8,8 @@ import com.netease.webbench.blogbench.model.BlogInfoWithPub;
 import com.netease.webbench.common.DynamicArray;
 
 public interface BlogDAO {
+	public void close();
+	
 	public Blog selectBlog(long blogId, long uId) throws Exception;
 	
 	public List<Long> selBlogList(long uId) throws Exception;

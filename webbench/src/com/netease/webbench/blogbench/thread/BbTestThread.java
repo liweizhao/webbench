@@ -74,4 +74,11 @@ public abstract class BbTestThread extends Thread {
 	public final int getErrorCode() {
 		return exitErrorCode;
 	}
+	
+	public void clean() {
+		if (this.blogDao != null) {
+			this.blogDao.close();
+			this.blogDao = null;
+		}
+	}
 }

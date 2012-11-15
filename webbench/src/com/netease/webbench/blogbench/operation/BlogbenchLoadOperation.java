@@ -59,7 +59,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation  {
 			System.out.println("Cocurrent load threads num: " + bbTestOpt.getLoadThreads());
 			
 			createProgressBar();
-			dataLoader.load();			
+			dataLoader.load();	
 			removeProgressBar(true);
 			
 			dataLoader.post();			

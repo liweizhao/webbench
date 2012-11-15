@@ -54,7 +54,7 @@ public class BlogbenchCounters implements CreateChartHandler, CreateTableHandler
 		return singleTrxCounterList.get(i);
 	}
 	
-	public TrxCounter getSingleTrxCounter(BbTestTrxType trxType) throws Exception {
+	public TrxCounter getSingleTrxCounter(BbTestTrxType trxType) {
 		return singleTrxCounterList.get(BbTestTrxType.getTrxIndex(trxType));
 	}
 	

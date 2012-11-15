@@ -153,30 +153,34 @@ public class ParameterGenerator {
 		double beta = 0.5 * pst ;
 		
 		BlogDAO blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
-		if (0 == "run".compareToIgnoreCase(opt.getOperType())) {				
-			maxBlogId.set(blogDao.selBlogNums() + 1);				
-			blgArr = blogDao.selAllBlogIds();
-			tableRunTimeSize = blgArr.size();
-						
-			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-				throw new Exception("The test table contains too less records: " 
-						+ tableRunTimeSize);
+		try {
+			if (0 == "run".compareToIgnoreCase(opt.getOperType())) {				
+				maxBlogId.set(blogDao.selBlogNums() + 1);				
+				blgArr = blogDao.selAllBlogIds();
+				tableRunTimeSize = blgArr.size();
+							
+				if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
+					throw new Exception("The test table contains too less records: " 
+							+ tableRunTimeSize);
+				}
+				
+				System.out.println("Fetch " + tableRunTimeSize + " records from database.");
+			} else {
+				long tableOldSize = 0;
+				if (!bbTestOpt.isCreateTable()) {
+					tableOldSize = blogDao.selBlogNums();
+					maxBlogId.set(tableOldSize + 1);
+				}
+				
+				tableRunTimeSize = tableOldSize + opt.getTbSize();
+				if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
+					throw new Exception("The table size specified is too less: " 
+							+ tableRunTimeSize + ", it should larger than " 
+							+ DEFAULT_MIN_RECORDS_LIMIT);
+				}
 			}
-			
-			System.out.println("Fetch " + tableRunTimeSize + " records from database.");
-		} else {
-			long tableOldSize = 0;
-			if (!bbTestOpt.isCreateTable()) {
-				tableOldSize = blogDao.selBlogNums();
-				maxBlogId.set(tableOldSize + 1);
-			}
-			
-			tableRunTimeSize = tableOldSize + opt.getTbSize();
-			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-				throw new Exception("The table size specified is too less: " 
-						+ tableRunTimeSize + ", it should larger than " 
-						+ DEFAULT_MIN_RECORDS_LIMIT);
-			}
+		} finally {
+			blogDao.close();
 		}
 		
 		blgIndexGenerator = new ZipfGenerator(opt.getBlgZipfPct(), opt

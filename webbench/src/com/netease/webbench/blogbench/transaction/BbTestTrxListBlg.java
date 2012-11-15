@@ -23,7 +23,7 @@ import com.netease.webbench.blogbench.statis.BlogbenchCounters;
  */
 public class BbTestTrxListBlg extends BbTestTransaction {	
 	public BbTestTrxListBlg(BlogDAO blogDAO, BbTestOptions bbTestOpt, 
-			BlogbenchCounters counters) throws Exception {
+			BlogbenchCounters counters) {
 		super(blogDAO, bbTestOpt, bbTestOpt.getPctListBlg(), 
 				BbTestTrxType.LIST_BLGS, counters);
 	}

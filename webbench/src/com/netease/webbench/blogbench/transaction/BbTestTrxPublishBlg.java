@@ -42,7 +42,7 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @param trxCounter
 	 */
 	public BbTestTrxPublishBlg(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters counters) throws Exception {
+			BlogbenchCounters counters) {
 		super(blogDao, bbTestOpt, bbTestOpt.getPctPublishBlg(), 
 				BbTestTrxType.PUBLISH_BLG, counters);
 	}

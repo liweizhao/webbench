@@ -241,6 +241,7 @@ public class RdbmsDataLoader implements DataLoader {
 		boolean caughtErr = false;
 		for (int i = 0; i < insertThrdCnt; i++) {
 			insertThrdGrp[i].join();
+			insertThrdGrp[i].clean();
 			if (0 != insertThrdGrp[i].getErrorCode())
 				caughtErr = true;
 		}

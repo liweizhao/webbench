@@ -14,7 +14,7 @@ public class TransactionFactory {
 	}
 	
 	protected BbTestTransaction createTrx(BlogDAO blogDao, BbTestOptions bbTestOpt, 
-			BlogbenchCounters trxCounters, BbTestTrxType type) throws Exception {
+			BlogbenchCounters trxCounters, BbTestTrxType type) throws IllegalArgumentException {
 		switch (type) {
 		case LIST_BLGS:
 			return createListBlgTrx(blogDao, bbTestOpt, trxCounters);
@@ -36,37 +36,37 @@ public class TransactionFactory {
 	}
 	
 	public BbTestTransaction createListBlgTrx(BlogDAO blogDAO, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxListBlg(blogDAO, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createShowBlgTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxShowBlg(blogDao, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createUpdateAcsTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxUpdateAcs(blogDao, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createUpdateCmtTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxUpdateCmt(blogDao, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createShowSiblingsTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxShowSiblings(blogDao, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createPublishBlgTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxPublishBlg(blogDao, bbTestOpt, trxCounters);
 	}
 
 	public BbTestTransaction createUpdateBlgTrx(BlogDAO blogDao, 
-			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) throws Exception {
+			BbTestOptions bbTestOpt, BlogbenchCounters trxCounters) {
 		return new BbTestTrxUpdateBlg(blogDao, bbTestOpt, trxCounters);
 	}
 }

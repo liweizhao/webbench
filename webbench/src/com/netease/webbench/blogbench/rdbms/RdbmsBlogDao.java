@@ -271,4 +271,14 @@ public class RdbmsBlogDao implements BlogDAO {
 			ps.close();
 		}
 	}
+
+	@Override
+	public void close() {
+		try {
+			if (null != this.dbSession && !this.dbSession.isClosed()) {
+				this.dbSession.close();	
+				this.dbSession = null;
+			}
+		} catch (SQLException e) {}
+	}
 }
