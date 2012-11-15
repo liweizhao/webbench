@@ -14,7 +14,7 @@ package com.netease.webbench.blogbench.misc;
 
 import java.util.LinkedList;
 import java.util.List;
-import com.netease.webbench.blogbench.operation.BlogbenchOperationType;
+
 import com.netease.util.Pair;
 
 /**
@@ -29,11 +29,7 @@ public class BbTestOptParser {
 		boolean operTypeSpecified = false;
 		
 		while (nextArg < args.length) {
-			if (args[nextArg].equals("--table-name")) {
-				if (nextArg == args.length - 1)
-					throw new IllegalArgumentException("No table name specified");
-				cmnOpt.setTbName(args[++nextArg]);
-			} else if (args[nextArg].equals("--table-size")) {
+			if (args[nextArg].equals("--table-size")) {
 				if (nextArg == args.length - 1)
 					throw new IllegalArgumentException("No table size specified");
 				cmnOpt.setTbSize(Long.parseLong(args[++nextArg]));
@@ -186,12 +182,12 @@ public class BbTestOptParser {
 			} else if (args[nextArg].equalsIgnoreCase("run")) {
 				if (operTypeSpecified)
 					throw new IllegalArgumentException("Duplicate operation specified(LOAD/RUN).");
-				cmnOpt.setOperType(BlogbenchOperationType.RUN);
+				cmnOpt.setOperType(args[nextArg]);
 				operTypeSpecified = true;
 			} else if (args[nextArg].equalsIgnoreCase("load")) {
 				if (operTypeSpecified)
 					throw new IllegalArgumentException("Duplicate operation specified(LOAD/RUN).");
-				cmnOpt.setOperType(BlogbenchOperationType.LOAD);
+				cmnOpt.setOperType(args[nextArg]);
 				operTypeSpecified = true;
 			} else
 				unparsedOptionList.add(args[nextArg]);

@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 
 /**
  * blogbench transaction pool per thread
@@ -30,25 +30,23 @@ public class BbTestTrxPool {
 	protected Random randomGenerator;
 	protected int trxTypeNum;
 	
-	public BbTestTrxPool(DbSession dbSession, BbTestOptions bbTestOpt, 
+	public BbTestTrxPool(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters trxCounters) 	throws Exception {
 		this.trxTypeNum = BbTestTrxType.TRX_TYPE_NUM;
 		this.trxList = new ArrayList<BbTestTransaction>(trxTypeNum);
 		
-		initialiseTrxs(dbSession, bbTestOpt, trxCounters);		
+		initialiseTrxs(blogDao, bbTestOpt, trxCounters);		
 		initialiseProb();
 	}
 	
-	private void initialiseTrxs(DbSession dbSession, BbTestOptions bbTestOpt, 
+	private void initialiseTrxs(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters trxCounters) throws Exception {		
 		BbTestTrxType allTypes[] = BbTestTrxType.values();
 		
 		for (BbTestTrxType type : allTypes) {
 			trxList.add(TransactionFactory.getInstance().
-					createTrx(dbSession, bbTestOpt, trxCounters, type));
+					createTrx(blogDao, bbTestOpt, trxCounters, type));
 		}
-		
-		prepare();
 	}
 	
 	private void initialiseProb() throws Exception {
@@ -68,11 +66,6 @@ public class BbTestTrxPool {
         	probabilities[i] = sum;
         }
 		randomGenerator = new Random();
-	}
-	
-	private void prepare() throws Exception {
-		for (int i = 0; i < trxTypeNum; i++)
-			trxList.get(i).prepare();
 	}
 	
 	/**

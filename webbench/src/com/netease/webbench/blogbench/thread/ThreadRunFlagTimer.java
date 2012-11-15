@@ -22,8 +22,8 @@ import java.util.TimerTask;
 public class ThreadRunFlagTimer {
 	private final Timer timer = new Timer();
 	/* run flag , if time expires, it's set to false */
-	private boolean runFlag = true;
-	private boolean isTimeout = false;
+	private volatile boolean runFlag = true;
+	private volatile boolean isTimeout = false;
 	
 	public boolean getRunFlag() {
 		return this.runFlag;

@@ -86,7 +86,6 @@ public class BbPeriodSummaryTaskHandler implements PeriodSummaryTaskHandler {
 
 	@Override
 	public void cancel() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 	}
 }

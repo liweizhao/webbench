@@ -12,12 +12,9 @@
  */
 package com.netease.webbench.blogbench.operation;
 
-import java.io.File;
-
 import sun.misc.Signal;
 
 import com.netease.webbench.blogbench.misc.BbTestOptions;
-import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.WebbenchSignalHandler;
 import com.netease.webbench.common.WebbenchSignalRegister;
@@ -27,6 +24,7 @@ import com.netease.webbench.common.WebbenchSignalRegister;
  * @author LI WEIZHAO
  *
  */
+@SuppressWarnings("restriction")
 public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 	/* database options */
 	protected DbOptions dbOpt;
@@ -34,11 +32,8 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 	/* blogbench test options */
 	protected BbTestOptions bbTestOpt;
 	
-	/* query parameter generator */
-	protected ParameterGenerator paraGen;	
-	
 	/* operation type */
-	protected BlogbenchOperationType operType;
+	protected final BlogbenchOperType operType;
 	
 	protected WebbenchSignalRegister signalRegister;
 	
@@ -49,86 +44,19 @@ public abstract class BlogbenchOperation implements WebbenchSignalHandler {
 	 * @param bbTestOpt
 	 * @throws Exception
 	 */
-	protected BlogbenchOperation(BlogbenchOperationType operType, DbOptions dbOpt, 
-			BbTestOptions bbTestOpt) throws Exception {
+	protected BlogbenchOperation(BlogbenchOperType operType, 
+			DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception {
 		this.operType = operType;
 		this.dbOpt = dbOpt;
 		this.bbTestOpt = bbTestOpt;
 		this.signalRegister = new WebbenchSignalRegister(this);
-		
-		/* create query parameter generator */
-		paraGen = new ParameterGenerator();
-		
-		/* initialize query parameter generator */
-		paraGen.init(bbTestOpt, dbOpt);
-	}
-	
-	/**
-	 * create specified blogbench operation
-	 * @param actionType   operation type
-	 * @param dbOpt           database options
-	 * @param bbTestOpt   blogbench test options
-	 * @return                         blogbench operation
-	 * @throws Exception
-	 */
-	public static BlogbenchOperation createBlogbenchOperation(
-			BlogbenchOperationType operType, DbOptions dbOpt, 
-			BbTestOptions bbTestOpt) throws Exception  {
-		if (operType == BlogbenchOperationType.LOAD) {
-			return new BlogbenchLoadOperation(dbOpt, bbTestOpt);
-		} else  if (operType == BlogbenchOperationType.RUN) {
-			return new BlogbenchRunOperation(dbOpt, bbTestOpt);
-		} else {
-			throw new IllegalArgumentException("Wrong blogbench operation !");
-		}
 	}
 	
 	/**
 	 * execute blogbench test operation(LOAD / RUN)
 	 * @throws Exception
 	 */
-	public abstract void executeOper() throws Exception;
-	
-	public final BlogbenchOperationType getOperationType() {
-		return operType;
-	}
-		
-	/**
-	 * create test result directory
-	 * @throws Exception create report directory failed
-	 */
-	protected void makeReportDir() throws Exception {
-		String reportDirPath = bbTestOpt.getReportDir();
-		File reportDir = new File(reportDirPath);
-		if (reportDir.exists() && !reportDir.isDirectory()) {
-			throw new Exception("A file of the same name with the specified report " +
-					"directory exists, please specify another report directory name!");
-		} else if (!reportDir.exists()) {
-			System.out.print("Report directory doesn't exist, now create it...");
-			if (reportDir.mkdirs()) {
-				System.out.println("done.");
-			} else {
-				throw new Exception("Failed to make directories:" + reportDir.getName());
-			}
-		}
-		String blogbenchPath = bbTestOpt.getReportDir() + "/blogbench-tmp";
-		File blogbenchDir = new File(blogbenchPath);
-		if (!blogbenchDir.exists() && !blogbenchDir.mkdir()) {
-			throw new Exception("Faild to create blogbench test results saved diretory!");
-		}
-	}
-	
-	public final DbOptions getDbOpt() {
-		return dbOpt;
-	}
-	
-	public final BbTestOptions getBbTestOpt() {
-		return bbTestOpt;
-	}
-	
-	public final ParameterGenerator getParaGen() {
-		return paraGen;
-	}
+	public abstract void execute() throws Exception;
 	
 	/* (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.BbTestSignalHandle#singleAction()

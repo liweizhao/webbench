@@ -14,11 +14,12 @@ package com.netease.webbench.blogbench.thread;
 
 import java.sql.SQLException;
 
-import com.netease.webbench.blogbench.misc.BbTestOptPair;
+import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.transaction.BbTestTransaction;
 import com.netease.webbench.blogbench.transaction.BbTestTrxPool;
+import com.netease.webbench.common.DbOptions;
 
 /**
  * blogbench run test thread
@@ -33,21 +34,25 @@ public class BbTestRunThread extends BbTestThread {
 
 	private ThreadRunFlagTimer runFlagTimer;
 	
-	public BbTestRunThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen,
-			BlogbenchCounters trxCounter, ThreadRunFlagTimer runFlagTimer) throws Exception {
-		this(bbTestOptPair, paraGen, trxCounter, runFlagTimer, null);
+	private ParameterGenerator paraGen;
+	
+	public BbTestRunThread(DbOptions dbOpt, BbTestOptions bbTestOpt, 
+			ParameterGenerator paraGen,	BlogbenchCounters trxCounter, 
+			ThreadRunFlagTimer runFlagTimer) throws Exception {
+		this(dbOpt, bbTestOpt, paraGen, trxCounter, runFlagTimer, null);
 	}
 	
-	public BbTestRunThread(BbTestOptPair bbTestOptPair, 
+	public BbTestRunThread(DbOptions dbOpt, BbTestOptions bbTestOpt, 
 			ParameterGenerator paraGen,
 			BlogbenchCounters trxCounters, 
 			ThreadRunFlagTimer runFlagTimer,
 			ThreadBarrier barrier
 			) throws Exception {
-		super(bbTestOptPair, paraGen, barrier);
+		super(barrier, dbOpt, bbTestOpt);
 		this.trxCounter = trxCounters;
 		this.runFlagTimer = runFlagTimer;
-		this.trxPool = new BbTestTrxPool(dbSession, bbTestOpt, trxCounters);
+		this.trxPool = new BbTestTrxPool(blogDao, bbTestOpt, trxCounters);
+		this.paraGen = paraGen;
 	}
 
 	public void run() {
@@ -58,7 +63,7 @@ public class BbTestRunThread extends BbTestThread {
 			/* loop and execute transaction */
 			while (true) {
 				BbTestTransaction trx = trxPool.getRandomTrx();
-				trx.exeTrx(paraGen);
+				trx.execTrx(paraGen);
 
 				long totalTrx = trxCounter.getTotalTrxCounter().getTrxCount();
 				
@@ -96,14 +101,6 @@ public class BbTestRunThread extends BbTestThread {
 			exitErrorCode = 1;
 			runFlagTimer.setExpired();
 			e.printStackTrace();
-		} finally {
-			if (dbSession != null) {
-				try {
-					dbSession.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 }

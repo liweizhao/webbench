@@ -12,30 +12,26 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.netease.webbench.blogbench.blog.Blog;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.model.Blog;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 /**
  * publish blog transaction 
  * @author LI WEIZHAO
  */
 public class BbTestTrxPublishBlg extends BbTestTransaction {
-	protected PreparedStatement ps;
 	
 	/**
 	 * constructor
 	 * @param dbSession
 	 */
-	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt) 
+	public BbTestTrxPublishBlg(BlogDAO blogDao, BbTestOptions bbTestOpt) 
 			throws Exception {
-		super(dbSession, bbTestOpt, 1, BbTestTrxType.PUBLISH_BLG, null);
+		super(blogDao, bbTestOpt, 1, BbTestTrxType.PUBLISH_BLG, null);
 	}
 	
 	/**
@@ -45,38 +41,22 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @param totalTrxCounter
 	 * @param trxCounter
 	 */
-	public BbTestTrxPublishBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
+	public BbTestTrxPublishBlg(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctPublishBlg(), 
+		super(blogDao, bbTestOpt, bbTestOpt.getPctPublishBlg(), 
 				BbTestTrxType.PUBLISH_BLG, counters);
 	}
 	
-	/**
-	 * bind prepared statement parameters
-	 * @param blog
-	 * @throws Exception
-	 */
-	private void bindParameter(Blog blog) throws Exception {		
-		ps.setLong(1, blog.getId());
-		ps.setLong(2, blog.getUid());
-		ps.setString(3, blog.getTitle());
-		ps.setString(4, blog.getAbs());
-		ps.setString(5, blog.getCnt());
-		ps.setInt(6, blog.getAllowView());
-		ps.setLong(7, blog.getPublishTime());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen) throws Exception {
+	public void doExecTrx(ParameterGenerator paraGen) throws Exception {
 		try {
 			Blog blog = paraGen.generateNewBlog();
-			bindParameter(blog);
-
-			if (1 == dbSession.update(ps)) {				
+			
+			if (1 == blogDAO.insertBlog(blog)) {				
 				/* if insert blog record successfully, 
 				 * update the blog id and blog user id map array */
 				paraGen.updateBlgMapArr(blog.getId(), blog.getUid(), 
@@ -97,46 +77,15 @@ public class BbTestTrxPublishBlg extends BbTestTransaction {
 	 * @param blogs
 	 * @throws Exception
 	 */
-	public void batchExec(DbSession dbSession, ParameterGenerator paraGen, 
-			Blog blogs[]) throws Exception {
-		if (!dbSession.getAutoCommit()) 
-			dbSession.setAutoCommit(false);
-		for (int i = 0; i < blogs.length; i++) {
-			bindParameter(blogs[i]);
-			ps.addBatch();
-		}
-		ps.executeBatch();
-		dbSession.commit();
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {
-		// TODO Auto-generated method stub
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(true);
-		}
-		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String sql = sqlConfig.getPublishBlogSql(bbTestOpt.getTbName(), 
-				bbTestOpt.getUseTwoTable());
-		ps = dbSession.createPreparedStatement(sql);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws Exception {
-		if (null != ps) {
-			ps.close();
-		}
-		
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(false);
-		}
-	}
+//	public void batchExec(DbSession dbSession, ParameterGenerator paraGen, 
+//			Blog blogs[]) throws Exception {
+//		if (!dbSession.getAutoCommit()) 
+//			dbSession.setAutoCommit(false);
+//		for (int i = 0; i < blogs.length; i++) {
+//			bindParameter(blogs[i]);
+//			ps.addBatch();
+//		}
+//		ps.executeBatch();
+//		dbSession.commit();
+//	}
 }

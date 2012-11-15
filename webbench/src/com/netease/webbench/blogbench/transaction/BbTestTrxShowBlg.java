@@ -12,119 +12,42 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.netease.webbench.blogbench.blog.Blog;
-import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.misc.Portable;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.model.Blog;
+import com.netease.webbench.blogbench.model.BlogInfoWithPub;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 
 /**
  * show blog transaction
  * @author LI WEIZHAO
  */
 public class BbTestTrxShowBlg extends BbTestTransaction {
-	protected PreparedStatement prepareStatement;
-
 	/**
 	 * constructor
-	 * @param dbSession
 	 * @param pct
 	 * @param totalTrxCounter
 	 * @param trxCounter
 	 */
-	public BbTestTrxShowBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
+	public BbTestTrxShowBlg(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctShowBlg(), 
+		super(blogDao, bbTestOpt, bbTestOpt.getPctShowBlg(), 
 				BbTestTrxType.SHOW_BLG, counters);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-	
-		String showSql = sqlConfig.getShowWeightBlogSql(bbTestOpt.getTbName(), 
-				Portable.getBlogContentTableName(bbTestOpt.getTbName()),
-				bbTestOpt.getUseTwoTable());
-		prepareStatement = dbSession.createPreparedStatement(showSql);
-	}
-
 	/* 
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen)
-			throws Exception {
+	public void doExecTrx(ParameterGenerator paraGen) throws Exception {
 		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
 		
-		Blog blog = getWholeBlogFromDb(blogInfo.getBlogId(), blogInfo.getUId());
+		Blog blog = blogDAO.selectBlog(blogInfo.getBlogId(), blogInfo.getUId());
 		if (blog == null) {
 			throw new Exception("Error: failed to fetch blog record " +
 					"from database(show blog transaction)!");
-		}
-	}
-	
-	/**
-	 * bind prepared statement parameter
-	 * @param localPrpStmt
-	 * @param blogId
-	 * @param uId
-	 * @throws SQLException
-	 */
-	protected void bindParameter(PreparedStatement localPrpStmt, 
-			long blogId, long uId) throws SQLException {
-		localPrpStmt.setLong(1, blogId);
-		localPrpStmt.setLong(2, uId);
-	}
-	
-	/**
-	 * fetch a whole blog record from database
-	 * @param blogId
-	 * @param uId
-	 * @return
-	 * @throws SQLException
-	 */
-	public Blog getWholeBlogFromDb(long blogId, long uId) 
-			throws SQLException {
-		bindParameter(prepareStatement, blogId, uId);
-
-		ResultSet rs = dbSession.query(prepareStatement);
-		Blog blog = null;
-
-		while (rs.next()) {
-			String title = rs.getString("Title");
-			String abs = rs.getString("Abstract");
-			String cnt = rs.getString("Content");
-			int allowView = rs.getInt("AllowView");
-			long publishTime = rs.getLong("PublishTime");
-			int acsCount = rs.getInt("AccessCount");
-			int cmtCount = rs.getInt("CommentCount");
-			blog = new Blog(blogId, uId, title, abs, cnt, allowView, publishTime, acsCount, cmtCount);
-			break;
-		}
-		rs.close();
-		return blog;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws SQLException {
-		if (null != prepareStatement) {
-			prepareStatement.close();
 		}
 	}
 }

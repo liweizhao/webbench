@@ -10,13 +10,12 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.ntse;
+package com.netease.webbench.blogbench.misc.ntse;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.netease.webbench.blogbench.misc.BbTestOptions;
-import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 
@@ -64,10 +63,9 @@ public class NtseSpecialOper {
 	 */
 	public static void disableMms(DbSession dbSession, DbOptions dbOpt, BbTestOptions bbTestOpt) throws SQLException {
 		System.out.print("Disable mms...");
-		String sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + "." + bbTestOpt.getTbName() +".usemms=false\"";
+		String sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + ".Blog.usemms=false\"";
 		dbSession.update(sql);
-		sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + "." + Portable.getBlogContentTableName(
-				bbTestOpt.getTbName()) + ".usemms=false\"";
+		sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + ".BlogContent.usemms=false\"";
 		dbSession.update(sql);
 		System.out.println("done.");
 	}
@@ -82,7 +80,7 @@ public class NtseSpecialOper {
 	public static void enableMms(DbSession dbSession, DbOptions dbOpt, BbTestOptions bbTestOpt, boolean cachedUpdate) throws SQLException {
 		System.out.print("Enable mms...");
 		
-		String sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + "." + bbTestOpt.getTbName();
+		String sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + ".Blog";
 		
 		dbSession.update(sql + ".usemms=true\"");
 		if (cachedUpdate) {
@@ -90,8 +88,7 @@ public class NtseSpecialOper {
 			dbSession.update(sql + ".cached_columns=enable AccessCount\"");
 		} 
 		
-		sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + "." + Portable.getBlogContentTableName(
-				bbTestOpt.getTbName());		
+		sql = NTSE_COMMAND_SQL + dbOpt.getDatabase() + ".BlogContent";		
 		dbSession.update(sql + ".usemms=true\"");
 		
 		System.out.println("done.");
@@ -117,9 +114,7 @@ public class NtseSpecialOper {
 					StringBuilder strBuilder = new StringBuilder();
 					strBuilder.append("set ntse_command=\"alter table set ");
 					strBuilder.append(dbOpt.getDatabase());
-					strBuilder.append('.');
-					strBuilder.append(bbTestOpt.getTbName());
-					strBuilder.append('.');
+					strBuilder.append(".Blog.");
 					strBuilder.append(statements[0]);
 					strBuilder.append('=');
 					strBuilder.append(statements[1]);

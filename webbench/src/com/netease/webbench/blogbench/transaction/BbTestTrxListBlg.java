@@ -12,33 +12,20 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 
 /**
  * list blogs transaction
  * @author LI WEIZHAO
  */
 public class BbTestTrxListBlg extends BbTestTransaction {	
-	protected PreparedStatement prepareStatement;
-
-	public BbTestTrxListBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
+	public BbTestTrxListBlg(BlogDAO blogDAO, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctListBlg(), 
+		super(blogDAO, bbTestOpt, bbTestOpt.getPctListBlg(), 
 				BbTestTrxType.LIST_BLGS, counters);
-	}
-
-	private void bindParameter(long uid) throws SQLException{
-		prepareStatement.setLong(1, uid);
 	}
 
 	/*
@@ -46,51 +33,8 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen) 	throws Exception {
-		long uId = paraGen.getZipfUserId();
-		getListFromDb(dbSession, uId);
-	}
-	
-	public ArrayList<Long> getListFromDb(DbSession dbSession, long uId) throws SQLException {
-		try {
-			bindParameter(uId);
-			
-			ResultSet rs = dbSession.query(prepareStatement);
-						
-			ArrayList<Long> resultList = new ArrayList<Long>();
-			while (rs.next()) {
-				resultList.add(rs.getLong("ID"));
-			}
-			
-			rs.close();
-			return resultList;
-		} catch (SQLException e) {
-			myTrxCounter.incrFailedTimes();
-			throw e;
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {
-		if (dbSession == null) {
-			throw new Exception("Database connection doesn't exit!");
-		}
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String listSql = sqlConfig.getListBlogsSql(bbTestOpt.getTbName());
-		prepareStatement = dbSession.createPreparedStatement(listSql);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws SQLException {
-		if (null != prepareStatement) {
-			prepareStatement.close();
-		}
+	public void doExecTrx(ParameterGenerator paraGen) 	throws Exception {
+		long uId = paraGen.getZipfUserId();		
+		blogDAO.selBlogList(uId);
 	}
 }

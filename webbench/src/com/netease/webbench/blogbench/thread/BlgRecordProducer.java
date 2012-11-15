@@ -16,8 +16,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.netease.webbench.blogbench.blog.Blog;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
+import com.netease.webbench.blogbench.model.Blog;
 
 /**
  *  blog record producer
@@ -33,9 +33,10 @@ public class BlgRecordProducer extends Thread {
 	private int queueMaxSize = DEFAULT_QUEUE_SIZE;
 	private long produceNum;
 	private long hasProduced = 0;
-	private boolean shouldExit = false;
+	private volatile boolean shouldExit = false;
 	
-	public BlgRecordProducer(ParameterGenerator paraGen, long produceNum) throws Exception {	
+	public BlgRecordProducer(ParameterGenerator paraGen, 
+			long produceNum) throws Exception {	
 		blockingQueue = new ArrayBlockingQueue<Blog>(queueMaxSize);
 		this.produceNum = produceNum;
 		this.paraGen = paraGen;

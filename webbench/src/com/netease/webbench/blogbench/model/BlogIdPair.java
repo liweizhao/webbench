@@ -10,44 +10,52 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.sql;
+package com.netease.webbench.blogbench.model;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
- * meta information of SQL statement
+ * Blog id and user id pair
  * @author LI WEIZHAO
- *
  */
-public class SQLStatementMeta {
-	private String name = "";
-	private boolean useTwoTables = false;
+public class BlogIdPair  implements Externalizable {	
+	/* blog Id */
+	protected long blogId;
+
+	/* user Id */
+	protected long uId;
 	
-	public SQLStatementMeta(String name, boolean useTwoTables) {
-		this.name = name;
-		this.useTwoTables = useTwoTables;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public boolean isUseTwoTables() {
-		return useTwoTables;
-	}
-	public void setUseTwoTables(boolean useTwoTables) {
-		this.useTwoTables = useTwoTables;
-	}
-	public int hashCode() {
-		 return (name + new Boolean(useTwoTables).toString()).hashCode();
+	public BlogIdPair(long blogId, long uId) {
+		this.blogId = blogId;
+		this.uId = uId;
 	}
 	
-	public boolean equals(Object o) {
-		SQLStatementMeta m = (SQLStatementMeta)o;
-		if (!name.equals(m.getName()))
-			return false;
-		else if (useTwoTables != m.isUseTwoTables())
-			return false;
-		return true;
+	public long getBlogId() {
+		return blogId;
 	}
+
+	public void setBlogId(long blogId) {
+		this.blogId = blogId;
+	}
+	
+	public long getUId() {
+		return uId;
+	}
+
+	public void setUId(long id) {
+		uId = id;
+	}
+	
+	public void readExternal(ObjectInput in) throws IOException {
+		blogId = in.readLong();
+		uId = in.readLong();
+	}
+	
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(blogId);
+		out.writeLong(uId);
+	}	
 }

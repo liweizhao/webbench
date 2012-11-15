@@ -12,113 +12,37 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import com.netease.webbench.blogbench.blog.Blog;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.misc.Portable;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.model.Blog;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 /**
  * update blog transaction
  * @author LI WEIZHAO
  */
 public class BbTestTrxUpdateBlg extends BbTestTransaction {
-	protected PreparedStatement psUpdtBlog;
-	protected PreparedStatement psUpdtContent;
-	
-	public BbTestTrxUpdateBlg(DbSession dbSession, BbTestOptions bbTestOpt, 
+	public BbTestTrxUpdateBlg(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateBlg(), 
+		super(blogDao, bbTestOpt, bbTestOpt.getPctUpdateBlg(), 
 				BbTestTrxType.UPDATE_BLOG, counters);
 	}
 	
-	private void bindParameter(Blog blog) throws Exception {
-		if (bbTestOpt.getUseTwoTable()) {
-			psUpdtBlog.setLong(1, blog.getPublishTime());
-			psUpdtBlog.setString(2, blog.getTitle());
-			psUpdtBlog.setString(3, blog.getAbs());
-			psUpdtBlog.setLong(4, blog.getId());
-			psUpdtBlog.setLong(5, blog.getUid());
-			
-			psUpdtContent.setString(1, blog.getCnt());
-			psUpdtContent.setLong(2, blog.getId());
-			psUpdtContent.setLong(3, blog.getUid());
-		} else {
-			psUpdtBlog.setLong(1, blog.getPublishTime());
-			psUpdtBlog.setString(2, blog.getTitle());
-			psUpdtBlog.setString(3, blog.getAbs());
-			psUpdtBlog.setString(4, blog.getCnt());
-
-			psUpdtBlog.setLong(5, blog.getId());
-			psUpdtBlog.setLong(6, blog.getUid());
-		}
-	}
-
 	/* 
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen)
+	public void doExecTrx(ParameterGenerator paraGen)
 			throws Exception {
-		updateBlog(paraGen.generateZipfDistrBlog());
-	}
-	
-	public void updateBlog(Blog blog) throws Exception {
+		Blog blog = paraGen.generateZipfDistrBlog();		
 		try {
-			bindParameter(blog);
-			if (bbTestOpt.getUseTwoTable()) {
-				if (!(1 == dbSession.update(psUpdtBlog) && 
-						1 ==dbSession.update(psUpdtContent))) {
-					myTrxCounter.incrFailedTimes();
-				}
-			} else {
-				if (1 != dbSession.update(psUpdtBlog)) {
-					myTrxCounter.incrFailedTimes();
-				}
+			if (1 != blogDAO.updateBlog(blog)) {
+				myTrxCounter.incrFailedTimes();
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			myTrxCounter.incrFailedTimes();
 			throw e;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(true);
-		}
-		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String sql = sqlConfig.getUpdateBlogSql(bbTestOpt.getTbName(), 
-				bbTestOpt.getUseTwoTable());
-		psUpdtBlog = dbSession.createPreparedStatement(sql);
-		
-		if (bbTestOpt.getUseTwoTable()) {
-			String sql2 = sqlConfig.getUpdateContentSql(Portable.getBlogContentTableName(bbTestOpt.getTbName()));
-			psUpdtContent = dbSession.createPreparedStatement(sql2);
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws Exception {
-		if (null != psUpdtBlog) {
-			psUpdtBlog.close();
-		}
-		if (null != psUpdtContent) {
-			psUpdtContent.close();
 		}
 	}
 }

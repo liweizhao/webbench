@@ -12,40 +12,22 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.netease.webbench.blogbench.blog.BlogInfoWithAcs;
-import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.model.BlogInfoWithPub;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 /**
  * update access count transaction
  * @author LI WEIZHAO
  */
-public class BbTestTrxUpdateAcs extends BbTestTransaction {	
-	protected PreparedStatement prepareStatement;
-	
-	public BbTestTrxUpdateAcs(DbSession dbSession, BbTestOptions bbTestOpt, 
+public class BbTestTrxUpdateAcs extends BbTestTransaction {		
+	public BbTestTrxUpdateAcs(BlogDAO blogDao, BbTestOptions bbTestOpt, 
 			BlogbenchCounters counters) throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctUpdateAccess(),
+		super(blogDao, bbTestOpt, bbTestOpt.getPctUpdateAccess(),
 				BbTestTrxType.UPDATE_ACS, counters);
-	}
-	
-	protected void bindParameter(long blogId, long uId) throws SQLException {
-		prepareStatement.setLong(1, uId);
-		prepareStatement.setLong(2, blogId);
-	}
-	
-	protected void bindParameter(BlogInfoWithAcs blogInfo) throws SQLException {
-		prepareStatement.setInt(1, blogInfo.getBlogAcs());
-		prepareStatement.setLong(2, blogInfo.getUId());
-		prepareStatement.setLong(3, blogInfo.getBlogId());
-		prepareStatement.setInt(4, blogInfo.getBlogAcs());
 	}
 
 	/*
@@ -53,16 +35,15 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen) 
+	public void doExecTrx(ParameterGenerator paraGen) 
 	throws Exception {		
 		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
 		updateAcsToDb(blogInfo.getBlogId(), blogInfo.getUId());
 	}
 	
-	public void updateAcsToDb(long blogId, long uId) throws SQLException {
-		try {			
-			bindParameter(blogId, uId);			
-			if (1 != dbSession.update(prepareStatement)) {
+	public void updateAcsToDb(long blogId, long uId) throws Exception {
+		try {	
+			if (1 != blogDAO.updateAccess(blogId, uId)) {
 				System.out.println("Update access count failed");
 				myTrxCounter.incrFailedTimes();
 			}
@@ -70,43 +51,5 @@ public class BbTestTrxUpdateAcs extends BbTestTransaction {
 			myTrxCounter.incrFailedTimes();
 			throw e;
 		}		
-	}
-	
-	public void updateAcsToDb(BlogInfoWithAcs blogInfo) throws SQLException {
-		try {
-			bindParameter(blogInfo);
-			if (1 != dbSession.update(prepareStatement)) {
-				//System.out.println("Update access count failed");
-				//failedTimes++;
-			}
-		} catch (SQLException e) {
-			myTrxCounter.incrFailedTimes();
-			throw e;
-		}
-	}
-
-	/* 
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {	
-		if (bbTestOpt.isParallelDml()) {
-			dbSession.setParallelDML(true);
-		}
-
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String sql = sqlConfig.getUpdateAccessSql(bbTestOpt.getTbName());
-		prepareStatement = dbSession.createPreparedStatement(sql);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws Exception {
-		if (null != prepareStatement) {
-			prepareStatement.close();
-		}
 	}
 }

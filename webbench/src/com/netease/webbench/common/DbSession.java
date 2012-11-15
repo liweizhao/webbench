@@ -21,8 +21,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.netease.webbench.blogbench.misc.Portable;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.rdbms.sql.SQLConfigure;
+import com.netease.webbench.blogbench.rdbms.sql.SQLConfigureFactory;
 
 /**
  * database connection

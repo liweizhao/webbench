@@ -12,11 +12,11 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.common.DbOptions;
-import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.Util;
 import com.netease.webbench.statis.TrxCounter;
 
@@ -26,33 +26,27 @@ import com.netease.webbench.statis.TrxCounter;
  */
 public abstract class BbTestTransaction {		
 	/* total transaction counter */
-	protected TrxCounter totalTrxCounter;
-	protected TrxCounter myTrxCounter;
-	
+	protected final TrxCounter totalTrxCounter;
+	protected final TrxCounter myTrxCounter;	
 	/* percentage of this transaction in all types of transactions */	
-	protected int pct;
-	
+	protected final int pct;	
 	/* transaction type */
-	protected BbTestTrxType trxType;
+	protected final BbTestTrxType trxType;
 	
-	protected DbSession dbSession;
 	protected BbTestOptions bbTestOpt;
 	protected DbOptions dbOpt;
+	protected BlogDAO blogDAO;
 	
 	public BbTestTransaction(BbTestTransaction another, 
 			BlogbenchCounters counters) throws Exception {
-		this(another.dbSession, another.bbTestOpt, another.pct, another.trxType,
-				counters);
+		this(another.blogDAO, another.bbTestOpt, another.pct, 
+				another.trxType, counters);
 	}
 	
-	public BbTestTransaction(DbSession dbSession, 
-			BbTestOptions bbTestOpt, 
-			int pct, 
-			BbTestTrxType trxType, 
-			BlogbenchCounters counters) throws Exception {
-		this.dbSession = dbSession;
+	public BbTestTransaction(BlogDAO blogDao, BbTestOptions bbTestOpt, int pct, 
+			BbTestTrxType trxType, BlogbenchCounters counters) throws Exception {
+		this.blogDAO = blogDao;
 		this.bbTestOpt = bbTestOpt;
-		this.dbOpt = dbSession.getDbOpt();
 		this.pct = pct;
 		this.trxType = trxType;
 		
@@ -64,23 +58,18 @@ public abstract class BbTestTransaction {
 		return pct;
 	}
 	
-	/**
-	 *  create prepared SQL statement
-	 * @throws Exception
-	 */
-	public abstract void prepare() throws Exception;
-	
-	public void exeTrx(ParameterGenerator paraGen) throws Exception {
+	public final void execTrx(ParameterGenerator paraGen) throws Exception {
 		try {
-			long before = Util.currentTimeMillis();			
-			doExeTrx(paraGen);			
+			long before = Util.currentTimeMillis();	
+			
+			doExecTrx(paraGen);	
+			
 			long after = Util.currentTimeMillis();
 			
 			long timeWaste = after - before;
 			totalTrxCounter.addTrx(timeWaste);
 			myTrxCounter.addTrx(timeWaste);
 		} catch (Exception e) {
-			cleanRes();
 			throw e;
 		}
 	}
@@ -90,7 +79,5 @@ public abstract class BbTestTransaction {
 	 * @param paraGen query parameter generator
 	 * @return 
 	 */
-	protected abstract void doExeTrx(ParameterGenerator paraGen) throws Exception;
-	
-	public void cleanRes()  throws Exception {}
+	protected abstract void doExecTrx(ParameterGenerator paraGen) throws Exception;
 }

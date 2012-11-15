@@ -1,136 +1,102 @@
-/**
-  * Copyright (c) <2011>, <NetEase Corporation>
-  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- *
- *    1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- *    3. Neither the name of the <ORGANIZATION> nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.netease.webbench.blogbench;
 
+import com.netease.util.Pair;
+import com.netease.webbench.WebbenchTest;
+import com.netease.webbench.blogbench.misc.BbTestOptParser;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
-import com.netease.webbench.blogbench.misc.Portable;
-import com.netease.webbench.blogbench.operation.BlogbenchOperation;
+import com.netease.webbench.common.DbOptParser;
 import com.netease.webbench.common.DbOptions;
-import com.netease.webbench.common.DbSession;
 
-/**
- * blogbench test
- * @author LI WEIZHAO
- */
-public class BlogbenchTest {
-	/* single instance of blogbench test */
-	private static BlogbenchTest instance;	
+public abstract class BlogbenchTest implements WebbenchTest {
+	protected BbTestOptions bbTestOpt;
+	protected DbOptions dbOpt;
+	protected final String testName;
 	
-	private DbOptions dbOpt;
-	private BbTestOptions bbTestOpt;
+	public BlogbenchTest(String testName) {
+		this.testName = testName;
+	}
+	
+	@Override
+	public void setUp(String[] args) throws Exception {
+		parseArgs(args);
+	}
+	
+	@Override
+	public void tearDown() {
+	}
+	
+	@Override
+	public abstract void run() throws Exception;
+	
+	/**
+	 * parse database options from command line arguments
+	 * @param args
+	 * @return
+	 */
+	protected String[] parseDbOption(String[] args) throws IllegalArgumentException {
+		Pair<DbOptions, String[]> dbOptPair = null;
+		dbOptPair = DbOptParser.parse(args);
+		if (dbOptPair != null) {
+			dbOpt = dbOptPair.getFirst();
+			return dbOptPair.getSecond();
+		} else 
+			return null;
+	}
+	
+	/**
+	 * parse blogbench test options from command line arguments
+	 * @param args
+	 * @return
+	 */
+	protected String[] parseCommon(String[] args) throws IllegalArgumentException {
+		Pair<BbTestOptions, String[]> commonOptPair = null;
+		commonOptPair = BbTestOptParser.parse(args);
+		if (commonOptPair != null) {
+			bbTestOpt = commonOptPair.getFirst();
+			return commonOptPair.getSecond();
+		} else
+			return null;
+	}
 
-	private BlogbenchTest() {}
+	protected void parseArgs(String[] args) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		
+		try {	
+			String[] unparseArgs = parseDbOption(args);
 			
-	/**
-	 * check default options is correctly set
-	 * @param dbOpt
-	 * @param bbTestOpt
-	 */
-	private void checkDflOptions(DbOptions dbOpt, BbTestOptions bbTestOpt) {
-		if (dbOpt.getDriverName() == null || dbOpt.getDriverName().equals("")) {
-			dbOpt.setDriverName(Portable.getDflJdbcDrvName(dbOpt.getDbType()));
-		}
-		if (dbOpt.getJdbcUrl() == null || dbOpt.getJdbcUrl().equals("")) {
-			dbOpt.setJdbcUrl(Portable.getDflJdbcUrl(dbOpt.getDbType(), dbOpt.getHost(), 
-					dbOpt.getPort(), dbOpt.getDatabase()));
-		}
-		if (! bbTestOpt.specifiedDeferIdx() &&
-				dbOpt.getDbType().equalsIgnoreCase("mysql") &&
-				bbTestOpt.getTbEngine().equalsIgnoreCase("ntse")) {
-			bbTestOpt.setDeferIndex(true);
-		}		
-	}
-	
-	/**
-	 * get blogbench test instance
-	 * @return current blogbench test instance
-	 */
-	public static BlogbenchTest getInstance() {
-		synchronized (BlogbenchTest.class) {
-			if (instance == null){
-				instance = new BlogbenchTest();
+			if(unparseArgs == null) {
+				throw new IllegalArgumentException("Lack of common command line options!");
 			}
-		}
-		return instance;
-	}
-
-	/**
-	 * initialise blogbench test
-	 * @param dbOpt
-	 * @param bbTestOpt
-	 * @throws Exception
-	 */
-	public void init(DbOptions dbOpt, BbTestOptions bbTestOpt) 
-			throws IllegalArgumentException {
-		System.out.println("Blogbench test is initilizing...");
-		this.dbOpt = dbOpt;
-		this.bbTestOpt = bbTestOpt;
-		
-		checkDflOptions(dbOpt, bbTestOpt);
-		
-		//now only support mysql, oracle, postgreSQL
-		if (!dbOpt.getDbType().equalsIgnoreCase("mysql") &&
-				!dbOpt.getDbType().equalsIgnoreCase("oracle") &&
-				!dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
-			throw new IllegalArgumentException(
-					"Unsuported database type :" + dbOpt.getDbType());
-		}
-		
-		checkServerIsAlive();
-		
-		//checkServerCharaSet();
-	}
-	
-	/***
-	 * run blogbench test
-	 * @throws Exception
-	 */
-	public void runTest() throws Exception {
-		BlogbenchOperation blogbenchOperation = 
-				BlogbenchOperation.createBlogbenchOperation(
-						bbTestOpt.getOperType(), dbOpt, bbTestOpt);
-		blogbenchOperation.executeOper();
-	}
-	
-	/**
-	 *  check character set of database server
-	 * @throws Exception
-	 */
-	protected void checkServerCharaSet() throws Exception {
-		/*DbSession dbSession = new DbSession(dbOpt);
-		dbSession.checkServerCharaSet();
-		dbSession.close();*/
-	}
-	
-	/**
-	 *  check if database server is able to connect
-	 * @return 
-	 */
-	protected void checkServerIsAlive() {
-		DbSession testSession = null;
-		try {
-			testSession = new DbSession(dbOpt);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}	finally {
-			try {
-				Thread.sleep(300);
-				if (testSession != null) {
-					testSession.close();
+			
+			unparseArgs = parseCommon(unparseArgs);
+			
+			if (unparseArgs != null && unparseArgs.length != 0) {
+				StringBuffer sb = new StringBuffer();
+				for (int i = 0; i < unparseArgs.length; i++) {
+					if (i > 0 )
+						sb.append(", ");
+					sb.append(unparseArgs[i]);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+				throw new IllegalArgumentException("Can't parsed arguments:" + sb.toString());
 			}
+			
+			if (bbTestOpt.getOperType() == null ) {
+				throw new IllegalArgumentException("No valid blogbench action type specified!");
+			}
+		} catch (IllegalArgumentException e) {
+			showHelp();
+			throw e;
 		}
+	}
+	
+	public void showHelp() {
+		// TODO Auto-generated method stub
+		System.out.println("blogbench V0.3");
+		System.out.println("Uses: \n\tjava com.netease.webbench.blogbench.Main " +
+				"OPTIONS ACTION");
+		System.out.println("");
+		System.out.println("OPTIONS:");
+		DbOptParser.showDbOptionHelp();
+		BbTestOptParser.showCommonOptHelp();
 	}
 }

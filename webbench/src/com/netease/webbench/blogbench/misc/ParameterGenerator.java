@@ -16,21 +16,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.netease.webbench.blogbench.blog.Blog;
-import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
-import com.netease.webbench.blogbench.ntse.NTSEInitialiser;
-import com.netease.webbench.blogbench.operation.BlogbenchOperationType;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.dao.BlogDAO;
+import com.netease.webbench.blogbench.dao.BlogDAOFactory;
+import com.netease.webbench.blogbench.misc.ntse.NTSEInitialiser;
+import com.netease.webbench.blogbench.model.Blog;
+import com.netease.webbench.blogbench.model.BlogInfoWithPub;
 import com.netease.webbench.blogbench.statis.ParaDistribution;
 import com.netease.webbench.common.DbOptions;
-import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.DynamicArray;
 import com.netease.webbench.common.Util;
 import com.netease.webbench.random.GammaGenerator;
@@ -49,9 +45,6 @@ public class ParameterGenerator {
 	private final static char[] TITLE = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 
 		'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
 		'w', 'x', 'y', 'z'};
-	
-	/* fetch size of blog records when initialise */
-	private final static int FETCH_SIZE = 10000;
 	
 	/* random Zipf blog index generator */
 	private ZipfGenerator blgIndexGenerator;
@@ -97,7 +90,7 @@ public class ParameterGenerator {
 	public ParameterGenerator() {
 		titleLenRange = 0;
 		absRange = 0;
-		tableRunTimeSize = 0;	
+		tableRunTimeSize = 0;
 		cntInitArr = null;
 		paraDist = new ParaDistribution();
 	}
@@ -109,7 +102,7 @@ public class ParameterGenerator {
 	 * @throws Exception
 	 */
 	private void initParaInitHandler(DbOptions dbOpt) throws Exception {
-		if (bbTestOpt.getOperType() == BlogbenchOperationType.RUN && 
+		if (0 == "run".compareToIgnoreCase(bbTestOpt.getOperType()) && 
 				dbOpt.getDbType().equalsIgnoreCase("mysql")
 				&& bbTestOpt.getTbEngine().equalsIgnoreCase("ntse")) {
 			this.dbOpt = dbOpt;
@@ -126,17 +119,18 @@ public class ParameterGenerator {
 	public void init(BbTestOptions opt, DbOptions dbOpt) throws Exception {
 		System.out.println("Is initializing parameter generator...");		
 		this.bbTestOpt = opt;
+		this.dbOpt = dbOpt;
 		
 		initParaInitHandler(dbOpt);
-		if (null != this.initialiseHandler) {
-			this.initialiseHandler.doBeforeInit();
+		if (null != initialiseHandler) {
+			initialiseHandler.doBeforeInit();
 		}
 		
 		//do real initialise work
-		doInit(opt, dbOpt);
+		doInit(opt, this.dbOpt);
 		
-		if (null != this.initialiseHandler) {
-			this.initialiseHandler.doAfterInit();
+		if (null != initialiseHandler) {
+			initialiseHandler.doAfterInit();
 		}
 		System.out.println("Initializing parameter generator done!");
 	}
@@ -153,178 +147,54 @@ public class ParameterGenerator {
 		this.randomGenerator = new Random();
 
 		/* read all blog content files */
-		readAllFile();
+		readBlogResouceFile();
 		
 		int pst = bbTestOpt.getAvgCntSize() - bbTestOpt.getMinCntSize();
 		double beta = 0.5 * pst ;
 		
-		if (opt.getOperType() == BlogbenchOperationType.RUN) {
-			DbSession dbSession = new DbSession(dbOpt);	
-			
-			maxBlogId.set(queryMaxBlogID(dbSession));
-			
-			//batch query blog records
-			queryAllBlogRcds(dbSession, dbOpt.getDbType().equalsIgnoreCase("mysql") && 
-				bbTestOpt.getTbEngine().equalsIgnoreCase("ntse"));
+		BlogDAO blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
+		if (0 == "load".compareToIgnoreCase(opt.getOperType())) {				
+			maxBlogId.set(blogDao.selBlogNums() + 1);				
+			blgArr = blogDao.selAllBlogIds();
+			tableRunTimeSize = blgArr.size();
 						
 			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-				throw new Exception("The test table contains too less records: " + tableRunTimeSize);
+				throw new Exception("The test table contains too less records: " 
+						+ tableRunTimeSize);
 			}
-
-			blgIndexGenerator = new ZipfGenerator(opt.getBlgZipfPct(), opt
-					.getBlgZipfRes(), opt.getBlgZipfPart(), tableRunTimeSize, true, true);
-			/* range of user ID is 1~tableSize/5 */
-			userIdGenerator = new ZipfGenerator(opt.getUserZipfPct(), opt
-					.getUserZipfRes(), opt.getUserZipfPart(), tableRunTimeSize / 5, false, false);
-			contentLenGenerator = new GammaGenerator(beta, pst, 
-					bbTestOpt.getMaxCntSize() - bbTestOpt.getMinCntSize(), true);
-					
-			dbSession.close();
-		} else if (opt.getOperType() == BlogbenchOperationType.LOAD) {
-			DbSession dbSession = new DbSession(dbOpt);	
+			
+			System.out.println("Fetch " + tableRunTimeSize + " records from database.");
+		} else {
+			long tableOldSize = 0;
 			if (!bbTestOpt.isCreateTable()) {
-				maxBlogId.set(queryMaxBlogID(dbSession));
+				tableOldSize = blogDao.selBlogNums();
+				maxBlogId.set(tableOldSize + 1);
 			}
 			
-			tableRunTimeSize = opt.getTbSize();
+			tableRunTimeSize = tableOldSize + opt.getTbSize();
 			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-				throw new Exception("The table size specified is too less: " + tableRunTimeSize + ", it should larger than " + DEFAULT_MIN_RECORDS_LIMIT);
-			}			
-			
-			blgArr = new DynamicArray<BlogInfoWithPub>(opt.getTbSize());
-			blgIndexGenerator = new ZipfGenerator(opt.getBlgZipfPct(), opt
-					.getBlgZipfRes(), opt.getBlgZipfPart(), opt.getTbSize(), true, true);
-			/* range of user ID is 1~tableSize/5 */
-			userIdGenerator = new ZipfGenerator(opt.getUserZipfPct(), opt
-					.getUserZipfRes(), opt.getUserZipfPart(),
-					opt.getTbSize() / 5, false, false);
-			contentLenGenerator = new GammaGenerator(beta, pst, 
-					bbTestOpt.getMaxCntSize() - bbTestOpt.getMinCntSize(), true);
-			
-			dbSession.close();
+				throw new Exception("The table size specified is too less: " 
+						+ tableRunTimeSize + ", it should larger than " 
+						+ DEFAULT_MIN_RECORDS_LIMIT);
+			}
 		}
-	}
-
-	/**
-	 * 
-	 * @param dbSession
-	 * @return
-	 * @throws Exception
-	 */
-	public long queryMaxBlogID(DbSession dbSession) throws Exception {
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String selectMaxIdSql = sqlConfig.getQueryMaxBlogIDSql(bbTestOpt.getTbName()); 
-				
-		ResultSet rsSelectMaxId = dbSession.query(selectMaxIdSql);
-		long maxId = 0;
-		if (rsSelectMaxId.next()) {
-			maxId = rsSelectMaxId.getInt("maxId");
-		} else {
-			throw new Exception("Error occured when query \"" + selectMaxIdSql + "\" to initialize parameterGenerator!");
-		}		
-
-		rsSelectMaxId.close();
 		
-		return maxId;
-	}
-	
-	 /**
-	  * query all blog records
-	  * @param dbSession database session
-	  * @param isNtse  if database is mysql and storage engine is NTSE
-	  * @throws Exception 
-	  */
-	private void queryAllBlogRcds(DbSession dbSession, 
-			boolean isNtse) throws Exception {		
-		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());	
-		if (isNtse) {
-			String selectCountSql = sqlConfig.getQueryBlogCountSql(bbTestOpt.getTbName());
-			ResultSet rsSelectCount = dbSession.query(selectCountSql);
-			  
-			long tbSize = 0; 
-			if (rsSelectCount.next()) { 
-				tbSize = rsSelectCount.getInt("total"); 
-				blgArr = new DynamicArray<BlogInfoWithPub>(tbSize);
-			} else { 
-				throw new Exception("Error occured when query \"" 
-					+ selectCountSql + "\" to initialize parameterGenerator!"); 
-			}
-			rsSelectCount.close();
-			 		
-			String batchSelectRecords = sqlConfig.getBatchQueryBlogSql(bbTestOpt.getTbName());
-			PreparedStatement ps = dbSession.createPreparedStatement(batchSelectRecords);
-
-			long low;
-			long high;
-			long fetchTimes = tbSize / FETCH_SIZE;
-			if ((tbSize % FETCH_SIZE) != 0) {
-				fetchTimes++;
-			}
-
-			for (long i = 0; i < fetchTimes; i++) {
-				low = i * FETCH_SIZE + 1;
-				high = (i + 1) * FETCH_SIZE;
-
-				ps.setLong(1, low);
-				ps.setLong(2, high);
-				ResultSet rs = dbSession.query(ps);
-
-				BlogInfoWithPub blog;
-				while (rs != null && rs.next()) {
-					blog = new BlogInfoWithPub(rs.getInt("ID"), rs.getInt("UserID"), rs.getLong("PublishTime"));
-					blgArr.append(blog);
-					tableRunTimeSize++;
-				}
-				rs.close();
-			}
-			
-			System.out.println("Fetch " + tableRunTimeSize + " records from database.");
-			
-			if (tableRunTimeSize != tbSize) {
-				throw new Exception("Error when fetch blog to initilize blog mapping array!");
-			}	
-		} else {
-			blgArr = new DynamicArray<BlogInfoWithPub>(maxBlogId.get());
-			
-			String queryAllSql = sqlConfig.getQueryAllBlogSql( bbTestOpt.getTbName());
-			
-			ResultSet rs = dbSession.query(queryAllSql);
-			
-			rs.setFetchSize(FETCH_SIZE);
-
-			long lastPrintTime = Util.currentTimeMillis();
-			
-			if (rs != null) {
-				BlogInfoWithPub blog;
-				while (rs.next()) {
-					blog = new BlogInfoWithPub(rs.getInt("ID"), rs.getInt("UserID"), rs.getLong("PublishTime"));
-					blgArr.append(blog);
-					tableRunTimeSize++;
-					
-					if (tableRunTimeSize % FETCH_SIZE == 0) {
-						long currentTime = Util.currentTimeMillis();
-						if (currentTime - lastPrintTime > 60000) {
-							System.out.println("Currently fetched " + tableRunTimeSize + " rows.");
-							lastPrintTime = currentTime;
-						}
-					}
-				}
-				rs.close();
-			} else {
-				throw new Exception("The result set is empty. (" + queryAllSql + ")");
-			}
-			
-			System.out.println("Fetch " + tableRunTimeSize + " records from database.");
-		}
-	}
+		blgIndexGenerator = new ZipfGenerator(opt.getBlgZipfPct(), opt
+				.getBlgZipfRes(), opt.getBlgZipfPart(), tableRunTimeSize, true, true);
+		/* range of user ID is 1~tableSize/5 */
+		userIdGenerator = new ZipfGenerator(opt.getUserZipfPct(), opt
+				.getUserZipfRes(), opt.getUserZipfPart(),
+				tableRunTimeSize / 5, false, false);
+		contentLenGenerator = new GammaGenerator(beta, pst, 
+				bbTestOpt.getMaxCntSize() - bbTestOpt.getMinCntSize(), true);
+}
 	
 	/**
 	 * read all blog content text files and cache them
 	 * @throws IOException
 	 */	
-	private void readAllFile() throws IOException {
-		ResourceReader blogResourceFileReader = new BlogResourceReader();//blog resource file reader 
+	private void readBlogResouceFile() throws IOException {
+		ResourceReader blogResourceFileReader = new BlogResourceReader();
 		cntInitArr = new ArrayList<byte []>(blogResourceFileReader.getResourceFileNum());
 		for (int i = 0; i < blogResourceFileReader.getResourceFileNum(); i++) {
 			InputStream is = blogResourceFileReader.getNextFileAsIntputStream();
@@ -334,7 +204,8 @@ public class ParameterGenerator {
 			byte[] buf = new byte[streamLen];
 			is.read(buf, 0, streamLen);
 			
-			byte[] encodeBytes = new String(buf, "GBK").getBytes(Portable.getCharacterSet());			
+			byte[] encodeBytes = new String(buf, "GBK").getBytes(
+					Portable.getCharacterSet());			
 			cntInitArr.add(encodeBytes);
 			
 			is.close();

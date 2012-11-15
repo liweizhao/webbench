@@ -10,7 +10,7 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.blog;
+package com.netease.webbench.blogbench.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,8 +32,9 @@ public class Blog {
 		content = new BlogContent();
 	}
 	
-	public Blog(long id, long uid, String title, String abs, String cnt,
-			int allowView, long publishTime, int accessCount, int commentCount) {
+	public Blog(long id, long uid, String title, 
+			String abs, String cnt,	int allowView, 
+			long publishTime, int accessCount, int commentCount) {
 		this.lightBlog = new LightBlog(id, uid, title, abs, allowView, publishTime, 
 				accessCount, commentCount);
 		this.content = new BlogContent(cnt);

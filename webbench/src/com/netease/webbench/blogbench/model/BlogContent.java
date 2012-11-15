@@ -10,7 +10,7 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.blog;
+package com.netease.webbench.blogbench.model;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -18,41 +18,37 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- *  Blog information with publish time
- *  @author LI WEIZHAO
+ *   Blog content
+ *   @author LI WEIZHAO
  */
-public class BlogInfoWithPub extends BlogIdPair implements Externalizable {
+public class BlogContent implements Externalizable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5657727924970156608L;
-	private long publishTime;
+	private static final long serialVersionUID = 5371916797341611699L;
+	private String content;
 	
-	public BlogInfoWithPub() {
-		super(0, 0);
-		publishTime = 0;
+	public BlogContent() {
+		content = null;
+	}
+	
+	public BlogContent(String content) {
+		this.content = content;
 	}
 
-	public BlogInfoWithPub(long blogId, long uId, long publishTime) {
-		super(blogId, uId);
-		this.publishTime = publishTime;
+	public String getContent() {
+		return content;
 	}
 
-	public long getPublishTime() {
-		return publishTime;
-	}
-
-	public void setPublishTime(long publishTime) {
-		this.publishTime = publishTime;
+	public void setContent(String content) {
+		this.content = content;
 	}
 	
 	public void readExternal(ObjectInput in) throws IOException {
-		super.readExternal(in);
-		publishTime = in.readLong();
+		content = in.readUTF();
 	}
 	
 	public void writeExternal(ObjectOutput out) throws IOException {
-		super.writeExternal(out);
-		out.writeLong(publishTime);
+		out.writeUTF(content);
 	}
 }

@@ -21,8 +21,8 @@ import java.util.List;
 
 import sun.misc.Signal;
 
-import com.netease.webbench.blogbench.misc.BbTestOptPair;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
+import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BbPeriodSummaryTaskHandler;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 import com.netease.webbench.blogbench.thread.BbTestRunThread;
@@ -43,6 +43,7 @@ import com.netease.webbench.statis.TrxCounter;
  * @author LI WEIZHAO
  *
  */
+@SuppressWarnings("restriction")
 public class BlogbenchRunOperation extends BlogbenchOperation {
 	private BlogbenchCounters blogbenchCounters;
 	
@@ -53,11 +54,11 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	
 	private BbTestRunThread[] trdArr;
 	private RunTimeInfoCollector runTimeInfoCollector = null;
+	private ParameterGenerator paraGen;
 	
 	/* duration of current test */
 	private long testStartTime;
 	private long testStopTime;
-	private int trxTypeNum;
 	
 	/**
 	 * constructor
@@ -65,19 +66,18 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	 * @param bbTestOpt
 	 * @throws Exception
 	 */
-	public BlogbenchRunOperation(DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception {
-		super(BlogbenchOperationType.RUN, dbOpt, bbTestOpt);
-		trxTypeNum = BbTestTrxType.TRX_TYPE_NUM;
-		blogbenchCounters = new BlogbenchCounters(trxTypeNum);
+	public BlogbenchRunOperation(DbOptions dbOpt, BbTestOptions bbTestOpt,
+			ParameterGenerator paraGen) throws Exception {
+		super(BlogbenchOperType.RUN, dbOpt, bbTestOpt);
+		this.blogbenchCounters = new BlogbenchCounters(BbTestTrxType.TRX_TYPE_NUM);
+		this.paraGen = paraGen;
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.BlogbenchOperation#executeOper()
 	 */
-	public void executeOper()  throws Exception {		
-		/* make directory of test report */
-		makeReportDir();
+	public void execute()  throws Exception {		
 			
 		testStartTime = Util.currentTimeMillis();
 		/* print current blogbench test options */
@@ -88,13 +88,13 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		System.out.println("-------------------------------------------");
 				
 		/* create run flag timer thread */
-		runFlagTimer = new ThreadRunFlagTimer();		
+		runFlagTimer = new ThreadRunFlagTimer();
 		ThreadBarrier barrier = new ThreadBarrier();
 		
 		/* create test threads */
 		trdArr = new BbTestRunThread[bbTestOpt.getThreads()];
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
-			trdArr[i] = new BbTestRunThread(new BbTestOptPair(bbTestOpt, dbOpt), 
+			trdArr[i] = new BbTestRunThread(dbOpt, bbTestOpt,  
 					paraGen, blogbenchCounters, runFlagTimer, barrier);
 			trdArr[i].start();
 		}
@@ -123,7 +123,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 			runTimeInfoCollector.beginCollectInfo();
 		}
 		
-		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, bbTestOpt.getReportDir()); 
+		periodTaskHandler = new BbPeriodSummaryTaskHandler(blogbenchCounters, 
+				bbTestOpt.getReportDir()); 
 		long msInterval = bbTestOpt.getPrintThoughputPeriod() * 1000;
 		periodSummaryTask = new PeriodSummaryTask(msInterval, periodTaskHandler);
 							
@@ -145,6 +146,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 				break;
 			}
 		}
+		
 		finish(hasError);
 	}
 	
@@ -252,7 +254,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	 * print blogbench test result and save to file
 	 * @throws IOException
 	 */
-	private void printResult() throws Exception {	
+	private void printResult() throws Exception {
 		StringBuilder buf = new StringBuilder(2048);
 		buf.append("--------------\n");
 		buf.append("Blogbench Test Report----------------------------------------\n");
@@ -261,7 +263,7 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		buf.append("--------------------------------" +
 				"Total Transactions Statistics" +
 				"---------------------------------\n");
-		buf.append(getTrxResult(blogbenchCounters.getTotalTrxCounter()));		
+		buf.append(getTrxResult(blogbenchCounters.getTotalTrxCounter()));
 		
 		for (int i = 0; i < BbTestTrxType.TRX_TYPE_NUM; i++) {
 			buf.append("----------------------------");
@@ -276,7 +278,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		System.out.println(result);
 		
 		/* save oper result to file */
-		FileWriter fw = new FileWriter(getBbTestOpt().getReportDir() + "blogbench-report.txt");
+		FileWriter fw = new FileWriter(super.bbTestOpt.getReportDir() + 
+				"blogbench-report.txt");
 		fw.write(result);
 		fw.close();
 	}	
@@ -287,7 +290,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		buf.append("Average TPS: " + String.format("%.0f\n", 
 				(double)counter.getTrxCount() * 1000/ getActualTestTime()));
 		buf.append("Transaction Failed Times: " + counter.getFailedTimes() + "\n");
-		buf.append("Response Time:\n\tMin:" + counter.getMinResponseTime() + " milliseconds\n");
+		buf.append("Response Time:\n\tMin:" + counter.getMinResponseTime() 
+				+ " milliseconds\n");
 		buf.append("\tMax:" + counter.getMaxResponseTime() + " milliseconds\n");
 		buf.append("\tAverage:" + counter.getAvgResponseTime() + " milliseconds\n");
 		buf.append("\t90%:" + counter.getMostResponseTime() + " milliseconds\n");	

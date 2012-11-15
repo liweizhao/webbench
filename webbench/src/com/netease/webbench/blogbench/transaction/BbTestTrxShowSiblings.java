@@ -12,37 +12,22 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.netease.webbench.blogbench.blog.BlogInfoWithPub;
+import com.netease.util.Pair;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
-import com.netease.webbench.blogbench.sql.SQLConfigure;
-import com.netease.webbench.blogbench.sql.SQLConfigureFactory;
+import com.netease.webbench.blogbench.model.BlogInfoWithPub;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
-import com.netease.webbench.common.DbSession;
 
 /**
  * show siblings transaction
  * @author LI WEIZHAO
  */
 public class BbTestTrxShowSiblings extends BbTestTransaction {
-	protected PreparedStatement prepareStatementPre;
-	protected PreparedStatement prepareStatementNxt;
-	
-	public BbTestTrxShowSiblings(DbSession dbSession, BbTestOptions bbTestOpt, BlogbenchCounters counters) 
-	throws Exception {
-		super(dbSession, bbTestOpt, bbTestOpt.getPctShowSibs(), 
+	public BbTestTrxShowSiblings(BlogDAO blogDao, BbTestOptions bbTestOpt, 
+			BlogbenchCounters counters) throws Exception {
+		super(blogDao, bbTestOpt, bbTestOpt.getPctShowSibs(), 
 				BbTestTrxType.SHOW_SIBS, counters);
-	}
-
-	private void bindParameter(long userId, long publishTime) throws SQLException {
-		prepareStatementPre.setLong(1, publishTime);
-		prepareStatementPre.setLong(2, userId);
-		prepareStatementNxt.setLong(1, publishTime);
-		prepareStatementNxt.setLong(2, userId);
 	}
 
 	/*
@@ -50,71 +35,11 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#exeTrx(com.netease.webbench.blogbench.misc.ParameterGenerator)
 	 */
 	@Override
-	public void doExeTrx(ParameterGenerator paraGen) 
-	throws Exception {
+	public void doExecTrx(ParameterGenerator paraGen) throws Exception {
 		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
-		getSiblingsFromDb(blogInfo, paraGen);
-	}	
-		
-	public int[] getSiblingsFromDb(BlogInfoWithPub blogInfo, 
-			ParameterGenerator paraGen) throws SQLException {
-		try {			
-			long userId = blogInfo.getUId();			
-			long publishTime = blogInfo.getPublishTime();
-			
-			bindParameter(userId, publishTime);
-
-			ResultSet rsPre = dbSession.query(prepareStatementPre);
-
-			int [] sibings = new int[2];
-			
-			if (rsPre.next()) {
-				sibings[0] = rsPre.getInt("ID");
-			}
-			rsPre.close();
-
-			ResultSet rsNext = dbSession.query(prepareStatementNxt);
-			if (rsNext.next()) {
-				sibings[1] = rsNext.getInt("ID");
-			}
-			rsNext.close();
-			
-			return sibings;
-		} catch (SQLException e) {
-			myTrxCounter.incrFailedTimes();
-			throw e;
-		}		
-	}
-
-	/* 
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#prepare()
-	 */
-	@Override
-	public void prepare() throws Exception {
-		if (dbSession == null) {
-			throw new Exception("Database connection doesn't exit!");
-		}
-		
-		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String preSql = sqlConfig.getShowPreSiblingsSql(bbTestOpt.getTbName());
-		prepareStatementPre = dbSession.createPreparedStatement(preSql);
-		
-		String nextSql = sqlConfig.getShowNextSiblingsSql(bbTestOpt.getTbName());
-		prepareStatementNxt = dbSession.createPreparedStatement(nextSql);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.transaction.BbTestTransaction#cleanRes()
-	 */
-	public void cleanRes() throws SQLException {
-		if (null != prepareStatementPre) {
-			prepareStatementPre.close();
-		}
-		if (null != prepareStatementNxt) {
-			prepareStatementNxt.close();
-		}
+		@SuppressWarnings("unused")
+		Pair<Long, Long> result = blogDAO.selSiblings(blogInfo.getUId(), 
+				blogInfo.getPublishTime());
 	}
 }
 

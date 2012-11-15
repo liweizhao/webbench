@@ -12,57 +12,38 @@
  */
 package com.netease.webbench.blogbench.thread;
 
-import com.netease.webbench.blogbench.misc.BbTestOptPair;
+import com.netease.webbench.blogbench.dao.BlogDAO;
+import com.netease.webbench.blogbench.dao.BlogDAOFactory;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
-import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.common.DbOptions;
-import com.netease.webbench.common.DbSession;
 
 /**
  * blogbench test thread
  * @author LI WEIZHAO
  */
-public abstract class BbTestThread extends Thread {	
-	/* database connection */
-	protected DbSession dbSession;
-	
-	/* database option */
-	protected DbOptions dbOpt;
-
-	/* blogbench test option */
-	protected BbTestOptions bbTestOpt;
-
-	/* query parameter generator */
-	protected ParameterGenerator paraGen;
-	
-	protected ThreadBarrier barrier;
-	
-	/* if thread is suspend */
-	protected boolean isWaiting = false;
-	
+public abstract class BbTestThread extends Thread {
+	protected final ThreadBarrier barrier;
+	protected volatile boolean isWaiting = false;
 	/* thread error code when exit, 0 for normal exit */
-	protected int exitErrorCode = 0;
+	protected volatile int exitErrorCode = 0;
 	
-	protected BbTestThread(BbTestOptPair bbTestOptPair, ParameterGenerator paraGen, ThreadBarrier barrier) throws Exception {
-		this.dbOpt = bbTestOptPair.getDbOpt();
-		
-		this.bbTestOpt = bbTestOptPair.getBbTestOpt();
-		
-		//create database connection with database options
-		dbSession = new DbSession(dbOpt);
-		
-		dbSession.setClientCharaSet();
-		
-		this.paraGen = paraGen;
-		
+	protected DbOptions dbOpt;
+	protected BbTestOptions bbTestOpt;
+	protected BlogDAO blogDao;
+
+	protected BbTestThread(ThreadBarrier barrier,
+			DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception {
+		this.dbOpt = dbOpt;
+		this.bbTestOpt = bbTestOpt;
 		this.barrier = barrier;
+		this.blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
 	}
 
 	/**
 	 * suspend thread
 	 * @throws InterruptedException
 	 */
-	protected void myWait() throws InterruptedException {
+	protected final void myWait() throws InterruptedException {
 		if (barrier != null) {
 			setIsWaiting(true);
 			barrier.waitBarrier();
@@ -74,7 +55,7 @@ public abstract class BbTestThread extends Thread {
 	 * check thread is suspend
 	 * @return
 	 */
-	public synchronized boolean isWaiting() {
+	public final boolean isWaiting() {
 		return isWaiting;
 	}
 	
@@ -82,7 +63,7 @@ public abstract class BbTestThread extends Thread {
 	 * set is waiting
 	 * @param isWaiting
 	 */
-	protected synchronized void setIsWaiting(boolean isWaiting) {
+	protected final void setIsWaiting(boolean isWaiting) {
 		this.isWaiting = isWaiting;
 	}
 	
@@ -90,7 +71,7 @@ public abstract class BbTestThread extends Thread {
 	 * get exit error code
 	 * @return
 	 */
-	public int getErrorCode() {
+	public final int getErrorCode() {
 		return exitErrorCode;
 	}
 }

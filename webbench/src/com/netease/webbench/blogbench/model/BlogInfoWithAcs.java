@@ -10,34 +10,49 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.transaction;
+package com.netease.webbench.blogbench.model;
 
-import java.sql.SQLException;
-
-import com.netease.webbench.blogbench.blog.Blog;
-import com.netease.webbench.blogbench.blog.LightBlog;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
- * Interface for fetch blog from database
- * @author LI WEIZHAO
+ *  Blog information with access count
+ *  @author LI WEIZHAO
  */
-
-public interface BlogDBFetcher {
+public class BlogInfoWithAcs extends BlogIdPair implements Externalizable {
 	/**
-	 * get whole blog record, include blog content
-	 * @param blogId
-	 * @param UserId
-	 * @return
-	 * @throws SQLException
+	 * 
 	 */
-	public Blog getWholeBlog(long blogId, long UserId) throws SQLException;
+	private static final long serialVersionUID = 7401561746629562488L;
+	private int blogAcs = 0;
 	
-	/**
-	 * get light blog record, except blog content
-	 * @param blogId
-	 * @param UserId
-	 * @return
-	 * @throws SQLException
-	 */
-	public LightBlog getLightBlog(long blogId, long UserId) throws SQLException;
+	public BlogInfoWithAcs() {
+		super(0, 0);
+		this.blogAcs = 0;
+	}
+	
+	public BlogInfoWithAcs(long blogId, long uId, int acs) {
+		super(blogId, uId);
+		this.blogAcs = acs;
+	}
+
+	public int getBlogAcs() {
+		return blogAcs;
+	}
+
+	public void setBlogAcs(int blogAcs) {
+		this.blogAcs = blogAcs;
+	} 
+	
+	public void readExternal(ObjectInput in) throws IOException {
+		super.readExternal(in);
+		blogAcs = in.readInt();
+	}
+	
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		out.writeInt(blogAcs);
+	}
 }

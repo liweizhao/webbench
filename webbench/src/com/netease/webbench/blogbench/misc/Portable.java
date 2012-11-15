@@ -129,14 +129,4 @@ public class Portable {
 			throw new IllegalArgumentException("Unsurported or invalid dabase type specified!");
 		}	
 	}
-
-	/**
-	 * get name of blog content table
-	 * just add suffix to blog table name
-	 * @param tableName blog table name
-	 * @return
-	 */
-	public static String getBlogContentTableName(String tableName) {
-		return "" + tableName + CONTENT_TABLE_SUFFIX;
-	}
 }

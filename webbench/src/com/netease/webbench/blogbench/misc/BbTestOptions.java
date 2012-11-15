@@ -12,7 +12,6 @@
  */
 package com.netease.webbench.blogbench.misc;
 
-import com.netease.webbench.blogbench.operation.BlogbenchOperationType;
 
 
 /**
@@ -22,8 +21,6 @@ import com.netease.webbench.blogbench.operation.BlogbenchOperationType;
 public class BbTestOptions {
 	public static enum ActionType { LOAD, RUN };
 	
-	/* name of test table */
-	private String tbName;
 	/* size of test table */
 	private long tbSize;
 	/* storage engine of test table, only for mysql */
@@ -100,7 +97,7 @@ public class BbTestOptions {
 	private boolean useTwoTable;
 	
 	/* blogbench test operation */
-	private BlogbenchOperationType operType;
+	private String operType;
 	
 	private boolean createTable;
 	private boolean parallelDml;
@@ -109,7 +106,6 @@ public class BbTestOptions {
 	 * constructor
 	 */
 	public BbTestOptions() {
-		tbName = "Blog";
 		tbSize = 1000000;
 		tbEngine = "innodb";
 		ntseCreateTblArgs = "\"\"";
@@ -152,12 +148,6 @@ public class BbTestOptions {
 		parallelDml = false;
 	}
 	
-	public String getTbName() {
-		return tbName;
-	}
-	public void setTbName(String tbName) {
-		this.tbName = tbName;
-	}
 	public long getTbSize() {
 		return tbSize;
 	}
@@ -347,11 +337,11 @@ public class BbTestOptions {
 		this.pctUpdateComment = pctUpdateComment;
 	}
 
-	public BlogbenchOperationType getOperType() {
+	public String getOperType() {
 		return operType;
 	}
 
-	public void setOperType(BlogbenchOperationType operType) {
+	public void setOperType(String operType) {
 		this.operType = operType;
 	}
 

@@ -13,6 +13,7 @@
 package com.netease.webbench.blogbench.thread;
 
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /** 
@@ -46,7 +47,7 @@ public class ThreadBarrier {
 		}	
 	}
 
-	public ReentrantLock getSyncLock() {
+	public Lock getSyncLock() {
 		return syncLock;
 	}
 }

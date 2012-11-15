@@ -51,7 +51,7 @@ public class PeriodNodes implements Iterable<PeriodNodes.TimeNode> {
 		return timeValueList.size() > 0 ? timeValueList.get(timeValueList.size() - 1).time : -1;
 	}
 	
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	public Iterator iterator() {
         return new InnerIterator();
     }

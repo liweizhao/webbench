@@ -10,52 +10,27 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench.blogbench.blog;
-
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+package com.netease.webbench.blogbench.rdbms.sql;
 
 /**
- * Blog id and user id pair
+ * SQL statement
  * @author LI WEIZHAO
+ *
  */
-public class BlogIdPair  implements Externalizable {	
-	/* blog Id */
-	protected long blogId;
-
-	/* user Id */
-	protected long uId;
+public class SQLStatement {
+	private SQLStatementMeta stmtMeta;
+	private String sqlStmt;
 	
-	public BlogIdPair(long blogId, long uId) {
-		this.blogId = blogId;
-		this.uId = uId;
+	public SQLStatement(String name, boolean useTwoTables, String sqlStmt) {
+		this.stmtMeta = new SQLStatementMeta(name, useTwoTables);
+		this.sqlStmt = sqlStmt;
 	}
 	
-	public long getBlogId() {
-		return blogId;
-	}
-
-	public void setBlogId(long blogId) {
-		this.blogId = blogId;
+	public String getSqlStmt() {
+		return sqlStmt;
 	}
 	
-	public long getUId() {
-		return uId;
+	public SQLStatementMeta getStatementMeta() {
+		return stmtMeta;
 	}
-
-	public void setUId(long id) {
-		uId = id;
-	}
-	
-	public void readExternal(ObjectInput in) throws IOException {
-		blogId = in.readLong();
-		uId = in.readLong();
-	}
-	
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(blogId);
-		out.writeLong(uId);
-	}	
 }
