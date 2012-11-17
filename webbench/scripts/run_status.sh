@@ -9,8 +9,9 @@
 # @post:
 # output report files.
 #
-# @author niemingjun@163.org liweizhao@corp.netease.com
-# @date August 5th, 2009
+# @AUTHOR "LI WEIZHAO"
+# @CONTACT "rickylee86#gmail.com"
+# @DATE "2012-11-17"
 #
 
 

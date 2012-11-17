@@ -271,7 +271,7 @@ __END__
 
 =head1 AUTHOR
 
-Li Weizhao <liweizhao@corp.netease.com>
+Li Weizhao <rickylee86#gmail.com>
 
 =head1 COPYRIGHT
 
