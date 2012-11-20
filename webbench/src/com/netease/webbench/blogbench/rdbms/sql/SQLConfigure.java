@@ -32,7 +32,9 @@ public interface SQLConfigure {
 
 	public abstract String getBlogContentSql() throws IllegalArgumentException;
 
-	public abstract String getDropTblSql() throws IllegalArgumentException;
+	public abstract String getDropBlogTblSql() throws IllegalArgumentException;
+	
+	public abstract String getDropContentTblSql() throws IllegalArgumentException;
 
 	public abstract String getSetEncodingSql(String charSet) throws IllegalArgumentException;
 
@@ -42,8 +44,10 @@ public interface SQLConfigure {
 
 	public abstract String getQueryAllBlogSql() throws IllegalArgumentException;
 
-	public abstract String getCreatePrimaryIndexSql() throws IllegalArgumentException;
+	public abstract String getCreateBlogTblPrimaryIndexSql() throws IllegalArgumentException;
 
+	public abstract String getCreateContentTblPrimaryIndexSql() throws IllegalArgumentException;
+	
 	public abstract String getCreateSecondaryIndexSql() throws IllegalArgumentException;
 
 	public abstract String getBatchQueryBlogSql() throws IllegalArgumentException;

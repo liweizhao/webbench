@@ -178,8 +178,15 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getDropTblSql(java.lang.String)
 	 */
 	@Override
-	public String getDropTblSql()  throws IllegalArgumentException {
-		return getStatement(dbType, "drop-table");
+	public String getDropBlogTblSql()  throws IllegalArgumentException {
+		return getStatement(dbType, "drop-blog-table");
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.netease.webbench.blogbench.rdbms.sql.SQLConfigure#getDropContentTblSql()
+	 */
+	public String getDropContentTblSql()  throws IllegalArgumentException {
+		return getStatement(dbType, "drop-content-table");
 	}
 	
 	/* (non-Javadoc)
@@ -221,8 +228,13 @@ public class SQLXMLConfigure implements SQLConfigure {
 	 * @see com.netease.webbench.blogbench.sql.SQLConfigure#getCreatePrimaryIndexSql(java.lang.String)
 	 */
 	@Override
-	public String getCreatePrimaryIndexSql() throws IllegalArgumentException {
+	public String getCreateBlogTblPrimaryIndexSql() throws IllegalArgumentException {
 		return "ALTER TABLE Blog ADD PRIMARY KEY(ID)";
+	}
+	
+	@Override
+	public String getCreateContentTblPrimaryIndexSql() throws IllegalArgumentException {
+		return "ALTER TABLE BlogContent ADD PRIMARY KEY(ID)";
 	}
 	
 	/* (non-Javadoc)

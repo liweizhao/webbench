@@ -14,8 +14,11 @@ package com.netease.webbench.blogbench.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 /**
@@ -23,7 +26,7 @@ import java.io.ObjectOutputStream;
  * @author LI WEIZHAO
  */
 
-public class Blog {
+public class Blog implements Externalizable {
 	private LightBlog lightBlog;
 	private BlogContent content;
 	
@@ -99,7 +102,7 @@ public class Blog {
 		this.lightBlog.setAllowView(allowView);
 	}
 	public int getAccessCount() {
-		return lightBlog.getAllowView();
+		return lightBlog.getAccessCount();
 	}
 	public void setAccessCount(int accessCount) {
 		this.lightBlog.setAccessCount(accessCount);
@@ -124,14 +127,13 @@ public class Blog {
 	 * @return
 	 * @throws IOException
 	 */
-	public byte[] writeToBytes() throws  IOException {
-	    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		ObjectOutputStream out = new ObjectOutputStream(bout);
-		
-		out.write(this.lightBlog.writeToBytes());
-		this.content.writeExternal(out);
-		
-		return bout.toByteArray();
+	public void writeExternal(ObjectOutput out) throws  IOException {	
+		try {
+			this.lightBlog.writeExternal(out);
+			this.content.writeExternal(out);
+		} finally {
+			out.close();
+		}
 	}
 	
 	
@@ -141,16 +143,25 @@ public class Blog {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean readFromBytes(byte[] bytes) throws IOException {
-		if (bytes == null) {
-			return false;
+	public void readExternal(ObjectInput in) throws IOException {		
+		try {
+			this.lightBlog.readExternal(in);
+			this.content.readExternal(in);
+		} finally {
+			in.close();
 		}
-	    ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-		ObjectInputStream in = new ObjectInputStream(bin);	
-		
-		if (!this.lightBlog.readFromBytes(bytes))
-			return false;
-		this.content.readExternal(in);
-		return true;
+	}
+	
+	public byte[] writeToBytes() throws IOException {
+	    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		ObjectOutputStream out = new ObjectOutputStream(bout);
+		writeExternal(out);
+		return bout.toByteArray();
+	}
+	
+	public void readFromBytes(byte [] arr) throws IOException {
+		ByteArrayInputStream bin = new ByteArrayInputStream(arr);
+		ObjectInputStream in = new ObjectInputStream(bin);
+		readExternal(in);
 	}
 }

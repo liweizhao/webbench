@@ -19,7 +19,6 @@ import java.util.Timer;
 import com.netease.webbench.blogbench.dao.DataLoader;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.LoadProgressTask;
-import com.netease.webbench.blogbench.statis.LoadDataStatis;
 import com.netease.webbench.common.DbOptions;
 
 /**
@@ -62,8 +61,7 @@ public class BlogbenchLoadOperation extends BlogbenchOperation  {
 			dataLoader.load();	
 			removeProgressBar(true);
 			
-			dataLoader.post();			
-			printStatistics();
+			dataLoader.post();
 		} catch (Exception e) {
 			removeProgressBar(false);
 			System.err.println("Failed to load data!");
@@ -100,20 +98,5 @@ public class BlogbenchLoadOperation extends BlogbenchOperation  {
 			Thread.sleep(10);
 		}
 		loadProgressTimer.cancel();
-	}
-	
-	/**
-	 *  print statistics
-	 */
-	private void printStatistics() {
-		LoadDataStatis statis = dataLoader.getStatistics();
-		System.out.println("Total time waste:  " 
-				+ statis.getTotalTimeWaste() + "  milliseconds");
-		System.out.println("Create table waste: " 
-				+ statis.getCreateTableTimeWaste() + "  milliseconds");
-		System.out.println("Load data waste: " + statis.getLoadDataTimeWaste() 
-				+ "  milliseconds");
-		System.out.println("Create index waste: " + statis.getCreateIndexTimeWaste()
-				+ "  milliseconds");
 	}
 }

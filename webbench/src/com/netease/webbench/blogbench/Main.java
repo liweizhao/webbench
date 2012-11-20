@@ -13,7 +13,6 @@
 package com.netease.webbench.blogbench;
 
 import com.netease.webbench.WebbenchTest;
-import com.netease.webbench.blogbench.rdbms.RdbmsBlogbenchTest;
 
 /**
  * blogbench main class
@@ -25,15 +24,15 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub		
 		try {
-			WebbenchTest test = new RdbmsBlogbenchTest();
+			String testClass = "com.netease.webbench.blogbench.rdbms.BlogbenchRdbmsTest";
+			WebbenchTest test = (WebbenchTest)Class.forName(testClass).newInstance();
 
 			test.setUp(args);
 			
 			test.run();
 			
-			test.tearDown();		
+			test.tearDown();
 		} catch (Exception e) {
 			System.out.println("\nFatal error! Please see error message for more detail!");
 			e.printStackTrace();

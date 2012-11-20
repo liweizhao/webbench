@@ -69,7 +69,7 @@ public class DbSession {
 		return con.getAutoCommit();
 	}
 	
-	public void setAutoCommit(boolean autoCommit) throws Exception {
+	public void setAutoCommit(boolean autoCommit) throws SQLException {
 		con.setAutoCommit(autoCommit);
 	}
 

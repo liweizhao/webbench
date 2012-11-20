@@ -38,9 +38,9 @@ public class RdbmsBlogDao implements BlogDAO {
 	public static final int MULTI_INSERT_ROWS = 2000;
 	public static final int BATCH_FETCH_SIZE = 10000;
 	
-	private DbSession dbSession;
-	private Map<String, PreparedStatement> preStmtMap;
-	private SQLConfigure sqlConfig;
+	protected DbSession dbSession;
+	protected Map<String, PreparedStatement> preStmtMap;
+	protected SQLConfigure sqlConfig;
 	
 	public RdbmsBlogDao(DbSession dbSession) {
 		this.dbSession = dbSession;
@@ -49,7 +49,7 @@ public class RdbmsBlogDao implements BlogDAO {
 				dbSession.getDbOpt().getDbType());
 	}
 	
-	private PreparedStatement getPreparedStatement(String queryMethod, String sql) 
+	protected PreparedStatement getPreparedStatement(String queryMethod, String sql) 
 			throws SQLException {
 		PreparedStatement ps = (PreparedStatement)preStmtMap.get(queryMethod);
 		if (ps == null) {
@@ -118,7 +118,7 @@ public class RdbmsBlogDao implements BlogDAO {
 		PreparedStatement ps2 = getPreparedStatement("selSiblings-post",
 				sqlConfig.getShowNextSiblingsSql());
 		ps1.setLong(1, time);
-		ps1.setLong(2, uId);			
+		ps1.setLong(2, uId);	
 		ps2.setLong(1, time);
 		ps2.setLong(2, uId);
 		

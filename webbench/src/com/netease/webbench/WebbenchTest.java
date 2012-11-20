@@ -2,9 +2,9 @@ package com.netease.webbench;
 
 public interface WebbenchTest {
 	
-	public void setUp(String[] args) throws Exception;
+	public abstract void setUp(String[] args) throws Exception;
 	
 	public abstract void run() throws Exception;
 	
-	public void tearDown();
+	public abstract void tearDown() throws Exception;
 }

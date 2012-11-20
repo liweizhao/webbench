@@ -31,7 +31,7 @@ public class BlgRecordProducer extends Thread {
 	
 	private BlockingQueue<Blog> blockingQueue;
 	private int queueMaxSize = DEFAULT_QUEUE_SIZE;
-	private long produceNum;
+	private final long produceNum;
 	private long hasProduced = 0;
 	private volatile boolean shouldExit = false;
 	

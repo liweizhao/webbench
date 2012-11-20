@@ -14,16 +14,12 @@ package com.netease.webbench.blogbench.rdbms;
 
 import java.sql.SQLException;
 
-import com.netease.webbench.blogbench.dao.DataLoader;
+import com.netease.webbench.blogbench.dao.SimpleDataLoader;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.misc.ntse.NtseSpecialOper;
 import com.netease.webbench.blogbench.rdbms.sql.SQLConfigure;
 import com.netease.webbench.blogbench.rdbms.sql.SQLConfigureFactory;
-import com.netease.webbench.blogbench.statis.LoadDataStatis;
-import com.netease.webbench.blogbench.thread.BbTestInsertThread;
-import com.netease.webbench.blogbench.thread.BlgRecordProducer;
-import com.netease.webbench.blogbench.thread.ThreadBarrier;
 import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.Util;
@@ -33,29 +29,13 @@ import com.netease.webbench.common.Util;
  * @author LI WEIZHAO
  *
  */
-public class RdbmsDataLoader implements DataLoader {
-	/* default number of threads to execute insert */
-	public static final int DEFAULT_INSERT_THREAD_CNT = 8;
-
-	/* insert threads group */
-	private BbTestInsertThread[] insertThrdGrp = null;
-	
-	private DbOptions dbOpt;
-	private BbTestOptions bbTestOpt;
-	private ParameterGenerator paraGen;
+public class RdbmsDataLoader extends SimpleDataLoader {
 	private DbSession dbSession;
-	private final LoadDataStatis statis;
-	
-	private BlgRecordProducer producer = null;
-	private boolean isLoadSuccessful = false;
 	
 	public RdbmsDataLoader(DbOptions dbOpt, BbTestOptions bbTestOpt,
 			ParameterGenerator paraGen) throws Exception {
-		this.dbOpt = dbOpt;
-		this.bbTestOpt = bbTestOpt;
+		super(dbOpt, bbTestOpt, paraGen);		
 		this.dbSession = new DbSession(dbOpt);
-		this.statis = new LoadDataStatis();
-		this.paraGen = paraGen;
 	}
 	
 	public void pre() throws Exception {
@@ -72,30 +52,13 @@ public class RdbmsDataLoader implements DataLoader {
 			statis.addCreateTableTimeWaste(Util.currentTimeMillis() - timeStart);
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.misc.DataLoader#load()
-	 */
-	@Override
-	public void load() throws Exception {
-		// TODO Auto-generated method stub
-		producer = new BlgRecordProducer(paraGen, bbTestOpt.getTbSize());
-		producer.start();
-		
-		//create insert threads and load data
-		isLoadSuccessful = createThreadsAndLoadData(producer);
-	}
 	
 	public void post() throws Exception {
+		super.post();
+		
 		if (isLoadSuccessful) {
-			if (producer != null)
-				producer.join();
-		
-			System.out.println("\n\nSuccessful to insert all "
-					+ bbTestOpt.getTbSize() + " records!");
-
 			long timeStart = Util.currentTimeMillis();
-		
+			
 			//if defer creating index is set,  create primary index and secondary index
 			if (bbTestOpt.isCreateTable() && bbTestOpt.isDeferIndex()) {
 				createPrimaryKey();
@@ -104,18 +67,29 @@ public class RdbmsDataLoader implements DataLoader {
 		
 			/* calculate time wastes */
 			statis.addCreateIndexTimeWaste( Util.currentTimeMillis() - timeStart);
-
+	
 			if (dbOpt.getDbType().equalsIgnoreCase("mysql") && bbTestOpt.getTbEngine().equalsIgnoreCase("ntse")) {
 				//only for MySQL NTSE storage engine, execute addition statement
 				NtseSpecialOper.excNonStandartStmt(dbSession, dbOpt, bbTestOpt);
 			}
-		} else {
-			if (producer != null)
-				producer.forceExit();
-			throw new Exception("Load data failed!");
 		}
+		
+		printStatistics();
 	}
 	
+	/**
+	 *  print statistics
+	 */
+	private void printStatistics() {
+		System.out.println("Total time waste:  " 
+				+ statis.getTotalTimeWaste() + "  milliseconds");
+		System.out.println("Create table waste: " 
+				+ statis.getCreateTableTimeWaste() + "  milliseconds");
+		System.out.println("Load data waste: " + statis.getLoadDataTimeWaste() 
+				+ "  milliseconds");
+		System.out.println("Create index waste: " + statis.getCreateIndexTimeWaste()
+				+ "  milliseconds");
+	}
 	
 	/**
 	 * create test table
@@ -156,11 +130,11 @@ public class RdbmsDataLoader implements DataLoader {
 			System.out.print("Drop old test table...");
 			
 			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-			dbSession.update(sqlConfig.getDropTblSql());
+			dbSession.update(sqlConfig.getDropBlogTblSql());
 			System.out.println("OK!");
 			if (bbTestOpt.getUseTwoTable()) {
 				System.out.print("Drop old test table...");
-				dbSession.update(sqlConfig.getDropTblSql());
+				dbSession.update(sqlConfig.getDropContentTblSql());
 				System.out.println("OK!");
 			}
 		} catch (SQLException e) {
@@ -186,11 +160,11 @@ public class RdbmsDataLoader implements DataLoader {
 		System.out.println("Creating primary index on table...");
 
 		SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
-		String createPrimarySql = sqlConfig.getCreatePrimaryIndexSql();
+		String createPrimarySql = sqlConfig.getCreateBlogTblPrimaryIndexSql();
 		dbSession.update(createPrimarySql);
 		
 		if (bbTestOpt.getUseTwoTable()) {
-			String createContentPrimarySql = sqlConfig.getCreatePrimaryIndexSql();
+			String createContentPrimarySql = sqlConfig.getCreateContentTblPrimaryIndexSql();
 			dbSession.update(createContentPrimarySql);
 		}
 
@@ -208,98 +182,6 @@ public class RdbmsDataLoader implements DataLoader {
 		dbSession.update(createIndexSql);
 		System.out.println("OK!");	
 	}
-
-	/**
-	 * create insert threads group and load data
-	 * @return is loading data successful ?
-	 * @throws Exception 
-	 */
-	private boolean createThreadsAndLoadData(BlgRecordProducer producer) throws Exception {		
-		int insertThrdCnt = bbTestOpt.getLoadThreads();
-		ThreadBarrier barrier = new ThreadBarrier();
-		createInsertThrdGrp(insertThrdCnt, barrier, producer);
-		
-		int index = 0;
-		while (index < insertThrdCnt) {
-			if (bbTestOpt.isDebug()) {
-				if (insertThrdGrp[index] == null)
-					throw new Exception("Create insert thread  " + index + " failed!");
-			}
-			if (insertThrdGrp[index].isWaiting()) {
-				index++;
-			} else {
-				Thread.sleep(50);
-			}
-		}
-		
-		long start = Util.currentTimeMillis();
-		
-		//wake up all threads to work
-		barrier.removeBarrier();
-		
-		//wait for all insert threads to exit
-		boolean caughtErr = false;
-		for (int i = 0; i < insertThrdCnt; i++) {
-			insertThrdGrp[i].join();
-			insertThrdGrp[i].clean();
-			if (0 != insertThrdGrp[i].getErrorCode())
-				caughtErr = true;
-		}
-		
-		statis.addLoadDataTimeWaste(Util.currentTimeMillis() - start);		
-		return !caughtErr;
-	}
-	
-	/**
-	 *  create insert threads group
-	 *  @param thrdCnt
-	 *  @param barrier
-	 *  @return
-	 */
-	private void createInsertThrdGrp(int thrdCnt, ThreadBarrier barrier, BlgRecordProducer producer) throws Exception {	
-		if (thrdCnt < 1) {
-			throw new Exception("Number of load threads can't be " + thrdCnt + "!");
-		}
-		insertThrdGrp = new BbTestInsertThread[thrdCnt];
-		
-		long rcdToInsert = bbTestOpt.getTbSize() / thrdCnt;
-		
-		for (int i = 0; i < thrdCnt; i++) {
-			long r = rcdToInsert;
-			if (i == 0) {
-				r = rcdToInsert + bbTestOpt.getTbSize() % thrdCnt;
-			}
-			insertThrdGrp[i] = new BbTestInsertThread(dbOpt, bbTestOpt, 
-					r, barrier, producer);
-			insertThrdGrp[i].start();
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.netease.webbench.blogbench.misc.LoadProgress#getProgress()
-	 */
-	public double getProgress() throws Exception {
-		return getRecordInserted() * 1.0 / bbTestOpt.getTbSize(); 
-	}
-	
-	/**
-	 * get number of blog records already inserted
-	 * @return
-	 * @throws Exception
-	 */
-	public long getRecordInserted() throws Exception {
-		long recordInserted = 0;
-		if (insertThrdGrp != null) {
-			for (int i = 0; i <  bbTestOpt.getLoadThreads(); i++) {
-				if (insertThrdGrp[i] != null) 
-					recordInserted += insertThrdGrp[i].getRecordInserted();
-			}
-			if (bbTestOpt.isDebug() && recordInserted > bbTestOpt.getTbSize()) {
-				throw new Exception("Wrong num of records inserted!" + recordInserted);
-			}
-		}
-		return recordInserted;
-	}
 	
 	/* (non-Javadoc)
 	 * @see com.netease.webbench.blogbench.misc.DataLoader#getLoadSummary()
@@ -315,10 +197,5 @@ public class RdbmsDataLoader implements DataLoader {
 			.append("Load data waste: " + statis.getLoadDataTimeWaste() + "  milliseconds\n")
 			.append("Create index waste: " + statis.getCreateIndexTimeWaste() 	+ "  milliseconds\n");
 		return buf.toString();
-	}
-
-	@Override
-	public LoadDataStatis getStatistics() {
-		return statis;
 	}
 }

@@ -12,11 +12,10 @@
  */
 package com.netease.webbench.blogbench.model;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.netease.webbench.blogbench.misc.Portable;
 
@@ -25,7 +24,7 @@ import com.netease.webbench.blogbench.misc.Portable;
  * @author LI WEIZHAO
  */
 
-public class LightBlog implements Comparable<LightBlog> {
+public class LightBlog implements Comparable<LightBlog>, Externalizable {
 	private long blogId;
 	private long uId;	
 	private String title;
@@ -110,13 +109,9 @@ public class LightBlog implements Comparable<LightBlog> {
 	
 	/**
 	 * serialize blog to byte array
-	 * @return
 	 * @throws IOException
 	 */
-	public byte[] writeToBytes() throws  IOException {
-	    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		ObjectOutputStream out = new ObjectOutputStream(bout);
-		
+	public void writeExternal(ObjectOutput out) throws  IOException {		
 		out.writeLong(blogId);
 		out.writeLong(uId);
 		out.writeInt(allowView);
@@ -133,8 +128,6 @@ public class LightBlog implements Comparable<LightBlog> {
 		out.writeInt(tmp.length);
 		out.write(tmp, 0, tmp.length);
 		out.flush();
-				
-		return bout.toByteArray();
 	}
 	
 	
@@ -144,13 +137,7 @@ public class LightBlog implements Comparable<LightBlog> {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean readFromBytes(byte[] bytes) throws IOException {
-		if (bytes == null) {
-			return false;
-		}
-	    ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-		ObjectInputStream in = new ObjectInputStream(bin);	
-		
+	public void readExternal(ObjectInput in) throws IOException {		
 		blogId = in.readLong();
 		uId = in.readLong();
 		allowView = in.readInt();
@@ -167,8 +154,6 @@ public class LightBlog implements Comparable<LightBlog> {
 		tmp = new byte[len];
 		in.readFully(tmp, 0, len);
 		abs = new String(tmp, Portable.getCharacterSet());
-			
-		return true;
 	}
 	
 	public int compareTo(LightBlog another) {
@@ -199,7 +184,5 @@ public class LightBlog implements Comparable<LightBlog> {
 			return false;
 		else
 			return true;
-			
-		
 	}
 }

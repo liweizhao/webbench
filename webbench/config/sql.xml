@@ -98,8 +98,12 @@
 			INSERT INTO BlogContent (ID, UserID, Content) VALUES (?, ?, ?)
 		</sql>
 		
-		<sql name="drop-table">
+		<sql name="drop-blog-table">
 			DROP TABLE if EXISTS Blog
+		</sql>
+		
+		<sql name="drop-content-table">
+		    DROP TABLE if EXISTS BlogContent
 		</sql>
 		
 		<sql name="set-encoding">
@@ -216,8 +220,12 @@
 			INSERT INTO BlogContent (ID, UserID, Content) VALUES (?, ?, ?)
 		</sql>
 		
-		<sql name="drop-table">
+		<sql name="drop-blog-table">
 			DROP TABLE Blog
+		</sql>
+		
+		<sql name="drop-content-table">
+		    DROP TABLE BlogContent
 		</sql>
 		
 		<sql name="create-blog-table" twoTables="false">
@@ -330,8 +338,12 @@
 			INSERT INTO BlogContent (ID, UserID, Content) VALUES (?, ?, ?)
 		</sql>
 		
-		<sql name="drop-table">
+		<sql name="drop-blog-table">
 			DROP TABLE Blog
+		</sql>
+		
+		<sql name="drop-content-table">
+		    DROP TABLE BlogContent
 		</sql>
 			
 		<sql name="set-encoding">

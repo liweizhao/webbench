@@ -1,23 +1,26 @@
 package com.netease.webbench.blogbench;
 
+import java.io.File;
+
 import com.netease.util.Pair;
 import com.netease.webbench.WebbenchTest;
 import com.netease.webbench.blogbench.misc.BbTestOptParser;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
+import com.netease.webbench.blogbench.operation.BlogbenchOperType;
+import com.netease.webbench.blogbench.operation.BlogbenchOperation;
 import com.netease.webbench.common.DbOptParser;
 import com.netease.webbench.common.DbOptions;
 
 public abstract class BlogbenchTest implements WebbenchTest {
 	protected BbTestOptions bbTestOpt;
 	protected DbOptions dbOpt;
-	protected final String testName;
 	
-	public BlogbenchTest(String testName) {
-		this.testName = testName;
+	public BlogbenchTest() {
 	}
 	
 	@Override
 	public void setUp(String[] args) throws Exception {
+		System.out.println("Blogbench test is initilizing...");
 		parseArgs(args);
 	}
 	
@@ -26,7 +29,49 @@ public abstract class BlogbenchTest implements WebbenchTest {
 	}
 	
 	@Override
-	public abstract void run() throws Exception;
+	public void run() throws Exception {		
+		/* make directory of test report */
+		makeReportDir();
+		
+		BlogbenchOperType operType = BlogbenchOperType.LOAD;
+		String operTypeStr = bbTestOpt.getOperType();
+		if ("load".compareToIgnoreCase(operTypeStr) == 0)
+			operType = BlogbenchOperType.LOAD;
+		else if ("run".compareToIgnoreCase(operTypeStr) == 0)
+			operType = BlogbenchOperType.RUN;
+		else
+			throw new IllegalArgumentException("Illegal operation type: " + operTypeStr);
+		
+		BlogbenchOperation oper = createOper(operType);
+		oper.execute();
+	}
+	
+	public abstract BlogbenchOperation createOper(BlogbenchOperType type) throws Exception;
+	
+	/**
+	 * create test result directory
+	 * @throws Exception create report directory failed
+	 */
+	protected void makeReportDir() throws Exception {
+		String reportDirPath = bbTestOpt.getReportDir();
+		File reportDir = new File(reportDirPath);
+		if (reportDir.exists() && !reportDir.isDirectory()) {
+			throw new Exception("A file of the same name with the specified report " +
+					"directory exists, please specify another report directory name!");
+		} else if (!reportDir.exists()) {
+			System.out.print("Report directory doesn't exist, now create it...");
+			if (reportDir.mkdirs()) {
+				System.out.println("done.");
+			} else {
+				throw new Exception("Failed to make directories:" + reportDir.getName());
+			}
+		}
+		String blogbenchPath = bbTestOpt.getReportDir() + "/blogbench-tmp";
+		File blogbenchDir = new File(blogbenchPath);
+		if (!blogbenchDir.exists() && !blogbenchDir.mkdir()) {
+			throw new Exception("Faild to create blogbench test results saved diretory!");
+		}
+	}
 	
 	/**
 	 * parse database options from command line arguments
@@ -61,7 +106,7 @@ public abstract class BlogbenchTest implements WebbenchTest {
 	protected void parseArgs(String[] args) throws IllegalArgumentException {
 		// TODO Auto-generated method stub
 		
-		try {	
+		try {
 			String[] unparseArgs = parseDbOption(args);
 			
 			if(unparseArgs == null) {
