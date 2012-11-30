@@ -7,3 +7,5 @@ Blogbench is a database benchmark to simulate database operations of real-done b
 3. high flexibility
 
 It can be used to test whether a database is suitable for web application.
+
+See wiki pages for more detail about useage.
