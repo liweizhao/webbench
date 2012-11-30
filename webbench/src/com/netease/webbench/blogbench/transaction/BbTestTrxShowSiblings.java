@@ -12,11 +12,11 @@
  */
 package com.netease.webbench.blogbench.transaction;
 
-import com.netease.util.Pair;
 import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.model.BlogInfoWithPub;
+import com.netease.webbench.blogbench.model.SiblingPair;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
 
 /**
@@ -38,8 +38,8 @@ public class BbTestTrxShowSiblings extends BbTestTransaction {
 	public void doExecTrx(ParameterGenerator paraGen) throws Exception {
 		BlogInfoWithPub blogInfo = paraGen.getZipfRandomBlog();
 		@SuppressWarnings("unused")
-		Pair<Long, Long> result = blogDAO.selSiblings(blogInfo.getUId(), 
-				blogInfo.getPublishTime());
+		SiblingPair result = blogDAO.selSiblings(
+				blogInfo.getUId(), blogInfo.getPublishTime());
 	}
 }
 

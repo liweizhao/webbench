@@ -16,24 +16,31 @@ import java.io.File;
 
 import com.netease.util.Pair;
 import com.netease.webbench.WebbenchTest;
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptParser;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
+import com.netease.webbench.blogbench.misc.ParameterGenerator;
+import com.netease.webbench.blogbench.operation.BlogbenchLoadOperation;
 import com.netease.webbench.blogbench.operation.BlogbenchOperType;
 import com.netease.webbench.blogbench.operation.BlogbenchOperation;
+import com.netease.webbench.blogbench.operation.BlogbenchRunOperation;
 import com.netease.webbench.common.DbOptParser;
 import com.netease.webbench.common.DbOptions;
 
-public abstract class BlogbenchTest implements WebbenchTest {
+public class BlogbenchTest implements WebbenchTest {
 	protected BbTestOptions bbTestOpt;
 	protected DbOptions dbOpt;
+	protected BlogbenchPlugin plugin;
 	
-	public BlogbenchTest() {
+	public BlogbenchTest(BlogbenchPlugin plugin) {
+		this.plugin = plugin;
 	}
 	
 	@Override
 	public void setUp(String[] args) throws Exception {
 		System.out.println("Blogbench test is initilizing...");
 		parseArgs(args);
+		plugin.validateOptions(dbOpt, bbTestOpt);
 	}
 	
 	@Override
@@ -58,7 +65,24 @@ public abstract class BlogbenchTest implements WebbenchTest {
 		oper.execute();
 	}
 	
-	public abstract BlogbenchOperation createOper(BlogbenchOperType type) throws Exception;
+	public BlogbenchOperation createOper(BlogbenchOperType type) throws Exception {
+		ParameterGenerator paraGen = new ParameterGenerator();
+		BlogDAO blogDao = plugin.getBlogDaoFacory().getBlogDao(dbOpt, bbTestOpt);
+		try {
+			paraGen.init(bbTestOpt, dbOpt, blogDao);
+		} finally {
+			blogDao.close();
+			blogDao = null;
+		}
+		
+		if (type == BlogbenchOperType.LOAD) {
+			return new BlogbenchLoadOperation(dbOpt, bbTestOpt, 
+					plugin.getDataLoader(dbOpt, bbTestOpt, paraGen));
+		} else {
+			return new BlogbenchRunOperation(dbOpt, bbTestOpt, paraGen, 
+					plugin.getBlogDaoFacory());
+		}
+	}
 	
 	/**
 	 * create test result directory
@@ -116,8 +140,6 @@ public abstract class BlogbenchTest implements WebbenchTest {
 	}
 
 	protected void parseArgs(String[] args) throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		
 		try {
 			String[] unparseArgs = parseDbOption(args);
 			
@@ -147,7 +169,6 @@ public abstract class BlogbenchTest implements WebbenchTest {
 	}
 	
 	public void showHelp() {
-		// TODO Auto-generated method stub
 		System.out.println("blogbench V0.3");
 		System.out.println("Uses: \n\tjava com.netease.webbench.blogbench.Main " +
 				"OPTIONS ACTION");

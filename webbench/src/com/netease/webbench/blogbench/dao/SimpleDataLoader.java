@@ -31,17 +31,20 @@ public class SimpleDataLoader implements DataLoader {
 	protected DbOptions dbOpt;
 	protected BbTestOptions bbTestOpt;
 	protected ParameterGenerator paraGen;
+	protected BlogDaoFactory daoFactory;
+	
 	protected final LoadDataStatis statis;
 	
 	protected BlgRecordProducer producer = null;
 	protected boolean isLoadSuccessful = false;
 	
 	public SimpleDataLoader(DbOptions dbOpt, BbTestOptions bbTestOpt,
-			ParameterGenerator paraGen) {
+			ParameterGenerator paraGen, BlogDaoFactory daoFactory) {
 		this.dbOpt = dbOpt;
 		this.bbTestOpt = bbTestOpt;
 		this.statis = new LoadDataStatis();
 		this.paraGen = paraGen;
+		this.daoFactory = daoFactory;
 	}
 
 	@Override
@@ -117,7 +120,7 @@ public class SimpleDataLoader implements DataLoader {
 	 *  @param barrier
 	 *  @return
 	 */
-	protected void createInsertThrdGrp(int thrdCnt, ThreadBarrier barrier, BlgRecordProducer producer) throws Exception {	
+	private void createInsertThrdGrp(int thrdCnt, ThreadBarrier barrier, BlgRecordProducer producer) throws Exception {	
 		if (thrdCnt < 1) {
 			throw new Exception("Number of load threads can't be " + thrdCnt + "!");
 		}
@@ -131,7 +134,7 @@ public class SimpleDataLoader implements DataLoader {
 				r = rcdToInsert + bbTestOpt.getTbSize() % thrdCnt;
 			}
 			insertThrdGrp[i] = new BbTestInsertThread(dbOpt, bbTestOpt, 
-					r, barrier, producer);
+					r, barrier, producer, daoFactory.getBlogDao(dbOpt, bbTestOpt));
 			insertThrdGrp[i].start();
 		}
 	}

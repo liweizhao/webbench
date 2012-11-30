@@ -22,15 +22,11 @@ import java.io.ObjectOutput;
  *  @author LI WEIZHAO
  */
 public class BlogInfoWithAcs extends BlogIdPair implements Externalizable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7401561746629562488L;
 	private int blogAcs = 0;
 	
 	public BlogInfoWithAcs() {
-		super(0, 0);
-		this.blogAcs = 0;
+		this(0, 0, 0);
 	}
 	
 	public BlogInfoWithAcs(long blogId, long uId, int acs) {

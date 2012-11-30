@@ -21,6 +21,8 @@ import java.util.List;
 
 import sun.misc.Signal;
 
+import com.netease.webbench.blogbench.dao.BlogDAO;
+import com.netease.webbench.blogbench.dao.BlogDaoFactory;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BbPeriodSummaryTaskHandler;
@@ -56,6 +58,8 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	private RunTimeInfoCollector runTimeInfoCollector = null;
 	private ParameterGenerator paraGen;
 	
+	private BlogDaoFactory daoFacory;
+	
 	/* duration of current test */
 	private long testStartTime;
 	private long testStopTime;
@@ -67,10 +71,11 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 	 * @throws Exception
 	 */
 	public BlogbenchRunOperation(DbOptions dbOpt, BbTestOptions bbTestOpt,
-			ParameterGenerator paraGen) throws Exception {
+			ParameterGenerator paraGen, BlogDaoFactory daoFacory) throws Exception {
 		super(BlogbenchOperType.RUN, dbOpt, bbTestOpt);
 		this.blogbenchCounters = new BlogbenchCounters(BbTestTrxType.TRX_TYPE_NUM);
 		this.paraGen = paraGen;
+		this.daoFacory = daoFacory;
 	}
 	
 	/*
@@ -94,8 +99,9 @@ public class BlogbenchRunOperation extends BlogbenchOperation {
 		/* create test threads */
 		trdArr = new BbTestRunThread[bbTestOpt.getThreads()];
 		for (int i = 0; i < bbTestOpt.getThreads(); i++) {
+			BlogDAO blogDao = daoFacory.getBlogDao(dbOpt, bbTestOpt);
 			trdArr[i] = new BbTestRunThread(dbOpt, bbTestOpt,  
-					paraGen, blogbenchCounters, runFlagTimer, barrier);
+					paraGen, blogbenchCounters, runFlagTimer, barrier, blogDao);
 			trdArr[i].start();
 		}
 		

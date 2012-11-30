@@ -14,6 +14,7 @@ package com.netease.webbench.blogbench.rdbms;
 
 import java.sql.SQLException;
 
+import com.netease.webbench.blogbench.dao.BlogDaoFactory;
 import com.netease.webbench.blogbench.dao.SimpleDataLoader;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
@@ -33,8 +34,8 @@ public class RdbmsDataLoader extends SimpleDataLoader {
 	private DbSession dbSession;
 	
 	public RdbmsDataLoader(DbOptions dbOpt, BbTestOptions bbTestOpt,
-			ParameterGenerator paraGen) throws Exception {
-		super(dbOpt, bbTestOpt, paraGen);		
+			ParameterGenerator paraGen, BlogDaoFactory daoFacory) throws Exception {
+		super(dbOpt, bbTestOpt, paraGen, daoFacory);		
 		this.dbSession = new DbSession(dbOpt);
 	}
 	

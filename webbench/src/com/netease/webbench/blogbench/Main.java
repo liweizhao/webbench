@@ -13,20 +13,23 @@
 package com.netease.webbench.blogbench;
 
 import com.netease.webbench.WebbenchTest;
+import com.netease.webbench.blogbench.config.BlogbenchConfig;
 
 /**
  * blogbench main class
  * @author LI WEIZHAO
  */
 
-public class Main {	
+public class Main {
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		try {
-			String testClass = "com.netease.webbench.blogbench.rdbms.BlogbenchRdbmsTest";
-			WebbenchTest test = (WebbenchTest)Class.forName(testClass).newInstance();
+			BlogbenchPlugin plugin = (BlogbenchPlugin)Class.forName(
+					BlogbenchConfig.getInstance().getPluginClsName()).newInstance();
+			
+			WebbenchTest test = new BlogbenchTest(plugin);
 
 			test.setUp(args);
 			

@@ -42,27 +42,9 @@
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings">
-			<![CDATA[
-			SELECT ID, UserID FROM Blog WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
-			]]>
-		</sql>
-		
 		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID, Title FROM Blog WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
-			]]>
-		</sql>
-		
-		<sql name="show-next-siblings">
-			<![CDATA[
-			SELECT ID, UserID FROM Blog WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
-			]]>
-		</sql>
-				
-		<sql name="update-access">
-			<![CDATA[
-			UPDATE Blog SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
 			]]>
 		</sql>
 		
@@ -164,27 +146,9 @@
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings">
-			<![CDATA[
-			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC ) WHERE rownum=1
-			]]>
-		</sql>
-		
 		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT * FROM ( SELECT ID, UserID, Title FROM Blog WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
-			]]>
-		</sql>
-		
-		<sql name="show-next-siblings">
-			<![CDATA[
-			SELECT * FROM ( SELECT ID, UserID FROM _TableName WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC ) WHERE rownum=1
-			]]>
-		</sql>
-				
-		<sql name="update-access">
-			<![CDATA[
-			UPDATE Blog SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
 			]]>
 		</sql>
 		
@@ -282,27 +246,9 @@
 			]]>
 		</sql>
 		
-		<sql name="show-pre-siblings">
-			<![CDATA[
-			SELECT ID, UserID FROM Blog WHERE PublishTime < ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime DESC LIMIT 1
-			]]>
-		</sql>
-		
 		<sql name="show-next-siblings">
 			<![CDATA[
 			SELECT ID, UserID, Title FROM Blog WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
-			]]>
-		</sql>
-		
-		<sql name="show-next-siblings">
-			<![CDATA[
-			SELECT ID, UserID FROM Blog WHERE PublishTime > ? AND AllowView <= -100 AND UserID = ? ORDER BY PublishTime ASC LIMIT 1
-			]]>
-		</sql>
-				
-		<sql name="update-access">
-			<![CDATA[
-			UPDATE Blog SET AccessCount = ? WHERE UserID = ? AND ID = ? AND AccessCount < ?
 			]]>
 		</sql>
 		

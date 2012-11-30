@@ -21,7 +21,6 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.netease.webbench.blogbench.dao.BlogDAO;
-import com.netease.webbench.blogbench.dao.BlogDAOFactory;
 import com.netease.webbench.blogbench.misc.ntse.NTSEInitialiser;
 import com.netease.webbench.blogbench.model.Blog;
 import com.netease.webbench.blogbench.model.BlogInfoWithPub;
@@ -41,10 +40,11 @@ import com.netease.webbench.resourceReader.ResourceReader;
 public class ParameterGenerator {
 	public static final int DEFAULT_MIN_RECORDS_LIMIT = 1000;
 	
-	/* array of character for generate blog title */
-	private final static char[] TITLE = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 
-		'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
-		'w', 'x', 'y', 'z'};
+	private final static char[] TITLE_CHAR_ARR = {
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 
+		'h', 'i', 'j', 'k', 'l', 'm', 'n', 
+		'o', 'p', 'q', 'r', 's', 't', 
+		'u', 'v', 'w', 'x', 'y', 'z' };
 	
 	/* random Zipf blog index generator */
 	private ZipfGenerator blgIndexGenerator;
@@ -116,7 +116,8 @@ public class ParameterGenerator {
 	 * @param dbOpt
 	 * @throws Exception
 	 */
-	public void init(BbTestOptions opt, DbOptions dbOpt) throws Exception {
+	public void init(BbTestOptions opt, DbOptions dbOpt, BlogDAO blogDao) 
+			throws Exception {
 		System.out.println("Is initializing parameter generator...");		
 		this.bbTestOpt = opt;
 		this.dbOpt = dbOpt;
@@ -127,7 +128,7 @@ public class ParameterGenerator {
 		}
 		
 		//do real initialise work
-		doInit(opt, this.dbOpt);
+		doInit(opt, this.dbOpt, blogDao);
 		
 		if (null != initialiseHandler) {
 			initialiseHandler.doAfterInit();
@@ -141,7 +142,8 @@ public class ParameterGenerator {
 	 * @param dbOpt
 	 * @throws Exception
 	 */
-	private void doInit(BbTestOptions opt, DbOptions dbOpt) throws Exception {
+	private void doInit(BbTestOptions opt, DbOptions dbOpt, 
+			BlogDAO blogDao) throws Exception {
 		this.titleLenRange = bbTestOpt.getMaxTtlSize() - bbTestOpt.getMinTtlSize() + 1;		
 		this.absRange = bbTestOpt.getMaxAbsSize() - bbTestOpt.getMinAbsSize() + 1;
 		this.randomGenerator = new Random();
@@ -152,35 +154,30 @@ public class ParameterGenerator {
 		int pst = bbTestOpt.getAvgCntSize() - bbTestOpt.getMinCntSize();
 		double beta = 0.5 * pst ;
 		
-		BlogDAO blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
-		try {
-			if (0 == "run".compareToIgnoreCase(opt.getOperType())) {				
-				maxBlogId.set(blogDao.selBlogNums() + 1);
-				blgArr = blogDao.selAllBlogIds();
-				tableRunTimeSize = blgArr.size();
-							
-				if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-					throw new Exception("The test table contains too less records: " 
-							+ tableRunTimeSize);
-				}
-				
-				System.out.println("Fetch " + tableRunTimeSize + " records from database.");
-			} else {
-				long tableOldSize = 0;
-				if (!bbTestOpt.isCreateTable()) {
-					tableOldSize = blogDao.selBlogNums();
-					maxBlogId.set(tableOldSize + 1);
-				}
-				
-				tableRunTimeSize = tableOldSize + opt.getTbSize();
-				if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
-					throw new Exception("The table size specified is too less: " 
-							+ tableRunTimeSize + ", it should larger than " 
-							+ DEFAULT_MIN_RECORDS_LIMIT);
-				}
+		if (0 == "run".compareToIgnoreCase(opt.getOperType())) {			
+			maxBlogId.set(blogDao.selBlogNums() + 1);
+			blgArr = blogDao.selAllBlogIds();
+			tableRunTimeSize = blgArr.size();
+						
+			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
+				throw new Exception("The test table contains too less records: " 
+						+ tableRunTimeSize);
 			}
-		} finally {
-			blogDao.close();
+			
+			System.out.println("Fetch " + tableRunTimeSize + " records from database.");
+		} else {
+			long tableOldSize = 0;
+			if (!bbTestOpt.isCreateTable()) {
+				tableOldSize = blogDao.selBlogNums();
+				maxBlogId.set(tableOldSize + 1);
+			}
+			
+			tableRunTimeSize = tableOldSize + opt.getTbSize();
+			if (tableRunTimeSize < DEFAULT_MIN_RECORDS_LIMIT) {
+				throw new Exception("The table size specified is too less: " 
+						+ tableRunTimeSize + ", it should larger than " 
+						+ DEFAULT_MIN_RECORDS_LIMIT);
+			}
 		}
 		
 		blgIndexGenerator = new ZipfGenerator(opt.getBlgZipfPct(), opt
@@ -197,22 +194,24 @@ public class ParameterGenerator {
 	 * read all blog content text files and cache them
 	 * @throws IOException
 	 */	
-	private void readBlogResouceFile() throws IOException {
+	private void readBlogResouceFile() throws Exception {
 		ResourceReader blogResourceFileReader = new BlogResourceReader();
 		cntInitArr = new ArrayList<byte []>(blogResourceFileReader.getResourceFileNum());
 		for (int i = 0; i < blogResourceFileReader.getResourceFileNum(); i++) {
 			InputStream is = blogResourceFileReader.getNextFileAsIntputStream();
 			if (null == is)
-				break;
-			int streamLen = is.available();
-			byte[] buf = new byte[streamLen];
-			is.read(buf, 0, streamLen);
+				throw new Exception("Failed to read blog resource file!");
+			try {
+				int streamLen = is.available();
+				byte[] buf = new byte[streamLen];
+				is.read(buf, 0, streamLen);
 			
-			byte[] encodeBytes = new String(buf, "GBK").getBytes(
-					Portable.getCharacterSet());			
-			cntInitArr.add(encodeBytes);
-			
-			is.close();
+				byte[] encodeBytes = new String(buf, "GBK").getBytes(
+						Portable.getCharacterSet());			
+				cntInitArr.add(encodeBytes);
+			} finally {
+				is.close();
+			}
 		}
 	}
 
@@ -268,7 +267,7 @@ public class ParameterGenerator {
 		int i = 0;
 		for (; i < titleLen; i++) {
 			int index = randomGenerator.nextInt(26);
-			titleBuffer[i] = TITLE[index];
+			titleBuffer[i] = TITLE_CHAR_ARR[index];
 		}
 		String title = new String(titleBuffer, 0, i);
 		return title;

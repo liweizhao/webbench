@@ -75,7 +75,7 @@ public class Blog implements Externalizable {
 	}
 
 	public void setTitle(String title) {
-		this.setTitle(title);
+		lightBlog.setTitle(title);
 	}
 
 	public String getAbs() {

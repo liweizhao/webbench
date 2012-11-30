@@ -29,8 +29,7 @@ public class BlogInfoWithPub extends BlogIdPair implements Externalizable {
 	private long publishTime;
 	
 	public BlogInfoWithPub() {
-		super(0, 0);
-		publishTime = 0;
+		this(0, 0, 0);
 	}
 
 	public BlogInfoWithPub(long blogId, long uId, long publishTime) {

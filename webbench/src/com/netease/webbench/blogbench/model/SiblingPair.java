@@ -10,13 +10,31 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.netease.webbench;
+package com.netease.webbench.blogbench.model;
 
-public interface WebbenchTest {
+public class SiblingPair {
+	private BlogIdWithTitle pre;
+	private BlogIdWithTitle next;
 	
-	public abstract void setUp(String[] args) throws Exception;
+	public SiblingPair() {
+		this(null, null);
+	}
 	
-	public abstract void run() throws Exception;
+	public SiblingPair(BlogIdWithTitle pre, BlogIdWithTitle next) {
+		this.pre = pre;
+		this.next = next;
+	}
 	
-	public abstract void tearDown() throws Exception;
+	public BlogIdWithTitle getPre() {
+		return pre;
+	}
+	public void setPre(BlogIdWithTitle pre) {
+		this.pre = pre;
+	}
+	public BlogIdWithTitle getNext() {
+		return next;
+	}
+	public void setNext(BlogIdWithTitle next) {
+		this.next = next;
+	}
 }

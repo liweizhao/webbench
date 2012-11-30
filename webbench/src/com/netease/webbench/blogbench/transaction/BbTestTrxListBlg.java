@@ -34,7 +34,7 @@ public class BbTestTrxListBlg extends BbTestTransaction {
 	 */
 	@Override
 	public void doExecTrx(ParameterGenerator paraGen) 	throws Exception {
-		long uId = paraGen.getZipfUserId();		
+		long uId = paraGen.getZipfUserId();
 		blogDAO.selBlogList(uId);
 	}
 }

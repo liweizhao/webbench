@@ -13,7 +13,6 @@
 package com.netease.webbench.blogbench.thread;
 
 import com.netease.webbench.blogbench.dao.BlogDAO;
-import com.netease.webbench.blogbench.dao.BlogDAOFactory;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.common.DbOptions;
 
@@ -31,12 +30,12 @@ public abstract class BbTestThread extends Thread {
 	protected BbTestOptions bbTestOpt;
 	protected BlogDAO blogDao;
 
-	protected BbTestThread(ThreadBarrier barrier,
-			DbOptions dbOpt, BbTestOptions bbTestOpt) throws Exception {
+	protected BbTestThread(ThreadBarrier barrier, DbOptions dbOpt, 
+			BbTestOptions bbTestOpt, BlogDAO blogDao) throws Exception {
 		this.dbOpt = dbOpt;
 		this.bbTestOpt = bbTestOpt;
 		this.barrier = barrier;
-		this.blogDao = BlogDAOFactory.getBlogDAO(dbOpt, bbTestOpt.getUseTwoTable());
+		this.blogDao = blogDao;
 	}
 
 	/**

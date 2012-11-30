@@ -14,9 +14,9 @@ package com.netease.webbench.blogbench.dao;
 
 import java.util.List;
 
-import com.netease.util.Pair;
 import com.netease.webbench.blogbench.model.Blog;
 import com.netease.webbench.blogbench.model.BlogInfoWithPub;
+import com.netease.webbench.blogbench.model.SiblingPair;
 import com.netease.webbench.common.DynamicArray;
 
 public interface BlogDAO {
@@ -26,7 +26,7 @@ public interface BlogDAO {
 	
 	public List<Long> selBlogList(long uId) throws Exception;
 	
-	public Pair<Long, Long> selSiblings(long uId, long time) throws Exception;
+	public SiblingPair selSiblings(long uId, long time) throws Exception;
 	
 	public DynamicArray<BlogInfoWithPub> selAllBlogIds() throws Exception;
 	

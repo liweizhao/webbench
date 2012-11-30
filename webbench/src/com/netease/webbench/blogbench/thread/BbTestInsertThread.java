@@ -15,6 +15,7 @@ package com.netease.webbench.blogbench.thread;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.model.Blog;
 import com.netease.webbench.common.DbOptions;
@@ -38,8 +39,8 @@ public class BbTestInsertThread extends BbTestThread {
 	
 	public BbTestInsertThread(DbOptions dbOpt, BbTestOptions bbTestOpt, 
 			long rcdCntToInsert, ThreadBarrier barrier, 
-			BlgRecordProducer producer) throws Exception {
-		super(barrier, dbOpt, bbTestOpt);
+			BlgRecordProducer producer, BlogDAO blogDao) throws Exception {
+		super(barrier, dbOpt, bbTestOpt, blogDao);
 		this.rcdCntToInsert = rcdCntToInsert;
 		this.recordInserted = 0;
 		this.blogRcdProducer = producer;

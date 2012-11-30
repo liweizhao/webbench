@@ -20,12 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.netease.util.Pair;
 import com.netease.webbench.blogbench.dao.BlogDAO;
+import com.netease.webbench.blogbench.misc.Portable;
 import com.netease.webbench.blogbench.model.Blog;
+import com.netease.webbench.blogbench.model.BlogIdWithTitle;
 import com.netease.webbench.blogbench.model.BlogInfoWithPub;
+import com.netease.webbench.blogbench.model.SiblingPair;
 import com.netease.webbench.blogbench.rdbms.sql.SQLConfigure;
 import com.netease.webbench.blogbench.rdbms.sql.SQLConfigureFactory;
+import com.netease.webbench.common.DbOptions;
 import com.netease.webbench.common.DbSession;
 import com.netease.webbench.common.DynamicArray;
 
@@ -42,11 +45,19 @@ public class RdbmsBlogDao implements BlogDAO {
 	protected Map<String, PreparedStatement> preStmtMap;
 	protected SQLConfigure sqlConfig;
 	
-	public RdbmsBlogDao(DbSession dbSession) {
-		this.dbSession = dbSession;
+	public RdbmsBlogDao(DbOptions dbOpt) throws Exception {
+		this.dbSession = new DbSession(dbOpt);
+		// set client character encoding
+		if (dbOpt.getDbType().equalsIgnoreCase("mysql") ||
+			dbOpt.getDbType().equalsIgnoreCase("postgresql")) {
+			SQLConfigure sqlConfig = SQLConfigureFactory.getSQLConfigure(
+					dbOpt.getDbType());
+			this.dbSession.update(sqlConfig.getSetEncodingSql(
+					Portable.getCharacterSet()));
+		}
+		
 		this.preStmtMap = new HashMap<String, PreparedStatement>();
-		this.sqlConfig = SQLConfigureFactory.getSQLConfigure(
-				dbSession.getDbOpt().getDbType());
+		this.sqlConfig = SQLConfigureFactory.getSQLConfigure(dbOpt.getDbType());
 	}
 	
 	protected PreparedStatement getPreparedStatement(String queryMethod, String sql) 
@@ -112,7 +123,8 @@ public class RdbmsBlogDao implements BlogDAO {
 	 * @see com.netease.webbench.blogbench.dao.BlogDAO#selSiblings()
 	 */
 	@Override
-	public Pair<Long, Long> selSiblings(long uId, long time) throws SQLException {
+	public SiblingPair selSiblings(
+			long uId, long time) throws SQLException {
 		PreparedStatement ps1 = getPreparedStatement("selSiblings-pre",
 				sqlConfig.getShowPreSiblingsSql());
 		PreparedStatement ps2 = getPreparedStatement("selSiblings-post",
@@ -122,21 +134,28 @@ public class RdbmsBlogDao implements BlogDAO {
 		ps2.setLong(1, time);
 		ps2.setLong(2, uId);
 		
-		long idPre = -1, idNext = -1;
+		BlogIdWithTitle pre = null;
+		BlogIdWithTitle next = null;
 		ResultSet rsPre = dbSession.query(ps1);
 		ResultSet rsNext = dbSession.query(ps2);
 		try {
 			if (rsPre.next()) {
-				idPre = rsPre.getInt("ID");
+				pre = new BlogIdWithTitle();
+				pre.setBlogId(rsPre.getInt("ID"));
+				pre.setUId(rsPre.getInt("UserID"));
+				pre.setTitle(rsPre.getString("Title"));
 			}
 			if (rsNext.next()) {
-				idNext = rsNext.getInt("ID");
+				next = new BlogIdWithTitle();
+				next.setBlogId(rsNext.getInt("ID"));
+				next.setUId(rsNext.getInt("UserID"));
+				next.setTitle(rsNext.getString("Title"));
 			}
 		} finally {
 			rsPre.close();
 			rsNext.close();
 		}
-		return new Pair<Long, Long>(idPre, idNext);
+		return new SiblingPair(pre, next);
 	}
 
 	/* (non-Javadoc)

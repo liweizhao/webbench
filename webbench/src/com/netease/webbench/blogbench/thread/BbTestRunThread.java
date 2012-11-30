@@ -14,6 +14,7 @@ package com.netease.webbench.blogbench.thread;
 
 import java.sql.SQLException;
 
+import com.netease.webbench.blogbench.dao.BlogDAO;
 import com.netease.webbench.blogbench.misc.BbTestOptions;
 import com.netease.webbench.blogbench.misc.ParameterGenerator;
 import com.netease.webbench.blogbench.statis.BlogbenchCounters;
@@ -37,18 +38,12 @@ public class BbTestRunThread extends BbTestThread {
 	private ParameterGenerator paraGen;
 	
 	public BbTestRunThread(DbOptions dbOpt, BbTestOptions bbTestOpt, 
-			ParameterGenerator paraGen,	BlogbenchCounters trxCounter, 
-			ThreadRunFlagTimer runFlagTimer) throws Exception {
-		this(dbOpt, bbTestOpt, paraGen, trxCounter, runFlagTimer, null);
-	}
-	
-	public BbTestRunThread(DbOptions dbOpt, BbTestOptions bbTestOpt, 
 			ParameterGenerator paraGen,
 			BlogbenchCounters trxCounters, 
 			ThreadRunFlagTimer runFlagTimer,
-			ThreadBarrier barrier
-			) throws Exception {
-		super(barrier, dbOpt, bbTestOpt);
+			ThreadBarrier barrier,
+			BlogDAO blogDao) throws Exception {
+		super(barrier, dbOpt, bbTestOpt, blogDao);
 		this.trxCounter = trxCounters;
 		this.runFlagTimer = runFlagTimer;
 		this.trxPool = new BbTestTrxPool(blogDao, bbTestOpt, trxCounters);

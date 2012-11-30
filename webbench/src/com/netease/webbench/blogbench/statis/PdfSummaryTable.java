@@ -20,7 +20,7 @@ import com.netease.webbench.statis.TrxCounter;
  * summary table of result PDF file
  *  @author LI WEIZHAO
  */
-public class PdfSummaryTable extends PdfTable {	
+public class PdfSummaryTable extends PdfTable {
 	public PdfSummaryTable() throws Exception {
 		super("blogbench test result", "Transaction Summary");
 		

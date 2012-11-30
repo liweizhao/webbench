@@ -18,11 +18,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.netease.webbench.blogbench.model.Blog;
-import com.netease.webbench.common.DbSession;
+import com.netease.webbench.common.DbOptions;
 
 public class RdbmsBlogTwoTableDao extends RdbmsBlogDao {
-	public RdbmsBlogTwoTableDao(DbSession dbSession) {
-		super(dbSession);
+	public RdbmsBlogTwoTableDao(DbOptions dbOpt) throws Exception {
+		super(dbOpt);
 	}
 
 	@Override
