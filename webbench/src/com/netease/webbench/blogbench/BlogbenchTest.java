@@ -27,6 +27,11 @@ import com.netease.webbench.blogbench.operation.BlogbenchRunOperation;
 import com.netease.webbench.common.DbOptParser;
 import com.netease.webbench.common.DbOptions;
 
+/**
+ * blogbench test
+ * 
+ * @author LI WEIZHAO
+ */
 public class BlogbenchTest implements WebbenchTest {
 	protected BbTestOptions bbTestOpt;
 	protected DbOptions dbOpt;
